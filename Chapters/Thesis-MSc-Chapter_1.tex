@@ -1,0 +1,54 @@
+% #############################################################################
+% This is Chapter 1
+% !TEX root = ../main.tex
+% #############################################################################
+% Change the Name of the Chapter i the following line
+\fancychapter{Introduction}
+\cleardoublepage
+% The following line allows to ref this chapter
+\label{chap:intro}
+
+
+% -----------------------------------------------------
+% -----------------------------------------------------
+\section{Context} \label{chap:intro:context}
+
+% -----------------------------------------------------
+% -----------------------------------------------------
+\section{Motivation} \label{chap:intro:motivation}
+
+% -----------------------------------------------------
+% -----------------------------------------------------
+\section{Problem} \label{chap:intro:problem}
+
+% -----------------------------------------------------
+% -----------------------------------------------------
+\section{Services} \label{chap:intro:services}
+
+Certain services are indispensable for the security of the operations. The physical device will provide these services to it's user.
+
+\begin{itemize}
+    \item Secure Storage is critical to save the user's sensitive cryptographic keys and passwords. These objects will be used by the device to secure communications;
+    \item Key management, along with secure storage will allow the generation, revocation and importation of keys when the users deem necessary;
+    \item Confidentiality to keep the contents of the communications secret, except from authorized entities;
+    \item Integrity to safeguard communications from unauthorized modifications;
+    \item Authentication to ascertain the identity of the message sender;
+    \item Non-repudiation to prevent an entity from denying authorship of a message.
+\end{itemize}
+
+Figure \ref{fig:securebox} depicts the client application, interacting with the secure device through the application programming interface (API), the implementation of operations inside the device and secure storage where all the keys are stored.
+
+% -----------------------------------------------------
+% -----------------------------------------------------
+\section{Requirements} \label{chap:intro:requirements}
+
+To offer the aforementioned services the system must comply with multiple requirements:
+\begin{itemize}
+    \item The physical box must be tamper-resistant and secure to avoid any damaging attacks;
+    \item The box must be personal, it stores all the user's secrets, such as keys and passwords;
+    \item All critical operations must be performed inside the device and the user's secrets must never be exposed outside the device;
+    \item The system must provide a mechanism of authenticating the user before becoming ready to perform the main operations. The system does not authenticate itself to the user;
+    \item The system must be easy to use to the regular user non-savvy user. It should have a simple interface for the user to execute operations.
+    \item The system should perform the operations in a reasonable time to minimize the user's wait;
+    \item It should be relatively low cost.
+\end{itemize}
