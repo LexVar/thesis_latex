@@ -3,89 +3,101 @@
 % !TEX root = ../main.tex
 % #############################################################################
 % Change the Name of the Chapter i the following line
-\fancychapter{This is the Second Chapter}
+\fancychapter{Architecture}
 \cleardoublepage
 % The following line allows to ref this chapter
-\label{chap:back}
+\label{chap:architecture}
 
-Vivamus auctor leo vel dui. Aliquam erat volutpat. Phasellus nibh. Vestibulum ante ipsum primis in faucibus orci luctus et ultrices posuere cubilia Curae; Cras tempor. Morbi egestas, urna non consequat tempus, nunc arcu mollis enim, eu aliquam erat nulla non nibh. Duis consectetuer malesuada velit. Nam ante nulla, interdum vel, tristique ac, condimentum non, tellus. Proin ornare feugiat nisl. Suspendisse dolor nisl, ultrices at, eleifend vel, consequat at, dolor.
-% #############################################################################
-\section{Traditional Streaming Technologies}
-Cras dictum. Maecenas ut turpis. In vitae erat ac orci dignissim eleifend. Nunc quis justo. Sed vel ipsum in purus tincidunt pharetra \cite{MacAulay:2005fk}. Sed pulvinar, felis id consectetuer malesuada, enim nisl mattis elit, a facilisis tortor nibh quis leo. Sed augue lacus, pretium vitae, molestie eget, rhoncus quis, elit \cite{Schwarz:2007lr}. Donec in augue. Fusce orci wisi, ornare id, mollis vel, lacinia vel, massa. Pellentesque habitant morbi tristique senectus et netus et malesuada fames ac turpis egestas..
+The objective of the system was to develop a device in a box format to enable users to establish safe channels of communication. This is achieved with a safe and secure device which is personal to each individual. In order to secure the communications between users, the device saves the user's sensitive data, such as keys, and performs all security critical operations.
+The system is designed so that each user has it's own physical box.
 
-Sed pulvinar, \enquote{felis id consectetuer} malesuada, enim nisl mattis elit, a facilisis tortor nibh quis leo \Cref{tab:streamingtech}.
+% -----------------------------------------------------
+% -----------------------------------------------------
+\section{Services} \label{chap:intro:services}
 
-\begin{table}[htb]
-\centering
-\normalsize
-{\footnotesize
-    \caption{Streaming Technologies Comparison}
-    \label{tab:streamingtech}
-    \begin{tabular}{ | c | c | c | c |}
-    \hline
-    & Dynamic & Smooth & HLS\\
-    & Streaming & Streaming & \\ \hline \hline
+Certain services are indispensable for the security of the operations. The physical device will provide these services to it's user.
 
-    Streaming Protocol & RTMP & HTTP & HTTP \\
-    %\textbf{Protocol} & & & \\ 
-    \hline
-    
-    Video Codec & H.264, VP6 & H.264 & H.264 \\ 
-    %\textbf{Codec} & &  & \\ 
-    \hline
-    
-    Audio Codec & AAC, MP3 & WMA, AAC & AAC, MP3  \\
-    %\textbf{Codec} & & & \\ 
-    \hline
-    
-    Container Format & MP4, FLV, & MP4 & MPEG2-TS \\
-    %\textbf{Format} & F4V & & \\ 
-    \hline
-    
-     iOS & NO & YES & YES \\ \hline
-     
-    Android & NO & YES & YES \\ \hline
-    
-    \end{tabular}
-    }
-\end{table} 
+\begin{itemize}
+    \item Secure Storage is critical to save the user's sensitive cryptographic keys and passwords. These objects will be used by the device to secure communications;
+    \item Key management, along with secure storage will allow the generation, revocation and importation of keys when the users deem necessary;
+    \item Confidentiality to keep the contents of the communications secret, except from authorized entities;
+    \item Integrity to safeguard communications from unauthorized modifications;
+    \item Authentication to ascertain the identity of the data sender;
+    \item Non-repudiation to prevent an entity from denying authorship of a piece of information.
+\end{itemize}
 
-Suspendisse vestibulum dignissim quam. Integer vel augue. Phasellus nulla purus, interdum ac, venenatis non, varius rutrum, leo. Pellentesque habitant morbi tristique senectus et netus et malesuada fames ac turpis egestas \cite{RFC-VP8}. Duis a eros. Class aptent taciti sociosqu ad litora torquent per conubia nostra, per inceptos hymenaeos. Fusce magna mi, porttitor quis, convallis eget, sodales ac, urna \cite{Chiang:2011fk}. \textcolor{violet}{\Cref{tab:spreadtb} illustrates the use of a Spreadsheet-like table producing calculations by columns and by lines (observe the code).} 
+% -----------------------------------------------------
+% -----------------------------------------------------
+\section{Components} \label{chap:arch:components}
 
-\begin{table}[htb]
-\centering
-    \caption{A nice Spreadsheet using package ``spreadtab''. Notice the calculations.}
-    \label{tab:spreadtb}
-\begin{spreadtab}{{tabular}{rr|r}} 
-22       & 54       & a1+b1 \\
-43       & 65       & a2+b2 \\ 
-49       & 37       & a3+b3 \\
-\hline
-a1+a2+a3 & b1+b2+b3 & a4+b4
-\end{spreadtab}
-\end{table} 
-% #############################################################################
-\section{Cras lobortis tempor velit}
-Nunc tincidunt convallis tortor. Duis eros mi, dictum vel, fringilla sit amet, fermentum id, sem. Phasellus nunc enim, faucibus ut, laoreet in, consequat id, metus. Vivamus dignissim \cite{Moscoso:2011fk}. \textcolor{violet}{\Cref{tab:comp_arch} is automatically compressed to fit text width. You can use \url{https://www.tablesgenerator.com} to produce these tables, and then copy the \LaTeX\space code generated to paste in the document.}
+%% Insert image "figure"
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=0.5\textwidth]{./Images/main-figure.png}
+    \caption{Client and device}
+    \label{fig:main-system}
+\end{figure}
 
+The solution is composed of two main components, as shown in figure \ref{fig:main-system}:
 
-\begin{table}[h]
-\centering
-\caption{Comparison between today's and target Architectures of Telcos}
-\label{tab:comp_arch}
-\resizebox{\textwidth}{!}{%
-\begin{tabular}{|
->{\columncolor[HTML]{ECF4FF}}l |l|
->{\columncolor[HTML]{E2FFC9}}l |l|}
-\hline
-\multicolumn{2}{|c|}{\cellcolor[HTML]{ECF4FF}Today}                                                                                                             & \multicolumn{2}{c|}{\cellcolor[HTML]{E2FFC9}Target}                                                                                  \\ \hline
-Rigid     & \begin{tabular}[c]{@{}l@{}}Each evolutionary requirement involves \\ development of multiple components, \\ interfaces, platforms,etc.\end{tabular} & Flexible       & \begin{tabular}[c]{@{}l@{}}It is possible to modify or add new\\ functionalities rapidly.\end{tabular}              \\ \hline
-Slow      & \begin{tabular}[c]{@{}l@{}}Development of a new application takes \\ months or years.\end{tabular}                                                  & Fast           & \begin{tabular}[c]{@{}l@{}}Development of a new application takes \\ weeks instead of months or years.\end{tabular} \\ \hline
-Closed    & \begin{tabular}[c]{@{}l@{}}Limited integration with external\\ environments.\end{tabular}                                                           & Open           & \begin{tabular}[c]{@{}l@{}}It is simple to integrate internal,\\ applications with external entities.\end{tabular}  \\ \hline
-Complex   & \begin{tabular}[c]{@{}l@{}}Heterogeneous technologies, obsolescence, \\ lack,of standards, high redundancy.\end{tabular}                            & Standardised   & Use of homogeneous architectural models.                                                                            \\ \hline
-Expensive & \begin{tabular}[c]{@{}l@{}}High Capex (for new service development) \\ and,high,Opex (to ensure running of IT).\end{tabular}                        & Cost-Effective & Capex and Opex are optimised.                                                                                       \\ \hline
-\end{tabular}
-}
-\end{table}
+\begin{itemize}
+    \item The physical box which responsible for securing communications;
+    \item The client application on the user's computer which provides an interface for the user to execute operations on the box.
+\end{itemize}
 
-Cras lobortis tempor velit. Phasellus nec diam ac nisl lacinia tristique. Nullam nec metus id mi dictum dignissim. Nullam quis wisi non sem lobortis condimentum. Phasellus pulvinar, nulla non aliquam eleifend, tortor wisi scelerisque felis, in sollicitudin arcu ante lacinia leo.
+By separating these components, the security of the system is isolated and solely of total responsibility of the box. It is not dependent on the user's personal computer.
+
+Both components are connected through a common interface, such as USB, in order to be more easily accessible to the end users.
+
+Figure \ref{fig:securebox} depicts the client application, interacting with the secure device through the application programming interface (API), the implementation of operations inside the device and secure storage where all the keys are stored.
+
+%% Insert image here
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=0.5\textwidth]{./Images/securebox.png}
+    \caption{Client application and secure device}
+    \label{fig:securebox}
+\end{figure}
+
+Figure \ref{fig:securebox} depicts the client application, interacting with the secure device through the application programming interface (API), the implementation of operations inside the device and secure storage where all the keys are stored.
+
+% -----------------------------------------------------
+% -----------------------------------------------------
+\section{Operations} \label{chap:arch:operations}
+
+The system operations will ensure the system requirements and services are fulfilled.
+For the user to be able to execute them, he first must authenticate himself to the device. This is done with a PIN or password, which identifies the user. Once authenticated, the operations will be available to the user to be executed in the box.
+
+The operations are split in three types:
+\begin{itemize}
+    \item The administration operations manage the authentication and communication configuration;
+    \item The message exchange operations secure the user's communication;
+    \item The key exchange operations manage the keys stored inside the device, which will be used to secure communications.
+\end{itemize}
+
+% -----------------------------------------------------
+\subsection{Administration Operations} \label{chap:arch:ops:administration}
+
+The administration operations will allow the user to manage the authentication related parameters.
+The only operations of this type is to change the authentication PIN. The device will be initialized from fabric with a default PIN which must be supplied to the user. Before performing any operation the user should change his PIN to begin secure communications.
+
+% -----------------------------------------------------
+\subsection{Message Exchange Operations}  \label{chap:arch:ops:message}
+
+The main operations will be responsible to secure the communications between users. These operations will fulfill the confidentiality, authentication and non-repudiation services.
+
+\begin{itemize}
+    \item Secure message exchange with confidentiality and authentication. The objective of this operation is to send and receive messages to and from the device. Plaintext messages will be returned to the user encrypted and authenticated with their key stored inside the device. In the case of encrypted and authenticated messages, an error will be returned if the decryption was unsuccessful, otherwise, the user will receive the plaintext message;
+    \item Digital Signature operation will provide non-repudiation to a message. The user will send a message to the box, and the subsequent signature will be returned, which can be used to verify the message authorship. To verify a signature, the user sends it to the device, and receive the appropriate message, success or failure to verify.
+\end{itemize}
+
+% -----------------------------------------------------
+\subsection{Key Exchange Operations}  \label{chap:arch:ops:key}
+
+These operations will handle key exchange when new keys need to be generated and exchanged between users, to enable further communications, and to import other user's public keys. This will serve the secure storage and key management services.
+
+The first operations will enable the user to ask for a new key, generated inside the box, in order to securely send it to another user. The user receiving the new key, generated by another user, will receive and store the key inside the box.
+The final operation will provide a way to import other user's public keys, as well as export their personal public key, to be shared with another user.
+
+% -----------------------------------------------------
+% -----------------------------------------------------

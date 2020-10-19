@@ -3,95 +3,17 @@
 % !TEX root = ../main.tex
 % #############################################################################
 % Change the Name of the Chapter i the following line
-\fancychapter{Solution Architecture}
+\fancychapter{Solution Implementation and Protocol}
 \cleardoublepage
 % The following line allows to ref this chapter
-\label{chap:architecture}
-
-The objective of the system was to develop a device in a box format to enable users to establish safe channels of communication. This is achieved with a safe and secure device which is personal to each individual. In order to secure the communications between users, the device saves the user's sensitive data, such as keys, and performs all security critical operations.
-The system is designed so that each user has it's own physical box.
-
-% -----------------------------------------------------
-% -----------------------------------------------------
-\section{Components} \label{chap:arch:components}
-
-%% Insert image "figure"
-\begin{figure}[h]
-    \centering
-    \includegraphics[width=0.5\textwidth]{./Images/main-figure.png}
-    \caption{Client and device}
-    \label{fig:main-system}
-\end{figure}
-
-The solution is composed of two main components, as shown in figure \ref{fig:main-system}:
-
-\begin{itemize}
-    \item The physical box which responsible for securing communications;
-    
-    \item The client application on the user's computer which provides an interface for the user to execute operations on the box.
-\end{itemize}
-
-By separating these components, the security of the system is isolated and solely of total responsibility of the box. It is not dependent on the user's personal computer.
-
-Both components are connected through a common interface, such as USB, in order to be more easily accessible to the end users.
-
-Figure \ref{fig:securebox} depicts the client application, interacting with the secure device through the application programming interface (API), the implementation of operations inside the device and secure storage where all the keys are stored.
-%% Insert image here
-\begin{figure}[h]
-    \centering
-    \includegraphics[width=0.5\textwidth]{./Images/securebox.png}
-    \caption{Client application and secure device}
-    \label{fig:securebox}
-\end{figure}
-
-
-% -----------------------------------------------------
-% -----------------------------------------------------
-\section{Operations} \label{chap:arch:operations}
-
-The system operations will ensure the system requirements and services are fulfilled.
-For the user to be able to execute them, he first must authenticate himself to the device. This is done with a PIN or password, which identifies the user. Once authenticated, the operations will be available to the user to be executed in the box.
-
-The operations are split in three types:
-\begin{itemize}
-    \item The administration operations manage the authentication and communication configuration;
-    \item The message exchange operations secure the user's communication;
-    \item The key exchange operations manage the keys stored inside the device, which will be used to secure communications.
-\end{itemize}
-
-% -----------------------------------------------------
-\subsection{Administration Operations} \label{chap:arch:ops:administration}
-
-The administration operations will allow the user to manage the authentication related parameters.
-The only operations of this type is to change the authentication PIN. The device will be initialized from fabric with a default PIN which must be supplied to the user. Before performing any operation the user should change his PIN to begin secure communications.
-
-% -----------------------------------------------------
-\subsection{Message Exchange Operations}  \label{chap:arch:ops:message}
-
-The main operations will be responsible to secure the communications between users. These operations will fulfill the confidentiality, authentication and non-repudiation services.
-
-\begin{itemize}
-    \item Secure message exchange with confidentiality and authentication. The objective of this operation is to send and receive messages to and from the device. Plaintext messages will be returned to the user encrypted and authenticated with their key stored inside the device. In the case of encrypted and authenticated messages, an error will be returned if the decryption was unsuccessful, otherwise, the user will receive the plaintext message;
-    \item Digital Signature operation will provide non-repudiation to a message. The user will send a message to the box, and the subsequent signature will be returned, which can be used to verify the message authorship. To verify a signature, the user sends it to the device, and receive the appropriate message, success or failure to verify.
-\end{itemize}
-
-% -----------------------------------------------------
-\subsection{Key Exchange Operations}  \label{chap:arch:ops:key}
-
-These operations will handle key exchange when new keys need to be generated and exchanged between users, to enable further communications, and to import other user's public keys. This will serve the secure storage and key management services.
-
-The first operations will enable the user to ask for a new key, generated inside the box, in order to securely send it to another user. The user receiving the new key, generated by another user, will receive and store the key inside the box.
-The final operation will provide a way to import other user's public keys, as well as export their personal public key, to be shared with another user.
-
-
-% -----------------------------------------------------
-% -----------------------------------------------------
-\section{The Solution in depth}  \label{chap:arch:solution}
+\label{chap:solution}
 
 Symmetric keys will be used to encrypt and authenticate messages. They have better performance with larger messages compared to asymmetric keys. Each user can have stored in their box, several symmetric keys. This enables the user to establish secure communications with multiple different people or groups.
 The non-repudiation property of asymmetric keys will be used to create digital signatures of documents. The other use, will be to share symmetric keys between user who wish to communicate. The box stores the private and public key pair of the user, and the public keys of people the user wishes to trade secrets with.
 
-\section{Initial State} \label{chap:arch:initial-state}
+% -----------------------------------------------------
+% -----------------------------------------------------
+\section{Initial State} \label{chap:sol:initial-state}
 
 The users will receive the device with a pair of private and public keys, generated inside the device from fabric. Each device will have the user's public keys, whom he wishes to communicate. The user can request whose public keys he wants, before the device is initialized in fabric. This allows the users to trade symmetric keys between them, which they can user to begin trading messages securely. In addition, the device can also come with a symmetric key stored in each the user's device.
 
@@ -99,12 +21,12 @@ When a new user wants to establish secure communications with an existing user o
 
 % -----------------------------------------------------
 % -----------------------------------------------------
-\section{Protocol} \label{chap:arch:protocol}
+\section{Protocol} \label{chap:sol:protocol}
 
 A protocol was devised for every operations with different phases and data for each operation.
 
 % -----------------------------------------------------
-\subsection{Authentication Protocol} \label{chap:arch:protocol:auth}
+\subsection{Authentication Protocol} \label{chap:sol:protocol:auth}
 
 %% Insert protocol image here
 \begin{figure}[h]
@@ -123,7 +45,7 @@ Before executing any operation the user must authenticate himself to the device.
 %% TODO - in case I decide to keep the session ID, add paragraph explaining how it's used in all operations, else delete this
 
 % -----------------------------------------------------
-\subsection{Administration Protocol} \label{chap:arch:protocol:admin}
+\subsection{Administration Protocol} \label{chap:sol:protocol:admin}
 %% Insert protocol image here
 \begin{figure}[h]
     \centering
@@ -137,7 +59,7 @@ As explained before, there is only one administration operation, changing the au
 The user initiates by sending the operation code, identifying the operation, the new PIN number and the session ID acquired previously. The device verifies the session ID and send a response, indicating the success or failure of the operation.
 
 % -----------------------------------------------------
-\subsection{Message Exchange Protocol} \label{chap:arch:protocol:message}
+\subsection{Message Exchange Protocol} \label{chap:sol:protocol:message}
 
 %% Insert protocol image here
 \begin{figure}[h]
@@ -182,7 +104,7 @@ Protocol for verifying digital signatures:
 \end{enumerate}
 
 % -----------------------------------------------------
-\subsection{Key Exchange Protocol} \label{chap:arch:protocol:key}
+\subsection{Key Exchange Protocol} \label{chap:sol:protocol:key}
 %% Insert protocol image here
 
 Protocol to import public keys:
