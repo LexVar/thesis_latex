@@ -20,15 +20,19 @@ In addition, high profile officials who deal with sensitive information are more
 % -----------------------------------------------------
 \section{Problem} \label{chap:intro:problem}
 
-% It is unsafe to store cryptographic keys, passwords and perform critical cryptographic operations inside personal computers.
 New attacks, targeting computers, are discovered daily.
 They can come from zero-day vulnerabilities, phishing scams and many others, the opportunities are endless. It is impossible to predict and protect against all.
 Communications security, depends on the cryptography keys and passwords used. These are usually stored, along with other sensitive information, in the user's computer.
-Instead of storing the data in the user's computer, a more optimal solution, meaning, harder to compromise the security of communications, is to separate the platform used by the user for communications (the user's computer), and the device responsible for managing, securing communications and storing sensitive data.
+Instead of storing the data in the computer, a more optimal solution, meaning, harder to compromise the security of communications, is to separate the platform used by the user for communications (their computer), and the device responsible for managing, securing communications and storing sensitive data.
 The goal is to add another layer of security, to make it difficult to compromise security even if the user's computer is compromised.
 A secure and independent solution is needed to establish secure channels of communication, store keys and perform critical operations, even if the computer might be compromised.
 A possible approach is the utilization of a personal physical device that is responsible for storing digital keys and perform critical operations.
 These devices need to be highly secure and independent from the user's personal computer.
+
+\subsection{Entities} \label{chap:intro:problem:entities}
+
+These type of devices are aimed at people that handle very sensitive information, which have dire consequences if they are lost, corrupted or leaked.
+Some examples are government officials who handle confidential information pertaining to a country, company executives, such as the CEO who have access to company secrets, diplomats who manage confidential treaties, and military officers who have access to information critical to a countries' security.
 
 % Add tiny introduction to independent physical device that performs all critical operations
 % TODO
