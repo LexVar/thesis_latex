@@ -3,7 +3,7 @@
 % !TEX root = ../main.tex
 % #############################################################################
 % Change the Name of the Chapter i the following line
-\fancychapter{Solution Implementation and Protocol}
+\fancychapter{Solution Protocol}
 \cleardoublepage
 % The following line allows to ref this chapter
 \label{chap:solution}
@@ -16,6 +16,8 @@ The non-repudiation property of asymmetric keys will be used to create digital s
 \section{Initial State} \label{chap:sol:initial-state}
 
 The users will receive the device with a pair of private and public keys, generated inside the device from fabric. Each device will have the user's public keys, whom he wishes to communicate. The user can request whose public keys he wants, before the device is initialized in fabric. This allows the users to trade symmetric keys between them, which they can user to begin trading messages securely. In addition, the device can also come with a symmetric key stored in each the user's device.
+
+For each user or group a user wants to communicate with, he has a symmetric key stored in the device.
 
 When a new user wants to establish secure communications with an existing user or a group, he must share his public key with the user, ideally physically to ensure there are no mistakes or attacks. After this they can securely share symmetric keys to enable efficient and secure messaging.
 

@@ -8,24 +8,36 @@
 % The following line allows to ref this chapter
 \label{chap:intro}
 
-
-% -----------------------------------------------------
-% -----------------------------------------------------
-\section{Context} \label{chap:intro:context}
-
-% -----------------------------------------------------
-% -----------------------------------------------------
-\section{Motivation} \label{chap:intro:motivation}
+In the modern world, most people have access to a computer, involved in many everyday tasks, such as, web browsing, communications, social networks, news, entertainment, among many others.
+There is no limit to what you can achieve with the Internet, using just a computer.
+For this reason, computers have a wide range of attacks potentially exploitable by hackers, by taking advantage of software vulnerabilities or user mistakes.
+This is of great concern to people with high responsibilities from their jobs, who deal with sensitive information, such as, government officials, top level company executives and diplomats.
+Suffering an attack to a personal computer can be highly damaging as it can carry severe consequences for companies and countries.
+In addition, high profile officials who deal with sensitive information are more likely to be targeted by attackers.
+% Introduce concrete example of hack
 
 % -----------------------------------------------------
 % -----------------------------------------------------
 \section{Problem} \label{chap:intro:problem}
 
+% It is unsafe to store cryptographic keys, passwords and perform critical cryptographic operations inside personal computers.
+New attacks, targeting computers, are discovered daily.
+They can come from zero-day vulnerabilities, phishing scams and many others, the opportunities are endless. It is impossible to predict and protect against all.
+Communications security, depends on the cryptography keys and passwords used. These are usually stored, along with other sensitive information, in the user's computer.
+Instead of storing the data in the user's computer, a more optimal solution, meaning, harder to compromise the security of communications, is to separate the platform used by the user for communications (the user's computer), and the device responsible for managing, securing communications and storing sensitive data.
+The goal is to add another layer of security, to make it difficult to compromise security even if the user's computer is compromised.
+A secure and independent solution is needed to establish secure channels of communication, store keys and perform critical operations, even if the computer might be compromised.
+A possible approach is the utilization of a personal physical device that is responsible for storing digital keys and perform critical operations.
+These devices need to be highly secure and independent from the user's personal computer.
+
+% Add tiny introduction to independent physical device that performs all critical operations
+% TODO
+
 % -----------------------------------------------------
 % -----------------------------------------------------
 \section{Requirements} \label{chap:intro:requirements}
 
-To offer the aforementioned services the system must comply with multiple requirements:
+In order to address the problem and using the discussed approach, the implemented solution must comply with the following requirements:
 \begin{itemize}
 	\item The box must be tamper-resistant, secure and personal;
 	\item The system must allow secure interaction between different entities;

@@ -15,11 +15,11 @@ The system is designed so that each user has it's own physical box.
 % -----------------------------------------------------
 \section{Services} \label{chap:intro:services}
 
-Certain services are indispensable for the security of the operations. The physical device will provide these services to it's user.
+The solution will provide several services, wich fullfill the requirements defined in \ref{chap:intro:requirements}.
 
 \begin{itemize}
-    \item Secure Storage is critical to save the user's sensitive cryptographic keys and passwords. These objects will be used by the device to secure communications;
-    \item Key management, along with secure storage will allow the generation, revocation and importation of keys when the users deem necessary;
+    \item Secure Storage to save the user's sensitive cryptographic keys, passwords, documents or any data;
+    \item Key management, generation, revocation and importation of keys when the users deem necessary;
     \item Confidentiality to keep the contents of the communications secret, except from authorized entities;
     \item Integrity to safeguard communications from unauthorized modifications;
     \item Authentication to ascertain the identity of the data sender;
@@ -71,7 +71,7 @@ For the user to be able to execute them, he first must authenticate himself to t
 The operations are split in three types:
 \begin{itemize}
     \item The administration operations manage the authentication and communication configuration;
-    \item The message exchange operations secure the user's communication;
+    \item The data exchange operations secure the user's communication;
     \item The key exchange operations manage the keys stored inside the device, which will be used to secure communications.
 \end{itemize}
 
@@ -82,13 +82,13 @@ The administration operations will allow the user to manage the authentication r
 The only operations of this type is to change the authentication PIN. The device will be initialized from fabric with a default PIN which must be supplied to the user. Before performing any operation the user should change his PIN to begin secure communications.
 
 % -----------------------------------------------------
-\subsection{Message Exchange Operations}  \label{chap:arch:ops:message}
+\subsection{Data Exchange Operations}  \label{chap:arch:ops:data}
 
 The main operations will be responsible to secure the communications between users. These operations will fulfill the confidentiality, authentication and non-repudiation services.
 
 \begin{itemize}
-    \item Secure message exchange with confidentiality and authentication. The objective of this operation is to send and receive messages to and from the device. Plaintext messages will be returned to the user encrypted and authenticated with their key stored inside the device. In the case of encrypted and authenticated messages, an error will be returned if the decryption was unsuccessful, otherwise, the user will receive the plaintext message;
-    \item Digital Signature operation will provide non-repudiation to a message. The user will send a message to the box, and the subsequent signature will be returned, which can be used to verify the message authorship. To verify a signature, the user sends it to the device, and receive the appropriate message, success or failure to verify.
+    \item Secure data exchange with confidentiality and authentication. The objective of this operation is to send and receive data to and from the device. Plaintext data will be returned to the user encrypted and authenticated with their key stored inside the device. In the case of encrypted and authenticated messages, an error will be returned if the decryption was unsuccessful, otherwise, the user will receive the plaintext data;
+    \item Digital Signature operation will provide non-repudiation to a piece of data. The user will send the information to the box, and the subsequent signature will be returned, which can be used to verify the data's authorship. To verify a signature, the user sends it to the device, and receives either success or failure to verify.
 \end{itemize}
 
 % -----------------------------------------------------
