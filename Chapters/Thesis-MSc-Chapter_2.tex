@@ -12,10 +12,21 @@
 
 % -----------------------------------------------------
 % -----------------------------------------------------
-\section{Problem} \label{chap:problem:problem}
+\section{Context} \label{chap:problem:context}
 
 
 
+% TODO - talk about devices
+There are currently on the market some dedicated devices designed to secure communications and save private data.
+These type of devices have physical tamper-resistant measures against tampering by attackers who wish to read the user's data. They also provide fail-safe mechanisms in case of an attack.
+Hardware Security Modules (HSM) are high grade devices, with more computational power and larger storage capacity for the user's secrets.
+
+Smart Cards,  provide secure and portable tamper-resistant storage.
+They have a low-cost, so can be produced in bulk and easily replaced.
+Because of these features, they are widely used in the retail, healthcare, communication and government industries.
+
+They have a low processing power, and small memory which only allows to store a small amount of data.
+To be authenticated, the cards need readers that are either contact or contactless (RFID technology).
 
 % -----------------------------------------------------
 % -----------------------------------------------------
@@ -24,7 +35,8 @@
 These type of devices are aimed at people that handle very sensitive information, which have dire consequences if they are lost, corrupted or leaked.
 Some examples are government officials who handle confidential information pertaining to a country, company executives, such as the CEO who have access to company secrets, diplomats who manage confidential treaties, and military officers who have access to information critical to a countries' security.
 
-% TODO - talk about devices
+% Talk about groups and infidividuals
+Additionally, not just indiividuals have interest in these systems, a device can be assigned to a group of people representing an entity. For example, in the armed forces, a device can be assigned to the navy, one to the infantry, and every other faction. Any ranked officer, or people with a certain level of authority, could use the entity device, to communicate with other people or entites, in behalf of the group.
 
 % -----------------------------------------------------
 % -----------------------------------------------------
@@ -45,15 +57,27 @@ In order to address the problem and using the discussed approach, the implemente
 
 % -----------------------------------------------------
 % -----------------------------------------------------
-\subsection{Concepts} \label{chap:problem:concepts}
-% TODO
-% How to protect data
-% how to ensure security of communications
-	% Confidentiality
-	% Integrity
-	% Non-repudiation
-	% authenticity
-% Keys
+\section{Concepts} \label{chap:problem:concepts}
+
+In this section some necessary concepts will be explained in order for non-technical users can easily understand the background.
+
+Crucial services to safeguard communications security are:
+Confidentiality is a security service which keeps the contents of communications secret, except from the authorized parties.
+
+Integrity safeguards communications from modifications by attackers.
+
+The authentication service can verify the identity of any party, taking part in the communications.
+
+Finally the non-repudiation service prevents an entity from denying authorship of a piece of information.
+
+Cryptographic keys are an essential part of granting the aforementioned services. Users in possession of the keys can secure and access their messages.
+
+Symmetric keys, in possession of all communicating parties, are used to secure messages and documents.
+Asymmetric key pairs (public and private key), are used to enable communicating by for example, sharing new symmetric keys between users who wish to communicate. Secondly, they provide non-repudiation through digital signatures.
+
+Digital signatures are a digital version of handwritten signatures, commonly used anywhere forgery detection is essential, for instance in financial transactions.
+Qualified signatures are a special type of signatures where the private keys are generated and stored inside a device, such as a Smart Card, and never leave it.
+This strong signature legally represents a person or a group. This type of signatures are used in the Portuguese Citizen Card.
 
 % -----------------------------------------------------
 % -----------------------------------------------------
