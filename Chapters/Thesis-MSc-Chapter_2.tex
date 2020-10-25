@@ -9,11 +9,28 @@
 \label{chap:problem}
 
 % TODO - ADD PARAGRAPH EXPLAINING SECTION STRUCTURE
+This section will start by explaning the context surrounding the problem.
+Next, the profile of the target clients will be described, and some examples will be given.
+The next section contains a compilled list of relevant requirements for the solution, with the potential clients in mind.
+Then it will shed the ligh on the essential concepts to understand the operations that need to be implemented. It will end by defining those operations, in accordance with the previously defined client requirements.
 
 % -----------------------------------------------------
 % -----------------------------------------------------
 \section{Context} \label{chap:problem:context}
 
+As discussed before, the same computers commonly used for communications and information storage are exploitable by attackers, and can cause a minor inconveniences, to possibly severe repercussions, such as, losing your confidential data to malicious parties.
+
+An interesting approach to improve security is to add another layer of security to confidential data and communications through the addition of an device, independent of the user's personal computer. The device is responsible for the security of sensitive data and communications.
+
+\subsection{Entities} \label{chap:problem:entities}
+
+These type of devices are especially relevant to people high responsibility jobs, that handle very sensitive information, which have dire consequences if they are lost, corrupted or leaked.
+Some examples are government officials who handle confidential information pertaining to a country, company executives, such as the CEO who have access to company secrets, diplomats who manage confidential treaties, and military officers who have access to information critical to a countries' security.
+
+% Talk about groups and individuals
+Additionally, not just individuals have interest in these systems, a device can be assigned to a group of people representing an entity. For example, in the armed forces, a device can be assigned to the navy, one to the infantry, and every other faction. Any ranked officer, or people with a certain level of authority, could use the entity device, to communicate with other people or entities, in behalf of the group.
+
+\subsection{Devices} \label{chap:problem:devices}
 % Devices
 There are currently on the market some dedicated devices designed to secure communications and save private data.
 These type of devices have physical tamper-resistant measures against tampering by attackers who wish to read the user's data. They also provide fail-safe mechanisms in case of an attack.
@@ -24,15 +41,6 @@ They have lower processing power, and smaller memory which only allows to store 
 They have a low-cost, so can be produced in bulk and easily replaced. Only an RFID card reader is needed to read its information, and verify the owner's identity.
 Because of these features, they are widely used in the retail, healthcare, communication and government industries.
 
-% -----------------------------------------------------
-% -----------------------------------------------------
-\section{Entities} \label{chap:problem:entities}
-
-These type of devices are aimed at people that handle very sensitive information, which have dire consequences if they are lost, corrupted or leaked.
-Some examples are government officials who handle confidential information pertaining to a country, company executives, such as the CEO who have access to company secrets, diplomats who manage confidential treaties, and military officers who have access to information critical to a countries' security.
-
-% Talk about groups and individuals
-Additionally, not just individuals have interest in these systems, a device can be assigned to a group of people representing an entity. For example, in the armed forces, a device can be assigned to the navy, one to the infantry, and every other faction. Any ranked officer, or people with a certain level of authority, could use the entity device, to communicate with other people or entities, in behalf of the group.
 
 % -----------------------------------------------------
 % -----------------------------------------------------
