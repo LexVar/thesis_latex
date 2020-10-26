@@ -18,9 +18,18 @@ Then it will shed the ligh on the essential concepts to understand the operation
 % -----------------------------------------------------
 \section{Context} \label{chap:problem:context}
 
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=0.5\textwidth]{./Images/main-figure.png}
+    \caption{Client communication with their secure devices.}
+    \label{fig:main-system}
+\end{figure}
+
 As discussed before, the same computers commonly used for communications and information storage are exploitable by attackers, and can cause a minor inconveniences, to possibly severe repercussions, such as, losing your confidential data to malicious parties.
 
 An interesting approach to improve security is to add another layer of security to confidential data and communications through the addition of an device, independent of the user's personal computer. The device is responsible for the security of sensitive data and communications.
+
+An illustration of the system can be seen in figure \ref{fig:main-system}.
 
 \subsection{Entities} \label{chap:problem:entities}
 
@@ -44,58 +53,103 @@ Because of these features, they are widely used in the retail, healthcare, commu
 
 % -----------------------------------------------------
 % -----------------------------------------------------
-\section{Requirements} \label{chap:problem:requirements}
+\section{Client Requirements} \label{chap:problem:requirements}
 
-In order to address the problem and using the discussed approach, the implemented solution must comply with the following requirements:
+% TODO - more high level
+
+To effectively address the presented problem, there are several high-level requirements the solution must adhere to:
 \begin{itemize}
-	\item The box must be tamper-resistant, secure and personal;
-	\item The system must allow secure interaction between different entities;
-	\item All the user's secrets, such as keys and passwords must be stored in the device;
-	\item The user's secrets must never be exposed to the outside;
-	\item All critical operations must be performed in the device;
-	\item The system must authenticate the user before performing operations. The system does not need to authenticate itself to the user;
-	\item The system must be easy to use to the regular non-savvy user;
-	\item The system should perform the operations in a reasonable time to minimize the user's wait;
-	\item It should be relatively low cost.
+	\item Devices can be distributed to either individuals, entities composed of multiple people or groups of people;
+	\item The system must allow communications between groups of people, individuals and individuals on behalf of an entity;
+	\item All communications must be secured from being disclosed and successfully targeted by attackers;
+	\item Users should be able to choose who they want to initiate secure communications. The application should provide the functionality to allow this;
+	\item Is should be simple to use by everyone, including non-technical people;
+	\item It should have a relatively low cost, enough to allow distribution of several devices between multiple individuals and groups;
+	\item Only individuals with a certain level of clearance should be authorized to use the device. Personal devices should only be accessible by their owners.
 \end{itemize}
 
 % -----------------------------------------------------
 % -----------------------------------------------------
 \section{Concepts} \label{chap:problem:concepts}
 
-In this section some necessary concepts will be explained in order for non-technical users can easily understand the background.
+In this section some necessary concepts will be explained in order for non-technical users can easily understand the background, as well as the necessary concepts to fulfill the previously defined requirements.
 
-Crucial services to safeguard communications security are:
-Confidentiality is a security service which keeps the contents of communications secret, except from the authorized parties.
+In order to guarantee the security of communications, there are some crucial services:
 
-Integrity safeguards communications from modifications by attackers.
+\textbf{Confidentiality} is a security service which keeps the contents of communications secret, except from the authorized parties.
 
-The authentication service can verify the identity of any party, taking part in the communications.
+\textbf{Integrity} safeguards communications from modifications by attackers.
 
-Finally the non-repudiation service prevents an entity from denying authorship of a piece of information.
+The \textbf{authentication} service can verify the identity of any party, taking part in the communications.
 
-Cryptographic keys are an essential part of granting the aforementioned services. Users in possession of the keys can secure and access their messages.
+Finally the \textbf{non-repudiation} service prevents an entity from denying authorship of a piece of information.
 
-Symmetric keys, in possession of all communicating parties, are used to secure messages and documents.
-Asymmetric key pairs (public and private key), are used to enable communicating by for example, sharing new symmetric keys between users who wish to communicate. Secondly, they provide non-repudiation through digital signatures.
+\textbf{Cryptographic keys} are an essential part of granting the aforementioned services. Users in possession of the keys can secure and access their messages.
 
-Digital signatures are a digital version of handwritten signatures, commonly used anywhere forgery detection is essential, for instance in financial transactions.
+\textbf{Symmetric keys}, in possession of all communicating parties, are used to secure messages and documents.
+
+\textbf{Asymmetric key pairs} (public and private key), are used to enable communicating by for example, sharing new symmetric keys between users who wish to communicate. Secondly, they provide non-repudiation through digital signatures.
+These keys identify the owner. The private key must always be in possession of the owner. With it they can prove their identity and generate signatures.
+The public key should be shared with other people so that they can communicate and verify the owner's signatures and messages.
+
+\textbf{Digital signatures} are a digital version of handwritten signatures, commonly used anywhere forgery detection is essential, for instance in financial transactions.
 Qualified signatures are a special type of signatures where the private keys are generated and stored inside a device, such as a Smart Card, and never leave it.
 This strong signature legally represents a person or a group. This type of signatures are used in the Portuguese Citizen Card.
 
 % -----------------------------------------------------
 % -----------------------------------------------------
-\section{Services} \label{chap:problem:services}
+\section{Solution Services} \label{chap:problem:services}
 
 % TODO - more high level
+% groups and keys
 
-The solution will provide several services, which fulfill the requirements defined in \ref{chap:intro:requirements}.
+This section will go into more technical detail on the services the solution should provide taking account the client requirements and the essential concepts.
 
-\begin{itemize}
-    \item Secure Storage to save the user's sensitive cryptographic keys, passwords, documents or any data;
-    \item Key management, generation, revocation and importation of keys when the users deem necessary;
-    \item Confidentiality to keep the contents of the communications secret, except from authorized entities;
-    \item Integrity to safeguard communications from unauthorized modifications;
-    \item Authentication to ascertain the identity of the data sender;
-    \item Non-repudiation to prevent an entity from denying authorship of a piece of information.
-\end{itemize}
+\subsection{communications} \label{chap:problem:services:comms}
+In order to secure communications, the following services must be guaranteed: confidentiality, integrity and authentication.
+The system must also give an option to provide non-repudiation to documents or files, by means of digital signatures.
+
+
+\subsection{Key management} \label{chap:problem:services:key}
+The device must store all the symmetric and asymmetric keys related to the entity or individual who owns the device.
+
+The device must support secure storage in order to store the user's sensitive information, such as the cryptographic keys used for communication.
+Additionally, the device should have physical tamper-resistant measures and mechanisms in place, in case of an intrusion, such as, permanent erasure of all sensitive data. 
+This means that even if an attacker is in possession of the physical device, it should be extremely difficult or even impossible to extract any information from it.
+
+These keys must never be exposed to the outside environment of the device to ensure the security of communications and independence of the system.
+
+All cryptographic operations must also be performed inside the device.
+
+Key management operations should be supported, namely: symmetric key generation, symmetric key revocation, if its suspected to be compromised, and importation of other user's public keys.
+
+Each entity has one pair of asymmetric keys, stored in their device, a private and a public. This pair identifies the entity.
+For each channel of communication between individual users, groups or entities, the same symmetric key is stored in both devices.
+
+When a new user wants to establish secure communications with an existing user or a group, he must share his public key with the user, ideally physically to ensure there are no mistakes or attacks. After this they can securely share symmetric keys, and establish a new secure communication channel when the keys are stored in their devices.
+
+The users will receive the device with a pair of asymmetric keys, a private and public, generated inside the device from fabric. Each device will have the user's public keys, whom he wishes to communicate. The user can request whose public keys he wants, before the device is initialized in fabric. This allows the users to share symmetric keys between them, which they can user to begin trading data securely. The device can also come with the symmetric keys already shared and stored in each user device.
+
+% --- authentication ----
+\subsection{Authentication} \label{chap:problem:services:auth}
+Every user must authenticate himself, before using the device. This is done by providing a PIN code, which the device will verify before unlocking the session for the user.
+
+The device will come from fabric with a default authentication PIN. This code can be changed by the users.
+
+For personal devices, there is only the owner, but for groups and entities, there can be multiple users. In this case, there are two different ways to authenticate. The simplest is not to authenticate the person using the device, but have a single authentication PIN for the entity. All the user's with permission to communicate in behalf of the entity, must know the PIN code.
+
+The second option, is to authenticate the user itself. The advantage of this approach is there can be a log of which users used the device and when, and what messages were sent and received for each user.
+This would entail a more complex process where, each user allowed to use the device, must register with a name and individual PIN code. The initial PIN code, would be used as an administration code, which allows registering users, and accessing the logs of user operations and message transactions.
+
+It is worth nothing only the users are authenticated, the device does not authenticate itself to the user.
+
+\subsection{Usability} \label{chap:problem:services:usability}
+There are also several usability requirements the solution must abide by.
+
+The solution should work with a plethora of devices, which will increase the adoptability of the solution among clients. This entails the use of a widely established protocol.
+\textbf{Public-Key Cryptography Standards (PKCS) \#11} are a group of cryptographic standards, which define an application programmable interface (API) designed to interface between applications and cryptographic devices. By implementing the system in accordance with these standards, the solution will have device interoperability.
+
+Another related requirement is the usage of a common connection solution, e.g. USB cable, to further increase the pool of supported devices.
+
+The solution should provide an user facing interface which simple to use for the regular non-savvy user.
+In addition, the system should perform the operations in a reasonable time to minimize the user's wait.
