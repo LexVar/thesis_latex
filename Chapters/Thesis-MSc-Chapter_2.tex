@@ -9,10 +9,12 @@
 \label{chap:problem}
 
 % TODO - ADD PARAGRAPH EXPLAINING SECTION STRUCTURE
-This section will start by explaning the context surrounding the problem.
+This chapter will define the problem, the client requirements and list the necessary functionalities of the solution, to successfully address the problem.
+First some context surrounding the problem is given. 
 Next, the profile of the target clients will be described, and some examples will be given.
-The next section contains a compilled list of relevant requirements for the solution, with the potential clients in mind.
-Then it will shed the ligh on the essential concepts to understand the operations that need to be implemented. It will end by defining those operations, in accordance with the previously defined client requirements.
+The following section contains a list of client requirements the solution must abide by.
+Then it will shed the ligh on some essential concepts in order to understand the operations that need to be implemented.
+It will end by detailing those operations.
 
 % -----------------------------------------------------
 % -----------------------------------------------------
@@ -29,7 +31,7 @@ As discussed before, the same computers commonly used for communications and inf
 
 An interesting approach to improve security is to add another layer of security to confidential data and communications through the addition of an device, independent of the user's personal computer. The device is responsible for the security of sensitive data and communications.
 
-An illustration of the system can be seen in figure \ref{fig:main-system}.
+An illustration of the system with multiple users can be seen in figure \ref{fig:main-system}.
 
 \subsection{Entities} \label{chap:problem:entities}
 
@@ -42,7 +44,7 @@ Additionally, not just individuals have interest in these systems, a device can 
 \subsection{Devices} \label{chap:problem:devices}
 % Devices
 There are currently on the market some dedicated devices designed to secure communications and save private data.
-These type of devices have physical tamper-resistant measures against tampering by attackers who wish to read the user's data. They also provide fail-safe mechanisms in case of an attack.
+These type of devices have physical tamper-resistant measures against attackers who wish to read the device's information. They also provide fail-safe mechanisms in case of an attack.
 Hardware Security Modules (HSM) are high grade devices, with more computational power and larger storage capacity for the user's secrets.
 
 Smart Cards, provide secure and portable tamper-resistant storage.
@@ -59,9 +61,9 @@ Because of these features, they are widely used in the retail, healthcare, commu
 
 To effectively address the presented problem, there are several high-level requirements the solution must adhere to:
 \begin{itemize}
-	\item Devices can be distributed to either individuals, entities composed of multiple people or groups of people;
-	\item The system must allow communications between groups of people, individuals and individuals on behalf of an entity;
-	\item All communications must be secured from being disclosed and successfully targeted by attackers;
+	\item Devices should be distributable to either individuals, entities composed of multiple people or groups of people;
+	\item The system must allow communications between groups of people and individuals representing themselves or an entity;
+	\item The system must be responsible for securing all communications against disclosure, tampering or any sort of attacks;
 	\item Users should be able to choose who they want to initiate secure communications. The application should provide the functionality to allow this;
 	\item Is should be simple to use by everyone, including non-technical people;
 	\item It should have a relatively low cost, enough to allow distribution of several devices between multiple individuals and groups;
@@ -74,23 +76,23 @@ To effectively address the presented problem, there are several high-level requi
 
 In this section some necessary concepts will be explained in order for non-technical users can easily understand the background, as well as the necessary concepts to fulfill the previously defined requirements.
 
-In order to guarantee the security of communications, there are some crucial services:
+Some services are crucial, in order to guarantee the security of communications.
 
 \textbf{Confidentiality} is a security service which keeps the contents of communications secret, except from the authorized parties.
 
 \textbf{Integrity} safeguards communications from modifications by attackers.
 
-The \textbf{authentication} service can verify the identity of any party, taking part in the communications.
+The \textbf{authentication} service can verify the identity of an agent, taking part in the communications.
 
 Finally the \textbf{non-repudiation} service prevents an entity from denying authorship of a piece of information.
 
-\textbf{Cryptographic keys} are an essential part of granting the aforementioned services. Users in possession of the keys can secure and access their messages.
+\textbf{Cryptographic keys} are tools used to grant the aforementioned services. Users in possession of the keys can secure and access their messages.
 
 \textbf{Symmetric keys}, in possession of all communicating parties, are used to secure messages and documents.
 
 \textbf{Asymmetric key pairs} (public and private key), are used to enable communicating by for example, sharing new symmetric keys between users who wish to communicate. Secondly, they provide non-repudiation through digital signatures.
 These keys identify the owner. The private key must always be in possession of the owner. With it they can prove their identity and generate signatures.
-The public key should be shared with other people so that they can communicate and verify the owner's signatures and messages.
+The public key should be shared with other people so that they can share keys and verify the owner's signatures.
 
 \textbf{Digital signatures} are a digital version of handwritten signatures, commonly used anywhere forgery detection is essential, for instance in financial transactions.
 Qualified signatures are a special type of signatures where the private keys are generated and stored inside a device, such as a Smart Card, and never leave it.
@@ -121,7 +123,7 @@ These keys must never be exposed to the outside environment of the device to ens
 
 All cryptographic operations must also be performed inside the device.
 
-Key management operations should be supported, namely: symmetric key generation, symmetric key revocation, if its suspected to be compromised, and importation of other user's public keys.
+Key management operations should be supported, namely: symmetric key generation, symmetric key revocation, if communications are suspected to be compromised, and importation of other user's public keys.
 
 Each entity has one pair of asymmetric keys, stored in their device, a private and a public. This pair identifies the entity.
 For each channel of communication between individual users, groups or entities, the same symmetric key is stored in both devices.
@@ -152,4 +154,4 @@ The solution should work with a plethora of devices, which will increase the ado
 Another related requirement is the usage of a common connection solution, e.g. USB cable, to further increase the pool of supported devices.
 
 The solution should provide an user facing interface which simple to use for the regular non-savvy user.
-In addition, the system should perform the operations in a reasonable time to minimize the user's wait.
+In addition, the system should perform the operations in a reasonable time to minimize the user's wait, and improve the user experience.
