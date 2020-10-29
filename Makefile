@@ -1,5 +1,7 @@
 all:
 	pdflatex main.tex istulthesis.cls
+	bibtex main.aux
+	pdflatex main.tex istulthesis.cls
 	pdflatex main.tex istulthesis.cls
 	make clean
 
