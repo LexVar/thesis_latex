@@ -43,7 +43,7 @@ The protocol described is pictured in figure \ref{fig:protocol:authentication}.
 
 \begin{enumerate}
 	\item The first phase is initiated by the user by sending a message to check if the box is alive and connected to the computer.
-	\item The operation will move to the second phase when the user receives an affirmative response. He will then send the operation code, which indicates he wants to authenticate himself, and the authentication PIN. The device will respond with a status parameter indicating failure or success. When successful the box will also return a session ID string, which the user will need for further operations, to prove he has authenticated himself.
+	\item The operation will move to the second phase when the user receives an affirmative response. He will then send the operation code, which indicates he wants to authenticate himself, and the authentication \ac{PIN}. The device will respond with a status parameter indicating failure or success. When successful the box will also return a session ID string, which the user will need for further operations, to prove he has authenticated himself.
 \end{enumerate}
 
 %% TODO - in case I decide to keep the session ID, add paragraph explaining how it is used in all operations, else delete this
@@ -58,7 +58,7 @@ The protocol described is pictured in figure \ref{fig:protocol:authentication}.
 	\label{fig:protocol:change-PIN}
 \end{figure}
 
-As explained before, there is only one administration operation, changing the authentication PIN, pictured in figure \ref{fig:protocol:change-PIN}.
+As explained before, there is only one administration operation, changing the authentication \ac{PIN}, pictured in figure \ref{fig:protocol:change-PIN}.
 
 The user initiates by sending the operation code, identifying the operation, the new PIN number and the session ID acquired previously. The device verifies the session ID and send a response, indicating the success or failure of the operation.
 

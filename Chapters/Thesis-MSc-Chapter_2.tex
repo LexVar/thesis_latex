@@ -45,7 +45,7 @@ Additionally, not just individuals have interest in these systems, a device can 
 % Devices
 There are currently on the market some dedicated devices designed to secure communications and save private data.
 These type of devices have physical tamper-resistant measures against attackers who wish to read the device's information. They also provide fail-safe mechanisms in case of an attack.
-Hardware Security Modules (HSM) are high grade devices, with more computational power and larger storage capacity for the user's secrets.
+\ac{HSM} is a high grade device, with more computational power and larger storage capacity for the user's secrets.
 
 Smart Cards, provide secure and portable tamper-resistant storage.
 They have lower processing power, and smaller memory which only allows to store a small amount of data.
@@ -108,11 +108,13 @@ This strong signature legally represents a person or a group. This type of signa
 
 This section will go into more technical detail on the services the solution should provide taking account the client requirements and the essential concepts.
 
-\subsection{communications} \label{chap:problem:services:comms}
+% -----------------------------------------------------
+\subsection{Communications} \label{chap:problem:services:comms}
 In order to secure communications, the following services must be guaranteed: confidentiality, integrity and authentication.
 The system must also give an option to provide non-repudiation to documents or files, by means of digital signatures.
 
 
+% -----------------------------------------------------
 \subsection{Key management} \label{chap:problem:services:key}
 The device must store all the symmetric and asymmetric keys related to the entity or individual who owns the device.
 
@@ -133,20 +135,20 @@ When a new user wants to establish secure communications with an existing user o
 
 The users will receive the device with a pair of asymmetric keys, a private and public, generated inside the device from fabric. Each device will have the user's public keys, whom he wishes to communicate. The user can request whose public keys he wants, before the device is initialized in fabric. This allows the users to share symmetric keys between them, which they can user to begin trading data securely. The device can also come with the symmetric keys already shared and stored in each user device.
 
-\textbf{Public-Key Cryptography Standards (PKCS) \#11} are a group of widely used cryptographic standards, which define an application programmable interface (API) designed to manipulate common cryptographic objects, such as keys.
-With this API, the objects can be used, created and modified by applications, without exposing them to the application's memory.
+\textbf{\ac{PKCS} \#11} are a group of widely used cryptographic standards, which define an \ac{API} designed to manipulate common cryptographic objects, such as keys.
+With this \ac{API}, the objects can be used, created and modified by applications, without exposing them to the application's memory.
 The solution should follow this standards, to increase its independence and security requirements.
 
 % --- authentication ----
 \subsection{Authentication} \label{chap:problem:services:auth}
-Every user must authenticate himself, before using the device. This is done by providing a PIN code, which the device will verify before unlocking the session for the user.
+Every user must authenticate himself, before using the device. This is done by providing a \ac{PIN}, which the device will verify before unlocking the session for the user.
 
-The device will come from fabric with a default authentication PIN. This code can be changed by the users.
+The device will come from fabric with a default authentication \ac{PIN}. This number can be changed by the users.
 
-For personal devices, there is only the owner, but for groups and entities, there can be multiple users. In this case, there are two different ways to authenticate. The simplest is not to authenticate the person using the device, but have a single authentication PIN for the entity. All the user's with permission to communicate in behalf of the entity, must know the PIN code.
+For personal devices, there is only the owner, but for groups and entities, there can be multiple users. In this case, there are two different ways to authenticate. The simplest is not to authenticate the person using the device, but have a single authentication \ac{PIN} for the entity. All the user's with permission to communicate in behalf of the entity, must know the \ac{PIN}.
 
 The second option, is to authenticate the user itself. The advantage of this approach is there can be a log of which users used the device and when, and what messages were sent and received for each user.
-This would entail a more complex process where, each user allowed to use the device, must register with a name and individual PIN code. The initial PIN code, would be used as an administration code, which allows registering users, and accessing the logs of user operations and message transactions.
+This would entail a more complex process where, each user allowed to use the device, must register with a name and individual \ac{PIN} code. The initial \ac{PIN} code, would be used as an administration code, which allows registering users, and accessing the logs of user operations and message transactions.
 
 It is worth nothing only the users are authenticated, the device does not authenticate itself to the user.
 
@@ -156,7 +158,7 @@ There are also several usability requirements the solution must abide by.
 \subsubsection{Device Standardization}
 
 The solution should work with a plethora of devices, which will increase the adoptability of the solution among clients. This entails the use of a widely established protocol, which clearly defines a set of functions and standards the system should follow.
-This is where the PKCS \#11 standard is again relevant. By implementing the system in accordance with these guidelines, it will have a higher device interoperability.
+This is where the \ac{PKCS} \#11 standard is again relevant. By implementing the system in accordance with these guidelines, it will have a higher device interoperability.
 
 \subsubsection{Client Application}
 

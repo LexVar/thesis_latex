@@ -34,7 +34,7 @@ By separating these components, the security of the system is isolated and solel
 
 Both components are connected through a common interface, such as USB, in order to be more easily accessible to the end users.
 
-Figure \ref{fig:securebox} depicts the client application, interacting with the secure device through the application programming interface (API), the implementation of operations inside the device and secure storage where all the keys are stored.
+Figure \ref{fig:securebox} depicts the client application, interacting with the secure device through the \ac{API}, the implementation of operations inside the device and secure storage where all the keys are stored.
 
 % TODO - ADD AT LEAST 3 USERS COMMUNICATING
 %% Insert image here
@@ -45,14 +45,14 @@ Figure \ref{fig:securebox} depicts the client application, interacting with the 
     \label{fig:securebox}
 \end{figure}
 
-Figure \ref{fig:securebox} depicts the client application, interacting with the secure device through the application programming interface (API), the implementation of operations inside the device and secure storage where all the keys are stored.
+Figure \ref{fig:securebox} depicts the client application, interacting with the secure device through the \ac{API}, the implementation of operations inside the device and secure storage where all the keys are stored.
 
 % -----------------------------------------------------
 % -----------------------------------------------------
 \section{Operations} \label{chap:arch:ops}
 
 The system operations will ensure the system requirements and services are fulfilled.
-For the user to be able to execute them, he first must authenticate himself to the device. This is done with a PIN or password, which identifies the user. Once authenticated, the operations will be available to the user to be executed in the box.
+For the user to be able to execute them, he first must authenticate himself to the device. This is done with a \ac{PIN} or password, which identifies the user. Once authenticated, the operations will be available to the user to be executed in the box.
 
 The operations are split in three types:
 \begin{itemize}
@@ -65,7 +65,7 @@ The operations are split in three types:
 \subsection{Administration Operations} \label{chap:arch:ops:administration}
 
 The administration operations will allow the user to manage the authentication related parameters.
-The only operations of this type is to change the authentication PIN. The device will be initialized from fabric with a default PIN which must be supplied to the user. Before performing any operation the user should change his PIN to begin secure communications.
+The only operations of this type is to change the authentication \ac{PIN}. The device will be initialized from fabric with a default \ac{PIN} which must be supplied to the user. Before performing any operation the user should change his PIN to begin secure communications.
 
 % -----------------------------------------------------
 \subsection{Data Exchange Operations}  \label{chap:arch:ops:data}

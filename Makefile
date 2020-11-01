@@ -1,5 +1,5 @@
 all:
-	pdflatex main.tex istulthesis.cls
+	pdflatex main.tex
 	bibtex main.aux
 	pdflatex main.tex istulthesis.cls
 	pdflatex main.tex istulthesis.cls
