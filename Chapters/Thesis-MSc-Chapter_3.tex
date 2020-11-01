@@ -3,15 +3,15 @@
 % !TEX root = ../main.tex
 % #############################################################################
 % Change the Name of the Chapter i the following line
-\fancychapter{Background}
+\fancychapter{Background and Related Work}
 \cleardoublepage
 % The following line allows to ref this chapter
 \label{chap:background}
 
-This section explains the necessary knowledge required to perfectly understand the problem, the proposed solution and the rationalization process behind it. It starts by providing an overview of cryptographic services, primitives and protocols. Then it presents several general purpose computing systems and ends by presenting other relevant components.
+This section goes into detail on the necessary concepts required to perfectly understand the problem, the proposed solution and the rationalization process behind it. It starts by providing an overview of cryptographic services, primitives and protocols. Then it presents several general purpose computing systems and ends by presenting other relevant components.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\section{Cryptography}  \label{crypto}
+\section{Cryptography}  \label{chap:background:crypto}
 
 There are several cryptographic services relevant to this work, namely:
 \begin{itemize}
@@ -37,7 +37,7 @@ Block ciphers encrypt fixed-length groups of bits, called blocks, with a symmetr
 Symmetric ciphers support both block and stream ciphers while asymmetric use block ciphers.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\subsection{Hash Functions}  \label{crypto:hash}
+\subsection{Hash Functions}  \label{chap:background:crypto:hash}
 
 A cryptography hash function generates a fixed dimension value (digest) based on variable input texts, such as messages or files. Secure hashes provide message integrity by comparing digests, calculated before, and after, transmission to determine if the message was altered. To achieve this, hash functions must have several properties:
 \begin{enumerate}
@@ -51,7 +51,7 @@ A cryptography hash function generates a fixed dimension value (digest) based on
 Popular hash functions include MD5, SHA-1, SHA-2 and SHA-3. Collisions against MD5 can be performed in seconds and have been produced against SHA-1 as well. Thus, these hash functions are considered broken and should not be used. Currently, SHA-2 and the newest SHA-3 are recommended. The SHA-2 algorithm provides different functions which vary on the size of the digest. For example, the SHA-256 function produces a 256 bit digest and SHA-512 a 512 bit digest. All functions are secure for the foreseeable future, there is no practical security advantage in using a bigger digest.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\subsection{Symmetric Encryption.}  \label{crypto:symmetric}
+\subsection{Symmetric Encryption.}  \label{chap:background:crypto:symmetric}
 
 Symmetric ciphers use symmetric keys and are frequently used to achieve, data integrity, authentication and confidentiality.
 
@@ -87,10 +87,10 @@ After the IV is used, there is no need for the value to be kept secret. It can b
 Regarding performance, CBC is slower than CTR mode. CFB (even with s = 128) and OFB are slower still.
 When efficiency characteristics matter, nothing comes close to CTR: it has better performance characteristics, in multiple dimensions, than any of CBC, CFB, and OFB.
 
-All these cipher modes are malleable, meaning an attacker can modify a ciphertext C, the result of encrypting plaintext P, to create ciphertext C' which will decrypt to plaintext P' that is similar to P. Malleability is connected to message integrity. This is not considered a relevant weakness since the modes only goal is to offer confidentiality guarantees, not integrity. If one wishes integrity it should pair one of these modes with a MAC (Message authentication code), or use a dedicated authenticated-encryption mode like CCM or GCM (discussed in Section \ref{crypto:aead}), which guarantee both confidentiality and integrity.
+All these cipher modes are malleable, meaning an attacker can modify a ciphertext C, the result of encrypting plaintext P, to create ciphertext C' which will decrypt to plaintext P' that is similar to P. Malleability is connected to message integrity. This is not considered a relevant weakness since the modes only goal is to offer confidentiality guarantees, not integrity. If one wishes integrity it should pair one of these modes with a MAC (Message authentication code), or use a dedicated authenticated-encryption mode like CCM or GCM (discussed in Section \ref{chap:background:crypto:aead}), which guarantee both confidentiality and integrity.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\subsection{Message Authentication Code (MAC).}  \label{crypto:mac}
+\subsection{Message Authentication Code (MAC).}  \label{chap:background:crypto:mac}
 
 MAC is a value, also called tag, used for authenticating a message.
 A MAC algorithm, receives the message and a symmetric key, to generate a tag. Unlike digital signatures, MAC do not offer non-repudiation since it uses a symmetric key, which need to be distributed to all parties. Any of the users in possession of the key can generate a MAC for a message, as well as verify it. On the contrary, digital signatures utilize the private key from asymmetric cryptography, which is personal.
@@ -100,11 +100,11 @@ CBC-MAC also has similar caveats to CBC, it is only secure for fixed-length mess
 CBC-MAC security deficiencies were resolved with One-key MAC (OMAC), which is secure for variable-length messages.
 
 \textbf{HMAC} is different from the previous techniques, by using a cryptographic hash function, such as SHA-2, and a symmetric secret key to construct a tag. HMAC is secure, as long as the underlying hash function used is considered secure. Therefore SHA-2 is a good option.
-Despite CBC's inefficiencies discussed in section \ref{crypto:symmetric}, specifically, each block is serially encrypted, HMAC is slower due to the inefficient hashing operations. However, HMAC does not have the security problems of CBC-MAC. HMAC is a popular and well-designed construction, but it is not the most efficient approach \cite{aesmodes}.
+Despite CBC's inefficiencies discussed in section \ref{chap:background:crypto:symmetric}, specifically, each block is serially encrypted, HMAC is slower due to the inefficient hashing operations. However, HMAC does not have the security problems of CBC-MAC. HMAC is a popular and well-designed construction, but it is not the most efficient approach \cite{aesmodes}.
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\subsection{Authenticated Encryption.}  \label{crypto:aead}
+\subsection{Authenticated Encryption.}  \label{chap:background:crypto:aead}
 
 Authenticated encryption with associated data (AEAD) schemes assure both confidentiality and authenticity using only symmetric keys. They may be more efficient than combining separate privacy and authentication techniques, such as the ones discussed in earlier sections, and are less likely to be used incorrectly. AEAD schemes also allows associated data to be included in the message, which is authenticated but not encrypted. This feature is useful, for example, for network packets. The header is visible but is authenticated. The payload is both authenticated and encrypted. 
 
@@ -124,7 +124,7 @@ For security reasons, authentication tags should be at least 96 bits, even thoug
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\subsection{Asymmetric Encryption.}  \label{crypto:assymetric}
+\subsection{Asymmetric Encryption.}  \label{chap:background:crypto:assymetric}
 
 Asymmetric cryptography utilizes a pair of public and private keys. It is commonly used to provide confidentiality, data integrity, authentication and non-repudiation.
 The private keys must always remain secure with the owner. Public keys may be distributed as it does not compromise security. Encrypting a message with the public key, provides confidentiality, since only the owner who possesses the private key, can decipher the message. On the other hand, private key encryption provides authentication on account of only the owner is in possession of the private key. These two different concepts can be combined to provide confidentiality, authentication and non-repudiation to a message.
@@ -141,7 +141,7 @@ ECC is a more recent algorithm, based on the Elliptic Curve Discrete Logarithm P
 With the threat of quantum computers, both ECC and RSA could become obsolete in the future, as it is vulnerable to brute force attacks from such devices.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\subsection{Digital Signatures.} \label{crypto:signatures}
+\subsection{Digital Signatures.} \label{chap:background:crypto:signatures}
 
 Signatures is a standard scheme for authenticating documents or digital messages and ensuring the signer cannot repudiate the signature. The digital signature is generated by a combination of asymmetric keys and hash functions.
 The digital signature is generated by first computing a hash of the message, then signing the hash with the author's private key. The message is not directly signed since public-key encryption is slow and messages are most likely bigger than the hash of the message, which has a fixed size. Third parties can validate the signature with only the signature and the author's public key. Only the author is in possession of their private key, so only he could have generated the signature.
@@ -150,7 +150,7 @@ They are a digital version of handwritten signatures \cite{digitalsignatures}, c
 Qualified signatures are a special type of signatures where the private keys are generated and stored inside a device, such as a Smart Card, and never leave it. For the owner to sign a document, he needs to be in possession of the Smart Card (something you have) and a PIN code (something you know). This strong signature legally represents a person or a group. This type of signatures are used in the Portuguese Citizen Card.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\subsection{Public Key Infrastructure} \label{PKI}
+\subsection{Public Key Infrastructure} \label{chap:background:PKI}
 
 Asymmetric cryptographic needs a secure mechanism to validate public keys, i.e guaranteeing a public key is owned by a certain identity.
 A Public Key Infrastructure (PKI) is a central database of public-key certificates. It is responsible for managing, distributing, storing and revoking digital certificates. Digital certificates map public keys to identities and are used to verify that a specific public key belongs to a certain identity.
@@ -167,27 +167,27 @@ The protocol can provide perfect forward secrecy, unlike PGP, assuring any past 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % \subsection{Secure Cryptoprocessors}  \label{processors}
-\section{General Purpose Computing Systems} \label{computing}
+\section{General Purpose Computing Systems} \label{chap:background:computing}
 
 In this section we discuss some general purpose computing systems that may be pertinent to this work. 
 
 Secure cryptoprocessors are dedicated physical computational devices for performing cryptographic operations. Some secure cryptoprocessors namely, Smart Cards, Trusted Platform Modules and Hardware Security Modules will be discussed next.
 
 % HSM
-\subsection{Hardware Security Modules (HSM).} \label{computing:hsm}
+\subsection{Hardware Security Modules (HSM).} \label{chap:background:computing:hsm}
 
 A HSM is a high grade computational device responsible for storage, management and generation of cryptographic keys, as well as performing cryptographic operations. Keys never leave the device and all operations are performed inside the HSM. These devices have physical security mechanisms to achieve tamper-resistance, support several cryptographic operations, random number generators and have fail-safe mechanisms in place, in case of an attack, e.g., deletion of keys. Some devices have accelerated Central Processing Units (CPU) and optimizations to improve operations' performance.
 These modules are usually costlier than other computational systems i.e. Trusted Platform Modules, but are more advanced in processing power and available operations.
 
 % smartcards
-\subsection*{Smart Cards.} \label{computing:smartcards}
+\subsection*{Smart Cards.} \label{chap:background:computing:smartcards}
 Smart Cards are a type of HSM, credit card-sized with an embedded microchip and provide secure, tamper-resistant storage. These devices have a low price for manufacturing, which allows for bulk production of the device and easy replacement if needed. However, the disadvantage is it makes it easy for attackers to acquire many devices to try to tamper with. They have a low processing power, and small memory which only allows to store a small amount of data. To be authenticated, the cards need readers that are either contact or contactless (RFID technology). These characteristics make them extremely popular, used in many industries, such as, retail, healthcare, communication and government.
 
 % descrever smartfusion, caracteristicas, o que suporta, etc.
-\subsection {FPGA System-on-Chip.} \label{computing:smartfusion}
+\subsection {FPGA System-on-Chip.} \label{chap:background:computing:smartfusion}
 A Field-Programmable Gate Array (FPGA) is an integrated circuit designed to be programmed and configured after manufacturing. FPGAs are often used to prototype and for high specialized systems produced at low scale. One of the major advantages is their agility and flexibility to be customized for special use cases \cite{cyberphysicalsystems}. However, the reconfigurability may introduce certain weaknesses to the system. FPGAs are generic and its bitstream is vulnerable to cloning if no additional protection is applied. Cloning is simple and is considered the worst security vulnerability of volatile FPGAs \cite{fpgasurvey}. The configuration data of these devices is stored in non-volatile memory and may be directly copied if no authentication mechanism is implemented \cite{drimer2007authentication}.
 
-An example of such device is the SmartFusion2 System-on-Chip from Microsemi that delivers more resources in low-density devices with the lowest power, proven security, and exceptional reliability \cite{smartfusion2soc}. Smartfusion2 SoC integrates a non-volatile FPGA with a system-on-chip (SoC) and an internal secure eNVM for storing Phase 0 boot code. Since they are non-volatile, the bitstream is at a lower risk of being probed during boot \cite{parrinha2017flexible}. The eSRAM flash memory is protected against single event upsets. Smartfusion2 has an embedded ARM Cortex-M3 processor and a true random number generator (TRNG), which provides a quality source of entropy, a critical part of most cryptographic algorithms. It supports some cryptographic functions: AES-256, SHA-256, ECC and Physically Unclonable Function (PUF) (explained in Section \ref{PUF}).
+An example of such device is the SmartFusion2 System-on-Chip from Microsemi that delivers more resources in low-density devices with the lowest power, proven security, and exceptional reliability \cite{smartfusion2soc}. Smartfusion2 SoC integrates a non-volatile FPGA with a system-on-chip (SoC) and an internal secure eNVM for storing Phase 0 boot code. Since they are non-volatile, the bitstream is at a lower risk of being probed during boot \cite{parrinha2017flexible}. The eSRAM flash memory is protected against single event upsets. Smartfusion2 has an embedded ARM Cortex-M3 processor and a true random number generator (TRNG), which provides a quality source of entropy, a critical part of most cryptographic algorithms. It supports some cryptographic functions: AES-256, SHA-256, ECC and Physically Unclonable Function (PUF) (explained in Section \ref{chap:background:PUF}).
 
 \subsection*{Secure boot.}
 Not validating code before its execution leads to potentially executing untrusted code. This causes problems such as hackers inserting malware to hijack systems, download intellectual property, spy on users or perform any number of attacks.
@@ -196,14 +196,14 @@ Other systems also implement solutions to secure boot code. Infineon secures the
 Texas Instruments Sitara processors allows the customer to specify a public key as a root of trust to be fused into the device. This key is used to authenticate other keys that can be used to authenticate software components.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\section{Other Important Concepts} \label{other}
+\section{Other Important Concepts} \label{chap:background:other}
 
 There are some important concepts to consider involving cryptography and genera purpose computing systems.
 
 \subsection{Random Number Generators} are components that generate a sequence of numbers that cannot be predicted. Generating random numbers is a common and critical requirement for almost all cryptographic algorithms. Pseudo-random number generators are frequent in software approaches and are not truly random. They depend on an algorithm and initial conditions (seed) to generate random numbers. If the seed is known, the numbers are predictable.
 True random number generators (TRNG) are hardware devices that generate numbers from microscopic physical conditions. These conditions are completely unpredictable. For this reason, TRNGs are perfect for use in cryptography. HSM are usually equipped with a TRNG.
 
-\subsection{PUFs} are unique identifiers for microprocessors like HSM and smart cards. They depend on unpredictable physical factors of the device introduced during manufacturing, so are difficult to predict and replicate even on identical hardware. PUFs implement a challenge-response authentication system. A challenge value is sent to the device and an unpredictable response is computed by the PUF. Several pairs of challenge, response values are allowed. PUFs can also be used for key generation and as a source of randomness. \label{PUF}
+\subsection{PUFs} are unique identifiers for microprocessors like HSM and smart cards. They depend on unpredictable physical factors of the device introduced during manufacturing, so are difficult to predict and replicate even on identical hardware. PUFs implement a challenge-response authentication system. A challenge value is sent to the device and an unpredictable response is computed by the PUF. Several pairs of challenge, response values are allowed. PUFs can also be used for key generation and as a source of randomness. \label{chap:background:PUF}
 
 \subsection{Public-Key Cryptography Standards \#11.}
 Public-Key Cryptography Standards (PKCS) are a group of cryptographic standards, published by RSA Laboratories, that describe guidelines for using cryptographic schemes.
