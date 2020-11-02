@@ -13,7 +13,7 @@ The system is designed so that each user has it's own physical box.
 
 % -----------------------------------------------------
 % -----------------------------------------------------
-\section{Components} \label{chap:arch:components}
+\section{Components}\label{chap:arch:components}
 
 %% Insert image "figure"
 \begin{figure}[h]
@@ -23,7 +23,7 @@ The system is designed so that each user has it's own physical box.
     \label{fig:main-components}
 \end{figure}
 
-The solution is composed of two main components, as shown in figure \ref{fig:main-components}:
+The solution is composed of two main components, as shown in figure~\ref{fig:main-components}:
 
 \begin{itemize}
     \item The physical box which responsible for securing communications;
@@ -34,7 +34,7 @@ By separating these components, the security of the system is isolated and solel
 
 Both components are connected through a common interface, such as USB, in order to be more easily accessible to the end users.
 
-Figure \ref{fig:securebox} depicts the client application, interacting with the secure device through the \ac{API}, the implementation of operations inside the device and secure storage where all the keys are stored.
+Figure~\ref{fig:securebox} depicts the client application, interacting with the secure device through the \ac{API}, the implementation of operations inside the device and secure storage where all the keys are stored.
 
 % TODO - ADD AT LEAST 3 USERS COMMUNICATING
 %% Insert image here
@@ -45,11 +45,11 @@ Figure \ref{fig:securebox} depicts the client application, interacting with the 
     \label{fig:securebox}
 \end{figure}
 
-Figure \ref{fig:securebox} depicts the client application, interacting with the secure device through the \ac{API}, the implementation of operations inside the device and secure storage where all the keys are stored.
+Figure~\ref{fig:securebox} depicts the client application, interacting with the secure device through the \ac{API}, the implementation of operations inside the device and secure storage where all the keys are stored.
 
 % -----------------------------------------------------
 % -----------------------------------------------------
-\section{Operations} \label{chap:arch:ops}
+\section{Operations}\label{chap:arch:ops}
 
 The system operations will ensure the system requirements and services are fulfilled.
 For the user to be able to execute them, he first must authenticate himself to the device. This is done with a \ac{PIN} or password, which identifies the user. Once authenticated, the operations will be available to the user to be executed in the box.
@@ -62,13 +62,13 @@ The operations are split in three types:
 \end{itemize}
 
 % -----------------------------------------------------
-\subsection{Administration Operations} \label{chap:arch:ops:administration}
+\subsection{Administration Operations}\label{chap:arch:ops:administration}
 
 The administration operations will allow the user to manage the authentication related parameters.
 The only operations of this type is to change the authentication \ac{PIN}. The device will be initialized from fabric with a default \ac{PIN} which must be supplied to the user. Before performing any operation the user should change his PIN to begin secure communications.
 
 % -----------------------------------------------------
-\subsection{Data Exchange Operations}  \label{chap:arch:ops:data}
+\subsection{Data Exchange Operations}\label{chap:arch:ops:data}
 
 The main operations will be responsible to secure the communications between users. These operations will fulfill the confidentiality, authentication and non-repudiation services.
 
@@ -78,7 +78,7 @@ The main operations will be responsible to secure the communications between use
 \end{itemize}
 
 % -----------------------------------------------------
-\subsection{Key Exchange Operations}  \label{chap:arch:ops:key}
+\subsection{Key Exchange Operations}\label{chap:arch:ops:key}
 
 These operations will handle key exchange when new keys need to be generated and exchanged between users, to enable further communications, and to import other user's public keys. This will serve the secure storage and key management services.
 

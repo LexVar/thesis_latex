@@ -18,7 +18,7 @@ It will end by detailing those operations.
 
 % -----------------------------------------------------
 % -----------------------------------------------------
-\section{Context} \label{chap:problem:context}
+\section{Context}\label{chap:problem:context}
 
 \begin{figure}[h]
     \centering
@@ -31,9 +31,9 @@ As discussed before, the same computers commonly used for communications and inf
 
 An interesting approach to improve security is to add another layer of security to confidential data and communications through the addition of an device, independent of the user's personal computer. The device is responsible for the security of sensitive data and communications.
 
-An illustration of the system with multiple users can be seen in figure \ref{fig:main-system}.
+An illustration of the system with multiple users can be seen in figure~\ref{fig:main-system}.
 
-\subsection{Entities} \label{chap:problem:entities}
+\subsection{Entities}\label{chap:problem:entities}
 
 These type of devices are especially relevant to people high responsibility jobs, that handle very sensitive information, which have dire consequences if they are lost, corrupted or leaked.
 Some examples are government officials who handle confidential information pertaining to a country, company executives, such as the CEO who have access to company secrets, diplomats who manage confidential treaties, and military officers who have access to information critical to a countries' security.
@@ -41,7 +41,7 @@ Some examples are government officials who handle confidential information perta
 % Talk about groups and individuals
 Additionally, not just individuals have interest in these systems, a device can be assigned to a group of people representing an entity. For example, in the armed forces, a device can be assigned to the navy, one to the infantry, and every other faction. Any ranked officer, or people with a certain level of authority, could use the entity device, to communicate with other people or entities, in behalf of the group.
 
-\subsection{Devices} \label{chap:problem:devices}
+\subsection{Devices}\label{chap:problem:devices}
 % Devices
 There are currently on the market some dedicated devices designed to secure communications and save private data.
 These type of devices have physical tamper-resistant measures against attackers who wish to read the device's information. They also provide fail-safe mechanisms in case of an attack.
@@ -55,7 +55,7 @@ Because of these features, they are widely used in the retail, healthcare, commu
 
 % -----------------------------------------------------
 % -----------------------------------------------------
-\section{Client Requirements} \label{chap:problem:requirements}
+\section{Client Requirements}\label{chap:problem:requirements}
 
 % TODO - more high level
 
@@ -73,7 +73,7 @@ To effectively address the presented problem, there are several high-level requi
 
 % -----------------------------------------------------
 % -----------------------------------------------------
-\section{Concepts} \label{chap:problem:concepts}
+\section{Concepts}\label{chap:problem:concepts}
 
 In this section some necessary concepts will be explained in order for non-technical users can easily understand the background, as well as the necessary concepts to fulfill the previously defined requirements.
 
@@ -101,7 +101,7 @@ This strong signature legally represents a person or a group. This type of signa
 
 % -----------------------------------------------------
 % -----------------------------------------------------
-\section{Solution Services} \label{chap:problem:services}
+\section{Solution Services}\label{chap:problem:services}
 
 % TODO - more high level
 % groups and keys
@@ -109,13 +109,13 @@ This strong signature legally represents a person or a group. This type of signa
 This section will go into more technical detail on the services the solution should provide taking account the client requirements and the essential concepts.
 
 % -----------------------------------------------------
-\subsection{Communications} \label{chap:problem:services:comms}
+\subsection{Communications}\label{chap:problem:services:comms}
 In order to secure communications, the following services must be guaranteed: confidentiality, integrity and authentication.
 The system must also give an option to provide non-repudiation to documents or files, by means of digital signatures.
 
 
 % -----------------------------------------------------
-\subsection{Key management} \label{chap:problem:services:key}
+\subsection{Key management}\label{chap:problem:services:key}
 The device must store all the symmetric and asymmetric keys related to the entity or individual who owns the device.
 
 The device must support secure storage in order to store the user's sensitive information, such as the cryptographic keys used for communication.
@@ -140,7 +140,7 @@ With this \ac{API}, the objects can be used, created and modified by application
 The solution should follow this standards, to increase its independence and security requirements.
 
 % --- authentication ----
-\subsection{Authentication} \label{chap:problem:services:auth}
+\subsection{Authentication}\label{chap:problem:services:auth}
 Every user must authenticate himself, before using the device. This is done by providing a \ac{PIN}, which the device will verify before unlocking the session for the user.
 
 The device will come from fabric with a default authentication \ac{PIN}. This number can be changed by the users.
@@ -152,7 +152,7 @@ This would entail a more complex process where, each user allowed to use the dev
 
 It is worth nothing only the users are authenticated, the device does not authenticate itself to the user.
 
-\subsection{Usability} \label{chap:problem:services:usability}
+\subsection{Usability}\label{chap:problem:services:usability}
 There are also several usability requirements the solution must abide by.
 
 \subsubsection{Device Standardization}
