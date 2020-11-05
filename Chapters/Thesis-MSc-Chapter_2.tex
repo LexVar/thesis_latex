@@ -8,13 +8,12 @@
 % The following line allows to ref this chapter
 \label{chap:problem}
 
-% TODO - ADD PARAGRAPH EXPLAINING SECTION STRUCTURE
 This chapter will define the problem, the client requirements and list the necessary functionalities of the solution, to successfully address the problem.
 First some context surrounding the problem is given. 
 Next, the profile of the target clients will be described, and some examples will be given.
 The following section contains a list of client requirements the solution must abide by.
 Then it will shed the ligh on some essential concepts in order to understand the operations that need to be implemented.
-It will end by detailing those operations.
+It will end by detailing the client use cases it must provide.
 
 % -----------------------------------------------------
 % -----------------------------------------------------
@@ -22,8 +21,8 @@ It will end by detailing those operations.
 
 \begin{figure}[h]
     \centering
-    \includegraphics[width=0.5\textwidth]{./Images/main-figure.png}
-    \caption{Client communication with their secure devices.}
+    \includegraphics[width=0.7\textwidth]{./Images/main-figure.png}
+    \caption{System illustration.}
     \label{fig:main-system}
 \end{figure}
 
@@ -57,8 +56,6 @@ Because of these features, they are widely used in the retail, healthcare, commu
 % -----------------------------------------------------
 \section{Client Requirements}\label{chap:problem:requirements}
 
-% TODO - more high level
-
 To effectively address the presented problem, there are several high-level requirements the solution must adhere to:
 \begin{itemize}
 	\item Devices should be distributable to either individuals, entities composed of multiple people or groups of people;
@@ -78,19 +75,13 @@ To effectively address the presented problem, there are several high-level requi
 In this section some necessary concepts will be explained in order for non-technical users can easily understand the background, as well as the necessary concepts to fulfill the previously defined requirements.
 
 Some services are crucial, in order to guarantee the security of communications.
-
 \textbf{Confidentiality} is a security service which keeps the contents of communications secret, except from the authorized parties.
-
 \textbf{Integrity} safeguards communications from modifications by attackers.
-
 The \textbf{authentication} service can verify the identity of an agent, taking part in the communications.
-
 Finally the \textbf{non-repudiation} service prevents an entity from denying authorship of a piece of information.
 
 \textbf{Cryptographic keys} are tools used to grant the aforementioned services. Users in possession of the keys can secure and access their messages.
-
 \textbf{Symmetric keys}, in possession of all communicating parties, are used to secure messages and documents.
-
 \textbf{Asymmetric key pairs} (public and private key), are used to enable communicating by for example, sharing new symmetric keys between users who wish to communicate. Secondly, they provide non-repudiation through digital signatures.
 These keys identify the owner. The private key must always be in possession of the owner. With it they can prove their identity and generate signatures.
 The public key should be shared with other people so that they can share keys and verify the owner's signatures.
@@ -101,12 +92,39 @@ This strong signature legally represents a person or a group. This type of signa
 
 % -----------------------------------------------------
 % -----------------------------------------------------
-\section{Solution Services}\label{chap:problem:services}
-
-% TODO - more high level
-% groups and keys
+\section{Use Case Scenarios}\label{chap:problem:scenarios}
 
 This section will go into more technical detail on the services the solution should provide taking account the client requirements and the essential concepts.
+
+% -----------------------------------------------------
+\subsection{Initial State}\label{chap:problem:scenarios:init}
+
+The users will receive the device with a pair of asymmetric keys, a private and public, generated inside the device from fabric.
+Each device will have the user's public keys, whom he wishes to communicate.
+The user can request whose public keys he wants, before the device is initialized in fabric.
+This allows the users to share symmetric keys between them, which they can user to begin trading data securely.
+The device can also come with the symmetric keys already shared and stored in each user device.
+
+% -----------------------------------------------------
+\subsection{Authentication}\label{chap:problem:scenarios:auth}
+
+\textbf{Personal}
+
+\textbf{Groups}
+
+% -----------------------------------------------------
+\subsection{Communications}\label{chap:problem:scenarios:comms}
+
+\textbf{}
+
+\textbf{Groups}
+
+% -----------------------------------------------------
+\subsection{New Channels of Communication}\label{chap:problem:scenarios:keys}
+
+\textbf{}
+
+\textbf{Groups}
 
 % -----------------------------------------------------
 \subsection{Communications}\label{chap:problem:services:comms}
