@@ -3,211 +3,143 @@
 % !TEX root = ../main.tex
 % #############################################################################
 % Change the Name of the Chapter i the following line
-\fancychapter{Background and Related Work}
+\fancychapter{Problem Definition}
 \cleardoublepage
 % The following line allows to ref this chapter
-\label{chap:background}
+\label{chap:problem}
 
-This section goes into detail on the necessary concepts required to perfectly understand the problem, the proposed solution and the rationalization process behind it. It starts by providing an overview of cryptographic services, primitives and protocols. Then it presents several general purpose computing systems and ends by presenting other relevant components.
+This chapter will define the problem, the client requirements and list the necessary functionalities of the solution, to successfully address the problem.
+First some context surrounding the problem is given. 
+Next, the profile of the target clients will be described, and some examples will be given.
+The following section contains a list of client requirements the solution must abide by.
+Then it will shed the light on some essential concepts in order to understand the operations that need to be implemented.
+It will end by detailing the client use cases it must provide.
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\section{Cryptography}\label{chap:background:crypto}
+% -----------------------------------------------------
+% -----------------------------------------------------
+\section{Context}\label{chap:problem:context}
+As discussed before, the same computers commonly used for communications and information storage are exploitable by attackers, and can cause a minor inconveniences, to possibly severe repercussions, such as, losing your confidential data to malicious parties.
 
-There are several cryptographic services relevant to this work, namely:
+An interesting approach to improve security is to add another layer of security to confidential data and communications through the addition of an device, independent of the user's personal computer. The device is responsible for the security of sensitive data and communications.
+
+% An illustration of the system with multiple users can be seen in figure~\ref{fig:main-system}.
+
+\subsection{Entities}\label{chap:problem:entities}
+
+These type of devices are especially relevant to people high responsibility jobs, that handle very sensitive information, which have dire consequences if they are lost, corrupted or leaked.
+Some examples are government officials who handle confidential information pertaining to a country, company executives, such as the CEO who have access to company secrets, diplomats who manage confidential treaties, and military officers who have access to information critical to a countries' security.
+
+% Talk about groups and individuals
+Additionally, not just individuals have interest in these systems, a device can be assigned to a group of people representing an entity. For example, in the armed forces, a device can be assigned to the navy, one to the infantry, and every other faction. Any ranked officer, or people with a certain level of authority, could use the entity device, to communicate with other people or entities, in behalf of the group.
+
+\subsection{Devices}\label{chap:problem:devices}
+% Devices
+There are currently on the market some dedicated devices designed to secure communications and save private data.
+These type of devices have physical tamper-resistant measures against attackers who wish to read the device's information. They also provide fail-safe mechanisms in case of an attack.
+\ac{HSM} is a high grade device, with more computational power and larger storage capacity for the user's secrets.
+
+Smart Cards, provide secure and portable tamper-resistant storage.
+They have lower processing power, and smaller memory which only allows to store a small amount of data.
+They have a low-cost, so can be produced in bulk and easily replaced. Only an RFID card reader is needed to read its information, and verify the owner's identity.
+Because of these features, they are widely used in the retail, healthcare, communication and government industries.
+
+% -----------------------------------------------------
+% -----------------------------------------------------
+\section{Requirements}\label{chap:problem:requirements}
+
+To effectively address the presented problem, there are several high-level requirements the solution must adhere to:
 \begin{itemize}
-    \item Confidentiality: used to hide the content of information from unauthorized entities;
-    
-    \item Data Integrity: ability to detect the unauthorized modification of data;
-    
-    \item Authentication: used to ascertain the identify or origin of a message. Authentication is achieved if the combination of data integrity and freshness (prevention of replay attacks: when a valid message is replayed by a malicious entity);
-    
-    \item Non-Repudiation: prevents an entity from denying the authorship of a document or message.
+	\item Devices should be distributable to entities with one or more individuals;
+	\item The system must allow communications between groups of people and individuals representing themselves or an entity;
+	\item The system must be responsible for securing all communications against any sort of attacks;
+	\item The device should be independent from user's personal computers;
+	\item Users should be able to create secure channels of communication with other entities;
+	\item Is should be simple to use by everyone, including non-technical people;
+	\item It should have a relatively low cost, to allow distribution of several devices among multiple people;
+	\item Only individuals with a certain level of clearance should be authorized to use the device. Personal devices should only be accessible by their owners.
 \end{itemize}
 
-To  guarantee these services, there are two types of keys: symmetric and asymmetric.
-Symmetric keys are shared by 2 or more communicating parties. The keys are smaller and the operations are faster than with asymmetric keys.
+These client requirements can be translated into slightly more technical and tangible requirements a solution must follow.
+% -----------------------------------------------------
+The users will receive the device with a pair of asymmetric keys, a private and public, generated inside the device from fabric.
+Each device will have the user's public keys, whom he wishes to communicate.
+The user can request whose public keys he wants, before the device is initialized in fabric.
+This allows the users to share symmetric keys between them, which they can user to begin trading data securely.
+The device can also come with the symmetric keys already shared and stored in each user device.
+% -----------------------------------------------------
+In order to secure communications, the following services must be guaranteed: confidentiality, integrity and authentication.
+The system can give an option to provide non-repudiation to documents or files, by means of qualified digital signatures.
 
-Asymmetric keys constitute a pair for each party, one private and one public key. The private key is personal to its owner and should never be shared. The public key may be shared widely to other parties. Asymmetric keys are bigger and the operations are slower compared to symmetric key algorithms.
+% -----------------------------------------------------
+The device must store all the symmetric and asymmetric keys related to the entity or individual who owns the device.
+The device must support secure storage in order to store the user's sensitive information, such as the cryptographic keys.
+These keys must never be exposed to the outside environment of the device to ensure the security of communications and independence of the system.
+All cryptographic operations must also be performed inside the device.
+Additionally, the device should have physical tamper-resistant measures and mechanisms in place, in case of an intrusion, such as, permanent erasure of all sensitive data. 
+This means that even if an attacker is in possession of the physical device, it should be extremely difficult or even impossible to extract any information from it.
+The solution should follow the \ac{PKCS} standards, to strengthen its security requirements.
+% -----------------------------------------------------
+The solution should work with a plethora of devices, which will increase the adoptability of the solution among clients. This entails the use of a widely established protocol, which clearly defines a set of functions and standards the system should follow.
+This is where the \ac{PKCS} \#11 standard is again relevant. It allows operations to be standardized across different devices, increasing the range of supported devices. By implementing the system in accordance with these guidelines, it will have a higher device interoperability.
 
-There are two types of ciphers regarding the procedure: stream and block ciphers.
-Stream ciphers generate an infinite stream of pseudo-random bits as the key, know as key-stream. The stream is used to encrypt, usually 1 bit of plaintext at a time. The operation to combine the key-stream and plaintext is an exclusive-or (XOR). Stream ciphers are usually faster than block ciphers, have lower memory requirements and are therefore cheaper and more suitable to embedded devices with limited memory. However they are prone to weaknesses based on usage, in particular, using the same \ac{IV} more than once. 
+% -----------------------------------------------------
+The system should provide an application on the user's device, which will communicate with the physical device, and make the operation's available to the user through a simple interface for the regular non-tech savvy user.
+Another related requirement is the usage of a common connection solution, e.g. USB cable, to further increase the pool of supported devices.
+In addition, the system should perform the operations in a reasonable time to minimize the user's wait, and improve the user experience.
 
-Block ciphers encrypt fixed-length groups of bits, called blocks, with a symmetric key. They have a higher memory usage, in order to keep the blocks in memory. Since the plaintext is encrypted one block at a time, if the plaintext length is not a multiple of the block size, the last block needs to be padded. This can be taken advantage of by attackers if not done correctly. Another side effect of using blocks is, it will be more susceptible to noise in transmissions. If a bit is flipped with a stream cipher, only the corresponding bit is affected. While with a block cipher, more than 1 bit is affected, depending on the mode.
+% -----------------------------------------------------
+% -----------------------------------------------------
+\section{Use Case Scenarios}\label{chap:problem:scenarios}
 
-Symmetric ciphers support both block and stream ciphers while asymmetric use block ciphers.
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=0.7\textwidth]{./Images/main-figure.png}
+    \caption{System illustration.}
+    \label{fig:main-system}
+\end{figure}
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\subsection{Hash Functions}\label{chap:background:crypto:hash}
+This section will define and detail the use cases the solution must satisfy and provide to the user. The combination of the use cases satisfy the client requirements in Section~\ref{chap:problem:requirements}.
+Figure~\ref{fig:main-system} will be used as an example and illustration for the different scenarios.
 
-A cryptography hash function generates a fixed dimension value (digest) based on variable input texts, such as messages or files. Secure hashes provide message integrity by comparing digests, calculated before, and after, transmission to determine if the message was altered. To achieve this, hash functions must have several properties:
-\begin{enumerate}
-    \item They must be deterministic, meaning the same input value must always result in the same hash value;
-    \item They must generate very different output values for similar inputs;
-    \item They must be collision resistant, meaning it should be hard to find two input messages that generate the same hash value;
-    \item The hash value should be computed relatively quickly;
-    \item Given a hash value, it should be hard to find an input text that produces that hash value.
-\end{enumerate}
+% -----------------------------------------------------
+\subsection{Authentication}\label{chap:problem:scenarios:auth}
 
-Popular hash functions include MD5, \ac{SHA}-1, \ac{SHA}-2 and \ac{SHA}-3. Collisions against MD5 can be performed in seconds and have been produced against \ac{SHA}-1 as well. Thus, these hash functions are considered broken and should not be used. Currently, \ac{SHA}-2 and the newest \ac{SHA}-3 are recommended. The \ac{SHA}-2 algorithm provides different functions which vary on the size of the digest. For example, the \ac{SHA}-256 function produces a 256 bit digest and \ac{SHA}-512 a 512 bit digest. All functions are secure for the foreseeable future, there is no practical security advantage in using a bigger digest.
+Every user must authenticate himself, before using the device. This can be done by providing a \ac{PIN}, which the device will verify before unlocking the session for the user.
+The device will come from fabric with a default authentication \ac{PIN}. The users should be allowed to change this number.
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\subsection{Symmetric Encryption}\label{chap:background:crypto:symmetric}
+For \textbf{personal} devices, there is only one user, the owner, as illustrated by Alice and Bob in figure~\ref{fig:main-system}. There is only the single authentication \ac{PIN}, which when sent to the device, unlocks the session, and the user can access its services.
+For \textbf{groups} and entities, there can be multiple users, illustrated by Charlie. In this case, there are different scenarios for authentication.
+The simplest is when it is not needed to authenticate the individual user, only the entity. There is only a single authentication \ac{PIN} for the entity. All the user's with permission to communicate in behalf of the entity, must know the \ac{PIN}. They only need to send the number to the device to be allowed access to its operations.
 
-Symmetric ciphers use symmetric keys and are frequently used to achieve, data integrity, authentication and confidentiality.
+The second scenario, is when an entity wishes to authenticate each individual user with access to the device. 
+This would entail a more complex process. A user will be assigned the role of administrator. For example, in the military, this could be assigned to the top ranking general. The administrator, using the \ac{PIN} from fabric, is able to register new users with their own private \ac{PIN}, access the logs of which user logged in and when, as well as, which messages they sent and received.
+The registration of a new user must be done physically with both administrator and user. The administrator authenticates himself to the device, begins the registration process and allows the user to insert their name and \ac{PIN}.
+It is important to note that in all scenarios, only the users or the entity is authenticated, the device does not authenticate itself to the user.
 
-One of the most popular symmetric-key algorithms is the \ac{AES}. This algorithm uses 128-bit blocks for block cipher modes and the keys can be 128, 192 or 256 bits. \ac{AES} has block and stream cipher modes.
+% -----------------------------------------------------
+\subsection{Communications}\label{chap:problem:scenarios:comms}
 
-\textbf{\ac{ECB}} is the simplest mode. It is a block cipher and works by encrypting each block with the symmetric key. If the same key is used, for equal plaintext blocks, the result will always be the same. For this reason, patterns are easily seen and the mode is considered insecure.
+For each channel of communication between individual users, groups or entities, the same symmetric key is saved in secure storage on both devices. For one channel, one key is used.
+These device has a limited amount of secure storage, so only a certain amount of symmetric keys can be stored there.
+When a user wants to send a secure message, after authenticating himself to the device, the plaintext data is first sent to the device. Inside, it will secure the data using the correct symmetric key, and return it to the user. The user can then send the secured through a convenient service such as email. Only the recipient with a similar device with the same key can read the contents.
 
-\textbf{\ac{CBC}} is another block cipher mode. It combines the first block of plaintext and an IV with the XOR operator and encrypts the result. For the subsequent blocks, the previous ciphertext is used instead of the IV. The message needs to be padded to a multiple of the block size. If this is not done correctly, it can be exploited with a padding oracle attack \cite{paddingoracle}. Implementing ciphertext stealing, resolves the issue and is recommended for the security of \ac{CBC} \cite{ciphertextstealing}.
-Encryption is not parallelizable since a ciphertext block depends on all the blocks before it. Another disadvantage of \ac{CBC} is it cannot precompute data to improve encryption performance.
-To decrypt a ciphertext block, only the previous ciphertext block is needed. Therefore random read access is supported and decryption can be parallelized.
-Regarding error propagation, when a bit is flipped in the ciphertext, the plaintext block will be completely corrupted and the corresponding bit of the next block will be inverted.
+In the simplest scenario, the system allows secure communications between a limited amount of entities. Each entity, upon ordering the device, specifies which entities it wants to communicate with. For example, Alice can request a device which enables two separate channels with Bob and Charlie. Alice can also request a single channel with all three entities, in this case, only one key is required for all.
+In fabric, the required keys will be generated and stored in every necessary device. When all involved entities receive their device, they can begin communications immediately.
+This approach is easier to develop and implement, but is not very flexible. It has a limit on the number of communications, does not allow for the users to establish new channels of communication without returning the device to manufacturing, and does not support digital signatures due to lack of asymmetric keys.
 
-The \textbf{\ac{OFB}} mode repeatedly encrypts the IV for each block, xoring the result with the plaintext block.
-The encryption and decryption processes are exactly the same.
-The block cipher is only used in the encryption direction, which means the message does not need to be padded. It is effectively a stream cipher.
-The downside of needing to encrypt the IV multiple times, is the encryption and decryption are not parallelizable and random read access is not possible. However, the multiple encryptions of the IV can be precomputed in order to increase the performance of both encryption and decryption.
-Changes to a ciphertext block, only affect the corresponding bits.
+Including asymmetric keys, allows an approach with improved features.
+Each device has one pair of asymmetric keys stored in secure storage, generated inside the device from fabric. This pair identifies the entity, only it possesses the private key. Symmetric keys used for communication are encrypted with the public key and be stored in plain memory. Only the private key inside the device in secure storage can decrypt these keys. This permits the storage of a practically unlimited number of symmetric keys, since the secure storage size constraints are not a factor.
+With the addition of these type of keys, digital signatures are available and users can communicate with new entities. This also opens the possibility for the symmetric keys to have an expiration date, to avoid overuse, and reduce the possibility of being compromised. When they expire, new ones can be exchanged.
 
-\textbf{\ac{CFB}} is a combination of \ac{OFB} and \ac{CBC}. It xors the encrypted \ac{IV} with the plaintext block. The result is then used for the next block.
-Similarly to \ac{OFB}, \ac{CFB} is effectively a stream cipher. Yet, akin to \ac{CBC}, and for the same reasons, encryption is not parallelizable, opposed to decryption which is. Random read access is possible, contrary to preprocessing which is not.
-An interesting difference of \ac{CFB} is it can become self-synchronous, meaning it will recover if s bits are lost. If s=1, it can recover from slips of any number of bits, if s=8 it can recover from slips of any number of bytes. However for every blockcipher call, \ac{CFB} only processes s bits, compared to 128 bits (block size), which is a major performance cost.
+Since the private key is generated inside the device from fabric, and never leaves it, special qualified \textbf{digital signatures} can be generated by an entity. These strong signatures can legally represent the entity. When a user wishes to generate a signature for a piece of data, he must send the data indicating he wishes a qualified signature. The device will compute and return the signature for the user to use.
 
-\textbf{\ac{CTR}} mode concatenates an IV with a counter beginning at 0. Each sequence is encrypted and xor'ed with the plaintext block. For each block the sequence is incremented by 1.
-This mode is comparable to \ac{OFB}, as it is also a stream cipher, the encryption operation is exactly the same as the decryption and an error affects only the respective bits.
-However it does not have the performance disadvantages of \ac{OFB}. Encryption and decryption are parallelizable, random read access and preprocessing are both possible.
-It is worth noting that due to existing no need to implement decryption, it can save hardware costs and simplify code.
+% -----------------------------------------------------
+\subsection{New Channels}\label{chap:problem:scenarios:keys}
 
-For every mode with an \ac{IV}, it needs to be sent along with the message to the receiver, or the receiver will not be able to retrieve the entire message.
+The users can establish new channels of communication with new users, or in some cases, users with already existing channels. This assumes the devices securely store a private and public key.
+If Alice wants to establish secure communications with a new user or a group in possession of an identical device, for example Bob, they must share public keys with each other, ideally physically to ensure no one is impersonated. The device will allow easy exportation and importation of these keys into the devices. After this, they can securely share a symmetric key. This is achieved by Alice sending a message to the device, indicating she wants to generate a new symmetric key, to communicate with Bob. The device saves the new key inside the device, and secures it with Alice's private key and the Bob's public key. The key can then be sent just like any other message to Bob. When the key is stored in both devices, a secure communication channel is achieved.
+To avoid the inconvenience of sharing public keys in person, the Alice and Bob can ask the manufacturer to import both keys into each others' devices, before receiving them.
 
-\ac{CBC}, \ac{OFB} and \ac{CFB} modes are proved secure, assuming the \ac{IV} is random, and is unique, meaning it is only used once for each key and message. For \ac{CTR} mode, the IV does not need to be random, but it cannot be reused with the same key.
-After the \ac{IV} is used, there is no need for the value to be kept secret. It can be sent alongside the ciphertext.
+There are cases where existing keys might need to be revoked due to suspicion of being compromised, or simply because their validity has expired, and new keys need to be exchanged. In this case, public keys already in each others devices, and similarly to the previous scenario, a new symmetric key is generated and stored with public-key cryptography in the device. The old key is erased from memory, and the new one is returned to the user, along with a message for the other entity to delete the old key. After the individual shares the key and message with the other entity, the key is likewise stored in their device, and the old one deleted.
 
-Regarding performance, \ac{CBC} is slower than \ac{CTR} mode. \ac{CFB} (even with s = 128) and \ac{OFB} are slower still.
-When efficiency characteristics matter, nothing comes close to \ac{CTR}: it has better performance characteristics, in multiple dimensions, than any of \ac{CBC}, \ac{CFB}, and \ac{OFB}.
-
-All these cipher modes are malleable, meaning an attacker can modify a ciphertext C, the result of encrypting plaintext P, to create ciphertext C' which will decrypt to plaintext P' that is similar to P. Malleability is connected to message integrity. This is not considered a relevant weakness since the modes only goal is to offer confidentiality guarantees, not integrity. If one wishes integrity it should pair one of these modes with a \ac{MAC}, or use a dedicated authenticated-encryption mode like \ac{CCM} or \ac{GCM} (discussed in Section~\ref{chap:background:crypto:aead}), which guarantee both confidentiality and integrity.
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\subsection{Message Authentication Code}\label{chap:background:crypto:mac}
-
-\ac{MAC} is a value, also called tag, used for authenticating a message.
-A \ac{MAC} algorithm, receives the message and a symmetric key, to generate a tag. Unlike digital signatures, \ac{MAC} do not offer non-repudiation since it uses a symmetric key, which need to be distributed to all parties. Any of the users in possession of the key can generate a \ac{MAC} for a message, as well as verify it. On the contrary, digital signatures utilize the private key from asymmetric cryptography, which is personal.
-
-Several techniques exist to construct a \ac{MAC}. One is \textbf{\ac{CBC-MAC}}, which utilizes the \ac{CBC} block cipher to encrypt data. A chain of blocks is generated, and the last block is the tag.
-\ac{CBC-MAC} also has similar caveats to \ac{CBC}, it is only secure for fixed-length messages \cite{aesmodes} and different keys have to be used for \ac{CBC} encryption and generating the authentication tag. 
-\ac{CBC-MAC} security deficiencies were resolved with \ac{OMAC}, which is secure for variable-length messages.
-
-\textbf{\ac{HMAC}} is different from the previous techniques, by using a cryptographic hash function, such as SHA-2, and a symmetric secret key to construct a tag. \ac{HMAC} is secure, as long as the underlying hash function used is considered secure. Therefore SHA-2 is a good option.
-Despite \ac{CBC}'s inefficiencies discussed in section \ref{chap:background:crypto:symmetric}, specifically, each block is serially encrypted, \ac{HMAC} is slower due to the inefficient hashing operations. However, \ac{HMAC} does not have the security problems of \ac{CBC-MAC}. \ac{HMAC} is a popular and well-designed construction, but it is not the most efficient approach~\cite{aesmodes}.
-
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\subsection{Authenticated Encryption}\label{chap:background:crypto:aead}
-
- \ac{AEAD} schemes assure both confidentiality and authenticity using only symmetric keys. They may be more efficient than combining separate privacy and authentication techniques, such as the ones discussed in earlier sections, and are less likely to be used incorrectly. \ac{AEAD} schemes also allows associated data to be included in the message, which is authenticated but not encrypted. This feature is useful, for example, for network packets. The header is visible but is authenticated. The payload is both authenticated and encrypted. 
-
-\textbf{\ac{CCM}} is an \ac{AEAD} mode that combines \ac{CBC-MAC} for authentication and \ac{CTR} for encryption.
-\ac{CCM} uses a MAC-then-Encrypt approach. First, \ac{CBC-MAC} is computed on the message to obtain the tag. Then the message and the tag are encrypted with \ac{CTR} mode.
-Due to performing two encryption operations, \ac{CBC-MAC} and then \ac{CTR}, it is a less efficient mode compared to others such as \ac{GCM}, which only performs one encryption operation.
-It is not an online mode, meaning it needs to know the message and \ac{AD} length beforehand. Therefore, \ac{AD} cannot be preprocessed. It is only considered secure for fixed-length messages.
-Despite being a slower mode, it is secure and achieves its goals, so it is widely supported, included in \ac{IPsec}, \ac{TLS} and Bluetooth low energy.
-
-\ac{EAX} mode aims to improve on \ac{CCM} by replacing \ac{CBC-MAC} with \ac{OMAC}. Similarly to \ac{CCM}, it first generates the authentication tag with \ac{OMAC}, then encrypts with \ac{CTR}.
-By using \ac{OMAC} instead of \ac{CBC-MAC}, it supports variable-length messages and is online.
-
-\textbf{\ac{GCM}} utilizes an encrypt-then-MAC approach. It first encrypts with \ac{CTR} mode, then uses Galois mode of authentication to generate the tag. The Galois field multiplication supports parallel computation, making this mode faster than \ac{CCM}.
-Evidently, like in normal \ac{CTR} mode, it needs a different \ac{IV} for each encrypted message.
-Beyond being parallelizable, it has the advantages \ac{EAX} has over \ac{CCM}. It is online and the \ac{AD} can be preproccesed.
-For security reasons, authentication tags should be at least 96 bits, even though the mode allows smaller tags. One limitation of \ac{GCM} is, it can encrypt a maximum of 64GiB of plaintext. Security analysis of several modes, decisively states that \ac{GCM} in hardware is unsurpassed by any authenticated-encryption scheme.
-
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\subsection{Asymmetric Encryption}\label{chap:background:crypto:assymetric}
-
-Asymmetric cryptography utilizes a pair of public and private keys. It is commonly used to provide confidentiality, data integrity, authentication and non-repudiation.
-The private keys must always remain secure with the owner. Public keys may be distributed as it does not compromise security. Encrypting a message with the public key, provides confidentiality, since only the owner who possesses the private key, can decipher the message. On the other hand, private key encryption provides authentication on account of only the owner is in possession of the private key. These two different concepts can be combined to provide confidentiality, authentication and non-repudiation to a message.
-
-Compared to symmetric keys, asymmetric keys are less risky to distribute, as the public key can be viewed by anyone. However, there is the problem of validating public keys, which consists of guaranteeing a public key is owned by the correct identity.
-
-Once two parties have traded public keys, asymmetric and symmetric keys can be combined in a hybrid encryption scheme. The scheme takes advantage of the faster symmetric encryption to cipher the data, and the asymmetric encryption to encrypt the symmetric key, and provide authentication. Alternatively, it can be used to share symmetric keys for usage with an authenticated-encryption scheme.
-
-% ECC, RSA
-There are two popular algorithms for public-key encryption, \ac{RSA} and \ac{ECC}.
-\ac{RSA} has been used for decades, it is well established and widely used. It is based on the difficulty of factoring the product of two large prime numbers.
-
-\ac{ECC} is a more recent algorithm, based on the Elliptic Curve Discrete Logarithm Problem. For the same level of security, \ac{ECC} keys are smaller. Gupta \& Silakari, 2011~\cite{eccoverrsa}, give as an example a 160-bit \ac{ECC} key has similar security to a 1024-bit \ac{RSA} key. They also state that smaller key sizes may result in faster execution timings for the schemes, which is beneficial to systems where real time performance is a critical factor.
-With the threat of quantum computers, both \ac{ECC} and \ac{RSA} could become obsolete in the future, as it is vulnerable to brute force attacks from such devices.
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\subsection{Digital Signatures}\label{chap:background:crypto:signatures}
-
-Signatures is a standard scheme for authenticating documents or digital messages and ensuring the signer cannot repudiate the signature. The digital signature is generated by a combination of asymmetric keys and hash functions.
-The digital signature is generated by first computing a hash of the message, then signing the hash with the author's private key. The message is not directly signed since public-key encryption is slow and messages are most likely bigger than the hash of the message, which has a fixed size. Third parties can validate the signature with only the signature and the author's public key. Only the author is in possession of their private key, so only he could have generated the signature.
-They are a digital version of handwritten signatures~\cite{digitalsignatures}, commonly used anywhere forgery detection is essential, for instance in financial transactions or software distribution.
-
-Qualified signatures are a special type of signatures where the private keys are generated and stored inside a device, such as a Smart Card, and never leave it. For the owner to sign a document, he needs to be in possession of the Smart Card (something owned) and a \ac{PIN} (something known). This strong signature legally represents a person or a group. This type of signatures are used in the Portuguese Citizen Card.
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\subsection{Public Key Infrastructure}\label{chap:background:PKI}
-
-Asymmetric cryptographic needs a secure mechanism to validate public keys, i.e guaranteeing a public key is owned by a certain identity.
-A \ac{PKI} is a central database of public-key certificates. It is responsible for managing, distributing, storing and revoking digital certificates. Digital certificates map public keys to identities and are used to verify that a specific public key belongs to a certain identity.
-A \ac{PKI} has several components e.g.\ a registration authority, a certification authority and a central database of stored keys.
-A user can also submit other entities' public keys. Other entities that trust the user responsible for the submission, can use the public keys to authenticate messages.
-There are alternative approaches to \ac{PKI}, such as a web of trust. This mechanism self-signs certificates and third parties attest these certificates. This approach is implemented in \ac{PGP}~\cite{modelingPKI}.
-
-%TLS
-\textbf{\ac{TLS}} is a cryptographic protocol that aims to provide confidentiality and data integrity, during transmission, over TCP/IP. It uses symmetric cryptography to encrypt data. A new symmetric key is generated for each connection.
-\ac{TLS} supports asymmetric cryptography which authenticates the identity of the communicating parties.
-\ac{TLS} is widely used in web browsing, e-mail and instant messaging.
-The protocol can provide perfect forward secrecy, unlike \ac{PGP}, assuring any past connections are secure, if in the future encryptions keys are disclosed.
-
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% \subsection{Secure Cryptoprocessors}  \label{processors}
-\section{General Purpose Computing Systems}\label{chap:background:computing}
-
-In this section we discuss some general purpose computing systems that may be pertinent to this work. 
-
-Secure cryptoprocessors are dedicated physical computational devices for performing cryptographic operations. Some secure cryptoprocessors namely, Smart Cards, Trusted Platform Modules and Hardware Security Modules will be discussed next.
-
-% HSM
-\subsection{Hardware Security Modules}\label{chap:background:computing:hsm}
-
-A \ac{HSM} is a high grade computational device responsible for storage, management and generation of cryptographic keys, as well as performing cryptographic operations. Keys never leave the device and all operations are performed inside the \ac{HSM}. These devices have physical security mechanisms to achieve tamper-resistance, support several cryptographic operations, random number generators and have fail-safe mechanisms in place, in case of an attack, e.g., deletion of keys. Some devices have accelerated \ac{CPU} and optimizations to improve operations' performance.
-These modules are usually costlier than other computational systems i.e. Trusted Platform Modules, but are more advanced in processing power and available operations.
-
-% smartcards
-\subsection*{Smart Cards}\label{chap:background:computing:smartcards}
-Smart Cards are a type of \ac{HSM}, credit card-sized with an embedded microchip and provide secure, tamper-resistant storage. These devices have a low price for manufacturing, which allows for bulk production of the device and easy replacement if needed. However, the disadvantage is it makes it easy for attackers to acquire many devices to try to tamper with. They have a low processing power, and small memory which only allows to store a small amount of data. To be authenticated, the cards need readers that are either contact or contactless (RFID technology). These characteristics make them extremely popular, used in many industries, such as, retail, healthcare, communication and government.
-
-% descrever smartfusion, caracteristicas, o que suporta, etc.
-\subsection{Field-Programmable Gate Array System-on-Chip}\label{chap:background:computing:smartfusion}
-A \ac{FPGA} is an integrated circuit designed to be programmed and configured after manufacturing. \ac{FPGA}s are often used to prototype and for high specialized systems produced at low scale. One of the major advantages is their agility and flexibility to be customized for special use cases~\cite{cyberphysicalsystems}. However, the reconfigurability may introduce certain weaknesses to the system. \ac{FPGA}s are generic and its bitstream is vulnerable to cloning if no additional protection is applied. Cloning is simple and is considered the worst security vulnerability of volatile \ac{FPGA}s \cite{fpgasurvey}. The configuration data of these devices is stored in non-volatile memory and may be directly copied if no authentication mechanism is implemented~\cite{drimer2007authentication}.
-
-An example of such device is the SmartFusion2 System-on-Chip from Microsemi that delivers more resources in low-density devices with the lowest power, proven security, and exceptional reliabilit~\cite{smartfusion2soc}. Smartfusion2 SoC integrates a non-volatile \ac{FPGA} with a system-on-chip (SoC) and an internal secure eNVM for storing Phase 0 boot code. Since they are non-volatile, the bitstream is at a lower risk of being probed during boot~\cite{parrinha2017flexible}. The eSRAM flash memory is protected against single event upsets. Smartfusion2 has an embedded ARM Cortex-M3 processor and a true random number generator (TRNG), which provides a quality source of entropy, a critical part of most cryptographic algorithms. It supports some cryptographic functions: AES-256, SHA-256, ECC and Physically Unclonable Function (PUF) (explained in Section~\ref{chap:background:PUF}).
-
-\subsection*{Secure boot}
-Not validating code before its execution leads to potentially executing untrusted code. This causes problems such as hackers inserting malware to hijack systems, download intellectual property, spy on users or perform any number of attacks.
-Most embedded processors do not validate code before it is executed. The SmartFusion2 SoC solves this problem by using a non-volatile flash memory (eNVM) to store boot code which can be write protected. Another reason is it authenticates each stage of the boot process to create a chain-of-trust.
-Other systems also implement solutions to secure boot code. Infineon secures the boot process for ARM platforms by incorporating a Trusted platform Module (TPM), compliant with version 1.2, into the processor. The TPM operates as a root of trust to certify the platform's integrity and correct system state. This prevents tampered kernels and fault attacks.
-Texas Instruments Sitara processors allows the customer to specify a public key as a root of trust to be fused into the device. This key is used to authenticate other keys that can be used to authenticate software components.
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\section{Other Important Concepts}\label{chap:background:other}
-
-There are some important concepts to consider involving cryptography and genera purpose computing systems.
-
-\subsection{Random Number Generators} are components that generate a sequence of numbers that cannot be predicted. Generating random numbers is a common and critical requirement for almost all cryptographic algorithms. Pseudo-random number generators are frequent in software approaches and are not truly random. They depend on an algorithm and initial conditions (seed) to generate random numbers. If the seed is known, the numbers are predictable.
-True random number generators (TRNG) are hardware devices that generate numbers from microscopic physical conditions. These conditions are completely unpredictable. For this reason, TRNGs are perfect for use in cryptography. HSM are usually equipped with a TRNG.
-
-\subsection{PUFs} are unique identifiers for microprocessors like HSM and smart cards. They depend on unpredictable physical factors of the device introduced during manufacturing, so are difficult to predict and replicate even on identical hardware. PUFs implement a challenge-response authentication system. A challenge value is sent to the device and an unpredictable response is computed by the PUF. Several pairs of challenge, response values are allowed. PUFs can also be used for key generation and as a source of randomness.\label{chap:background:PUF}
-
-\subsection{Public-Key Cryptography Standards \#11}
-Public-Key Cryptography Standards (PKCS) are a group of cryptographic standards, published by RSA Laboratories, that describe guidelines for using cryptographic schemes.
-PKCS\#11 defines an \ac{API} designed to interface between applications and cryptographic devices such as smart cards and hardware security modules~\cite{pkcs11analysis}. 
-The standard has been widely used, promoting interoperability between devices. By using the same standard, it allows devices to take advantage of another device's \ac{API}.
-The PKCS\#11 \ac{API} allows applications to access cryptographic devices through slots. The slots represent a socket or device reader. A session can be established through the slot so the application can authenticate itself to a token with a default \ac{PIN}. The token holds private and public objects which can be keys and certificates. Only public objects are available to an unauthenticated session. The normal user has access to both private and public objects but cannot change the authentication \ac{PIN}s. The privileged user can change both his and the normal user's \ac{PIN}.
-An attack scenario is possible if the host machine is compromised, an attacker can intercept the \ac{PIN}, which he can use to access the cryptographic device.
+Complementing the previous scenarios, to increase the user experience, the individual when generating a new key, can specify for how long the key will be valid. When it is not chosen, a default value is set.
