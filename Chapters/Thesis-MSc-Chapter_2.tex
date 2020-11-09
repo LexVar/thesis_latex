@@ -167,9 +167,9 @@ The protocol can provide perfect forward secrecy, unlike \ac{PGP}, assuring any 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % \subsection{Secure Cryptoprocessors}  \label{processors}
-\section{General Purpose Computing Systems}\label{chap:background:computing}
+\section{Secure Cryptoprocessors}\label{chap:background:cryptoprocessors}
 
-In this section we discuss some general purpose computing systems that may be pertinent to this work. 
+In this section we discuss some computing systems that may be pertinent to this work. 
 
 Secure cryptoprocessors are dedicated physical computational devices for performing cryptographic operations. Some secure cryptoprocessors namely, Smart Cards, Trusted Platform Modules and Hardware Security Modules will be discussed next.
 
@@ -187,7 +187,7 @@ Smart Cards are a type of \ac{HSM}, credit card-sized with an embedded microchip
 \subsection{Field-Programmable Gate Array System-on-Chip}\label{chap:background:computing:smartfusion}
 A \ac{FPGA} is an integrated circuit designed to be programmed and configured after manufacturing. \ac{FPGA}s are often used to prototype and for high specialized systems produced at low scale. One of the major advantages is their agility and flexibility to be customized for special use cases~\cite{cyberphysicalsystems}. However, the reconfigurability may introduce certain weaknesses to the system. \ac{FPGA}s are generic and its bitstream is vulnerable to cloning if no additional protection is applied. Cloning is simple and is considered the worst security vulnerability of volatile \ac{FPGA}s \cite{fpgasurvey}. The configuration data of these devices is stored in non-volatile memory and may be directly copied if no authentication mechanism is implemented~\cite{drimer2007authentication}.
 
-An example of such device is the SmartFusion2 System-on-Chip from Microsemi that delivers more resources in low-density devices with the lowest power, proven security, and exceptional reliabilit~\cite{smartfusion2soc}. Smartfusion2 SoC integrates a non-volatile \ac{FPGA} with a system-on-chip (SoC) and an internal secure eNVM for storing Phase 0 boot code. Since they are non-volatile, the bitstream is at a lower risk of being probed during boot~\cite{parrinha2017flexible}. The eSRAM flash memory is protected against single event upsets. Smartfusion2 has an embedded ARM Cortex-M3 processor and a true random number generator (TRNG), which provides a quality source of entropy, a critical part of most cryptographic algorithms. It supports some cryptographic functions: AES-256, SHA-256, ECC and Physically Unclonable Function (PUF) (explained in Section~\ref{chap:background:PUF}).
+An example of such device is the SmartFusion2 System-on-Chip from Microsemi that delivers more resources in low-density devices with the lowest power, proven security, and exceptional reliabilit~\cite{smartfusion2soc}. Smartfusion2 SoC integrates a non-volatile \ac{FPGA} with a system-on-chip (SoC) and an internal secure eNVM for storing Phase 0 boot code. Since they are non-volatile, the bitstream is at a lower risk of being probed during boot~\cite{parrinha2017flexible}. The eSRAM flash memory is protected against single event upsets. Smartfusion2 has an embedded ARM Cortex-M3 processor and a \ac{TRNG}, which provides a quality source of entropy, a critical part of most cryptographic algorithms. It supports some cryptographic functions: \ac{AES}-256, \ac{SHA}-256 and \ac{ECC}.
 
 \subsection*{Secure boot}
 Not validating code before its execution leads to potentially executing untrusted code. This causes problems such as hackers inserting malware to hijack systems, download intellectual property, spy on users or perform any number of attacks.
@@ -200,32 +200,20 @@ Texas Instruments Sitara processors allows the customer to specify a public key 
 
 There are some important concepts to consider involving cryptography and genera purpose computing systems.
 
-\subsection{Random Number Generators} are components that generate a sequence of numbers that cannot be predicted. Generating random numbers is a common and critical requirement for almost all cryptographic algorithms. Pseudo-random number generators are frequent in software approaches and are not truly random. They depend on an algorithm and initial conditions (seed) to generate random numbers. If the seed is known, the numbers are predictable.
-True random number generators (TRNG) are hardware devices that generate numbers from microscopic physical conditions. These conditions are completely unpredictable. For this reason, TRNGs are perfect for use in cryptography. HSM are usually equipped with a TRNG.
+\subsection{Random Number Generators}
+A \ac{TRNG} can generate a sequence of numbers that cannot be predicted. Generating random numbers is a common and critical requirement for almost all cryptographic algorithms. Pseudo-random number generators are frequent in software approaches and are not truly random. They depend on an algorithm and initial conditions (seed) to generate random numbers. If the seed is known, the numbers are predictable.
+\ac{TRNG} are hardware devices that generate numbers from microscopic physical conditions. These conditions are completely unpredictable. For this reason, \ac{TRNG}s are perfect for use in cryptography. HSM are usually equipped with a \ac{TRNG}.
 
-\subsection{PUFs} are unique identifiers for microprocessors like HSM and smart cards. They depend on unpredictable physical factors of the device introduced during manufacturing, so are difficult to predict and replicate even on identical hardware. PUFs implement a challenge-response authentication system. A challenge value is sent to the device and an unpredictable response is computed by the PUF. Several pairs of challenge, response values are allowed. PUFs can also be used for key generation and as a source of randomness.\label{chap:background:PUF}
+% \subsection{PUFs} are unique identifiers for microprocessors like HSM and smart cards. They depend on unpredictable physical factors of the device introduced during manufacturing, so are difficult to predict and replicate even on identical hardware. PUFs implement a challenge-response authentication system. A challenge value is sent to the device and an unpredictable response is computed by the PUF. Several pairs of challenge, response values are allowed. PUFs can also be used for key generation and as a source of randomness.\label{chap:background:PUF}
 
 \subsection{Public-Key Cryptography Standards \#11}
-\textbf{PKCS} are a group of widely used cryptographic standards, published by RSA Laboratories, which describe guidelines for using cryptographic schemes.
-PKCS\#11 defines an \ac{API} designed to interface between applications and cryptographic devices such as smart cards and hardware security modules~\cite{pkcs11analysis}. 
+\ac{PKCS} \#11 are a group of cryptographic standards, published by RSA Laboratories, which describe guidelines to manipulate common cryptographic objects.
+The standards defines an \ac{API} designed to interface between applications and cryptographic devices such as smart cards and hardware security modules~\cite{pkcs11analysis}. 
+Applications can use, create and modify objects, without exposing them to the application's memory.
 The standard has been widely used, promoting interoperability between devices. By using the same standard, it allows devices to take advantage of another device's \ac{API}.
-The PKCS\#11 \ac{API} allows applications to access cryptographic devices through slots. The slots represent a socket or device reader. A session can be established through the slot so the application can authenticate itself to a token with a default \ac{PIN}. The token holds private and public objects which can be keys and certificates. Only public objects are available to an unauthenticated session. The normal user has access to both private and public objects but cannot change the authentication \ac{PIN}s. The privileged user can change both his and the normal user's \ac{PIN}.
-An attack scenario is possible if the host machine is compromised, an attacker can intercept the \ac{PIN}, which he can use to access the cryptographic device.
+It allows applications to access cryptographic devices through slots. The slots represent a socket or device reader. A session can be established through the slot so the application can authenticate itself to a token with a default \ac{PIN}. The token holds private and public objects which can be keys and certificates. Only public objects are available to an unauthenticated session. The normal user has access to both private and public objects but cannot change the authentication \ac{PIN}s. The privileged user can change both his and the normal user's \ac{PIN}.
+% An attack scenario is possible if the host machine is compromised, an attacker can intercept the \ac{PIN}, which he can use to access the cryptographic device.
 
-% -----------------------------------------------------
-% \textbf{\ac{PKCS} \#11} are a group of widely used cryptographic standards, which define an \ac{API} designed to manipulate common cryptographic objects, such as keys.
-% With this \ac{API}, the objects can be used, created and modified by applications, without exposing them to the application's memory.
-
-% -----------------------------------------------------
-% There are also several usability requirements the solution must abide by.
-% -----------------------------------------------------
-The solution should work with a plethora of devices, which will increase the adoptability of the solution among clients. This entails the use of a widely established protocol, which clearly defines a set of functions and standards the system should follow.
-This is where the \ac{PKCS} \#11 standard is again relevant. It allows operations to be standardized across different devices, increasing the range of supported devices. By implementing the system in accordance with these guidelines, it will have a higher device interoperability.
-
-% -----------------------------------------------------
-The system should provide an application on the user's device, which will communicate with the physical device, and make the operation's available to the user through a simple interface for the regular non-tech savvy user.
-Another related requirement is the usage of a common connection solution, e.g. USB cable, to further increase the pool of supported devices.
-In addition, the system should perform the operations in a reasonable time to minimize the user's wait, and improve the user experience.
 % -----------------------------------------------------
 % \section{Concepts}\label{chap:problem:concepts}
 %

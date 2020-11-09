@@ -127,7 +127,8 @@ Including asymmetric keys, allows an approach with improved features.
 Each device has one pair of asymmetric keys stored in secure storage, generated inside the device from fabric. These keys allow the storage of a practically unlimited number of symmetric keys in non-volatile memory. This gives the flexibility entities might need to communicate with the number of entities they wish.
 
 Including asymmetric keys, generated inside the device, never exposed to the outside, makes the generation of qualified \textbf{digital signatures} possible. These strong signatures can legally represent the entity. When a user wishes to generate a signature for a piece of data, he must send the data indicating he wishes a qualified signature. The device will compute and return the signature for the user to use.
-When using asymmetric keys, the data sender can be authenticated to the receiver, using the entity private key stored in the device.
+
+Finally, when using asymmetric keys, beyond providing authentication to the communications, the data sender can be authenticated to the receiver, using the entities private key stored in the device.
 
 % -----------------------------------------------------
 \subsection{New Communications}\label{chap:problem:scenarios:keys}
