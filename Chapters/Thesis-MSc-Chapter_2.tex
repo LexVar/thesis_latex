@@ -165,8 +165,24 @@ There are alternative approaches to \ac{PKI}, such as a web of trust. This mecha
 The protocol can provide perfect forward secrecy, unlike \ac{PGP}, assuring any past connections are secure, if in the future encryptions keys are disclosed.
 
 
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % \subsection{Secure Cryptoprocessors}  \label{processors}
+\section{Other Important Concepts}\label{chap:background:other}
+
+There are some important concepts to consider involving cryptography and secure cryptoprocessors.
+
+\subsection{Random Number Generators}
+A \ac{TRNG} can generate a sequence of numbers that cannot be predicted. Generating random numbers is a common and critical requirement for almost all cryptographic algorithms. Pseudo-random number generators are frequent in software approaches and are not truly random. They depend on an algorithm and initial conditions (seed) to generate random numbers. If the seed is known, the numbers are predictable.
+\ac{TRNG} are hardware devices that generate numbers from microscopic physical conditions. These conditions are completely unpredictable. For this reason, \ac{TRNG}s are perfect for use in cryptography and secure cryptoprocessors.
+
+\subsection{Public-Key Cryptography Standards \#11}
+\ac{PKCS} \#11 are a group of cryptographic standards, published by RSA Laboratories, which describe guidelines to manipulate common cryptographic objects.
+The standards defines an \ac{API} designed to interface between applications and cryptographic devices such as smart cards and hardware security modules~\cite{pkcs11analysis}. 
+Applications can use, create and modify objects, without exposing them to the application's memory.
+The standard has been widely used, promoting interoperability between devices. By using the same standard, it allows devices to take advantage of another device's \ac{API}.
+It allows applications to access cryptographic devices through slots. The slots represent a socket or device reader. A session can be established through the slot so the application can authenticate itself to a token with a default \ac{PIN}. The token holds private and public objects which can be keys and certificates. Only public objects are available to an unauthenticated session. The normal user has access to both private and public objects but cannot change the authentication \ac{PIN}s. The privileged user can change both his and the normal user's \ac{PIN}.
+% An attack scenario is possible if the host machine is compromised, an attacker can intercept the \ac{PIN}, which he can use to access the cryptographic device.
 \section{Secure Cryptoprocessors}\label{chap:background:cryptoprocessors}
 
 In this section we discuss some computing systems that may be pertinent to this work. 
@@ -177,7 +193,7 @@ Secure cryptoprocessors are dedicated physical computational devices for perform
 \subsection{Hardware Security Modules}\label{chap:background:computing:hsm}
 
 A \ac{HSM} is a high grade computational device responsible for storage, management and generation of cryptographic keys, as well as performing cryptographic operations. Keys never leave the device and all operations are performed inside the \ac{HSM}. These devices have physical security mechanisms to achieve tamper-resistance, support several cryptographic operations, random number generators and have fail-safe mechanisms in place, in case of an attack, e.g., deletion of keys. Some devices have accelerated \ac{CPU} and optimizations to improve operations' performance.
-These modules are usually costlier than other computational systems i.e. Trusted Platform Modules, but are more advanced in processing power and available operations.
+These modules are usually costlier than other computational systems i.e. \ac{TPM}s, but are more advanced in processing power and available operations.
 
 % smartcards
 \subsection*{Smart Cards}\label{chap:background:computing:smartcards}
@@ -185,48 +201,14 @@ Smart Cards are a type of \ac{HSM}, credit card-sized with an embedded microchip
 
 % descrever smartfusion, caracteristicas, o que suporta, etc.
 \subsection{Field-Programmable Gate Array System-on-Chip}\label{chap:background:computing:smartfusion}
-A \ac{FPGA} is an integrated circuit designed to be programmed and configured after manufacturing. \ac{FPGA}s are often used to prototype and for high specialized systems produced at low scale. One of the major advantages is their agility and flexibility to be customized for special use cases~\cite{cyberphysicalsystems}. However, the reconfigurability may introduce certain weaknesses to the system. \ac{FPGA}s are generic and its bitstream is vulnerable to cloning if no additional protection is applied. Cloning is simple and is considered the worst security vulnerability of volatile \ac{FPGA}s \cite{fpgasurvey}. The configuration data of these devices is stored in non-volatile memory and may be directly copied if no authentication mechanism is implemented~\cite{drimer2007authentication}.
+A \ac{FPGA} is an integrated circuit designed to be programmed and configured after manufacturing. \ac{FPGA}s are often used to prototype and for high specialized systems produced at low scale. One of the major advantages is their agility and flexibility to be customized for special use cases~\cite{cyberphysicalsystems}. However, the reconfigurability may introduce certain weaknesses to the system. \ac{FPGA}s are generic and its bitstream is vulnerable to cloning if no additional protection is applied. Cloning is simple and is considered the worst security vulnerability of volatile \ac{FPGA}s~\cite{fpgasurvey}. The configuration data of these devices is stored in non-volatile memory and may be directly copied if no authentication mechanism is implemented~\cite{drimer2007authentication}.
 
-An example of such device is the SmartFusion2 System-on-Chip from Microsemi that delivers more resources in low-density devices with the lowest power, proven security, and exceptional reliabilit~\cite{smartfusion2soc}. Smartfusion2 SoC integrates a non-volatile \ac{FPGA} with a system-on-chip (SoC) and an internal secure eNVM for storing Phase 0 boot code. Since they are non-volatile, the bitstream is at a lower risk of being probed during boot~\cite{parrinha2017flexible}. The eSRAM flash memory is protected against single event upsets. Smartfusion2 has an embedded ARM Cortex-M3 processor and a \ac{TRNG}, which provides a quality source of entropy, a critical part of most cryptographic algorithms. It supports some cryptographic functions: \ac{AES}-256, \ac{SHA}-256 and \ac{ECC}.
+An example of such device is the SmartFusion2 System-on-Chip from Microsemi that delivers more resources in low-density devices with the lowest power, proven security, and exceptional reliability~\cite{smartfusion2soc}. Smartfusion2 \ac{SoC} integrates a non-volatile \ac{FPGA} with a system-on-chip (SoC) and an internal secure eNVM for storing Phase 0 boot code. Since they are non-volatile, the bitstream is at a lower risk of being probed during boot~\cite{parrinha2017flexible}. The eSRAM flash memory is protected against single event upsets. Smartfusion2 has an embedded ARM Cortex-M3 processor and a \ac{TRNG}, which provides a quality source of entropy, a critical part of most cryptographic algorithms. It supports some cryptographic functions: \ac{AES}-256, \ac{SHA}-256 and \ac{ECC}.
 
-\subsection*{Secure boot}
+\subsubsection*{Secure boot}
 Not validating code before its execution leads to potentially executing untrusted code. This causes problems such as hackers inserting malware to hijack systems, download intellectual property, spy on users or perform any number of attacks.
-Most embedded processors do not validate code before it is executed. The SmartFusion2 SoC solves this problem by using a non-volatile flash memory (eNVM) to store boot code which can be write protected. Another reason is it authenticates each stage of the boot process to create a chain-of-trust.
-Other systems also implement solutions to secure boot code. Infineon secures the boot process for ARM platforms by incorporating a Trusted platform Module (TPM), compliant with version 1.2, into the processor. The TPM operates as a root of trust to certify the platform's integrity and correct system state. This prevents tampered kernels and fault attacks.
+Most embedded processors do not validate code before it is executed. The SmartFusion2 \ac{SoC} solves this problem by using a non-volatile flash memory (eNVM) to store boot code which can be write protected. Another reason is it authenticates each stage of the boot process to create a chain-of-trust.
+Other systems also implement solutions to secure boot code. Infineon secures the boot process for ARM platforms by incorporating a \ac{TPM}, compliant with version 1.2, into the processor. The \ac{TPM} operates as a root of trust to certify the platform's integrity and correct system state. This prevents tampered kernels and fault attacks.
 Texas Instruments Sitara processors allows the customer to specify a public key as a root of trust to be fused into the device. This key is used to authenticate other keys that can be used to authenticate software components.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\section{Other Important Concepts}\label{chap:background:other}
-
-There are some important concepts to consider involving cryptography and genera purpose computing systems.
-
-\subsection{Random Number Generators}
-A \ac{TRNG} can generate a sequence of numbers that cannot be predicted. Generating random numbers is a common and critical requirement for almost all cryptographic algorithms. Pseudo-random number generators are frequent in software approaches and are not truly random. They depend on an algorithm and initial conditions (seed) to generate random numbers. If the seed is known, the numbers are predictable.
-\ac{TRNG} are hardware devices that generate numbers from microscopic physical conditions. These conditions are completely unpredictable. For this reason, \ac{TRNG}s are perfect for use in cryptography. HSM are usually equipped with a \ac{TRNG}.
-
-% \subsection{PUFs} are unique identifiers for microprocessors like HSM and smart cards. They depend on unpredictable physical factors of the device introduced during manufacturing, so are difficult to predict and replicate even on identical hardware. PUFs implement a challenge-response authentication system. A challenge value is sent to the device and an unpredictable response is computed by the PUF. Several pairs of challenge, response values are allowed. PUFs can also be used for key generation and as a source of randomness.\label{chap:background:PUF}
-
-\subsection{Public-Key Cryptography Standards \#11}
-\ac{PKCS} \#11 are a group of cryptographic standards, published by RSA Laboratories, which describe guidelines to manipulate common cryptographic objects.
-The standards defines an \ac{API} designed to interface between applications and cryptographic devices such as smart cards and hardware security modules~\cite{pkcs11analysis}. 
-Applications can use, create and modify objects, without exposing them to the application's memory.
-The standard has been widely used, promoting interoperability between devices. By using the same standard, it allows devices to take advantage of another device's \ac{API}.
-It allows applications to access cryptographic devices through slots. The slots represent a socket or device reader. A session can be established through the slot so the application can authenticate itself to a token with a default \ac{PIN}. The token holds private and public objects which can be keys and certificates. Only public objects are available to an unauthenticated session. The normal user has access to both private and public objects but cannot change the authentication \ac{PIN}s. The privileged user can change both his and the normal user's \ac{PIN}.
-% An attack scenario is possible if the host machine is compromised, an attacker can intercept the \ac{PIN}, which he can use to access the cryptographic device.
-
-% -----------------------------------------------------
-% \section{Concepts}\label{chap:problem:concepts}
-%
-% In this section some necessary concepts will be explained in order for non-technical users can easily understand the background, as well as the necessary concepts to fulfill the previously defined requirements.
-%
-% Some services are crucial, in order to guarantee the security of communications.
-% \textbf{Confidentiality} is a security service which keeps the contents of communications secret, except from the authorized parties.
-% \textbf{Integrity} safeguards communications from modifications by attackers.
-% The \textbf{authentication} service can verify the identity of an agent, taking part in the communications.
-% Finally the \textbf{non-repudiation} service prevents an entity from denying authorship of a piece of information.
-%
-% \textbf{Cryptographic keys} are tools used to grant the aforementioned services. Users in possession of the keys can secure and access their messages.
-% \textbf{Symmetric keys}, in possession of all communicating parties, are used to secure messages and documents.
-% \textbf{Asymmetric key pairs} (public and private key), are used to enable communicating by for example, sharing new symmetric keys between users who wish to communicate. Secondly, they provide non-repudiation through digital signatures.
-% These keys identify the owner. The private key must always be in possession of the owner. With it they can prove their identity and generate signatures.
-% The public key should be shared with other people so that they can share keys and verify the owner's signatures.
