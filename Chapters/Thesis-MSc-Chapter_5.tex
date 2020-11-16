@@ -15,17 +15,19 @@ The non-repudiation property of asymmetric keys will be used to create digital s
 % -----------------------------------------------------
 \section{Initial State}\label{chap:solution:initial-state}
 
-The users will receive the device with a pair of private and public keys, generated inside the device from fabric. Each device will have the user's public keys, whom he wishes to communicate. The user can request whose public keys he wants, before the device is initialized in fabric. This allows the users to trade symmetric keys between them, which they can user to begin trading data securely. In addition, the device can also come with a symmetric key stored in each the user's device.
-
+The entities will receive the device with a pair of asymmetric keys, a private and public, generated inside the device from fabric. Each device will have the user's public keys, whom he wishes to communicate. The entity can request whose public keys he wants, before the device is initialized in fabric. This allows the users to share symmetric keys between them, which they can user to begin trading data securely. The device can also come with the symmetric keys already shared and stored in each user device.
 For each user or group a user wants to communicate with, he has a symmetric key stored in the device.
-
-When a new user wants to establish secure communications with an existing user or a group, he must share his public key with the user, ideally physically to ensure there are no mistakes or attacks. After this they can securely share symmetric keys to enable efficient and secure messaging.
 
 % -----------------------------------------------------
 % -----------------------------------------------------
 \section{Protocol}\label{chap:solution:protocol}
 
 This section will explain and define the communication protocols between both components in more detail. For each operation, it will describe the different phases, what data is traded and why.
+
+\subsection{Device Standardization}
+
+The solution should work with a plethora of devices, which will increase the adoptability of the solution among clients. This entails the use of a widely established protocol, which clearly defines a set of functions and standards the system should follow.
+This is where the \ac{PKCS} \#11 standard is again relevant. It allows operations to be standardized across different devices, increasing the range of supported devices. By implementing the system in accordance with these guidelines, it will have a higher device interoperability.
 
 % -----------------------------------------------------
 \subsection{Authentication Protocol}\label{chap:solution:protocol:auth}
