@@ -89,6 +89,9 @@ When efficiency characteristics matter, nothing comes close to \ac{CTR}: it has 
 
 All these cipher modes are malleable, meaning an attacker can modify a ciphertext C, the result of encrypting plaintext P, to create ciphertext C' which will decrypt to plaintext P' that is similar to P. Malleability is connected to message integrity. This is not considered a relevant weakness since the modes only goal is to offer confidentiality guarantees, not integrity. If one wishes integrity it should pair one of these modes with a \ac{MAC}, or use a dedicated authenticated-encryption mode like \ac{CCM} or \ac{GCM} (discussed in Section~\ref{chap:background:crypto:aead}), which guarantee both confidentiality and integrity.
 
+\ac{XTS} is intended for encrypting data on a storage device. The mode is not approved for any other use. Instead of an IV, it uses the sector number and block index in the sector. It uses a ciphertext stealing to avoid padding in the last block. As expected, it provides no integrity. Therefore is susceptible to data tampering, any ciphertext will be decrypted, regardless of being modified or not.
+% XTS can be combined with a file system with checksums (related to hash functions, also used to verify data integrity) for all data and metadata on disk, such as ZFS or Btrfs.
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \subsection{Message Authentication Code}\label{chap:background:crypto:mac}
 
@@ -207,7 +210,7 @@ An example of such device is the SmartFusion2 \ac{SoC} from Microsemi that deliv
 
 \subsubsection*{Secure boot}
 Not validating code before its execution leads to potentially executing untrusted code. This causes problems such as hackers inserting malware to hijack systems, download intellectual property, spy on users or perform any number of attacks.
-Most embedded processors do not validate code before it is executed. The SmartFusion2 \ac{SoC} solves this problem by using a non-volatile flash memory (eNVM) to store boot code which can be write protected. Another reason is it authenticates each stage of the boot process to create a chain-of-trust.
+Most embedded processors do not validate code before it is executed. The SmartFusion2 \ac{SoC} solves this problem by using a non-volatile memory (eNVM) to store boot code which can be write protected. Another reason is it authenticates each stage of the boot process to create a chain-of-trust.
 Other systems also implement solutions to secure boot code. Infineon secures the boot process for ARM platforms by incorporating a \ac{TPM}, compliant with version 1.2, into the processor. The \ac{TPM} operates as a root of trust to certify the platform's integrity and correct system state. This prevents tampered kernels and fault attacks.
 Texas Instruments Sitara processors allows the customer to specify a public key as a root of trust to be fused into the device. This key is used to authenticate other keys that can be used to authenticate software components.
 
