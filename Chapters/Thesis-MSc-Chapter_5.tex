@@ -8,21 +8,21 @@
 % The following line allows to ref this chapter
 \label{chap:solution}
 
-Symmetric keys will be used to encrypt and authenticate messages. They have better performance with larger messages compared to asymmetric keys. Each user can have stored in their box, several symmetric keys. This enables the user to establish secure communications with multiple different people or groups.
-The non-repudiation property of asymmetric keys will be used to create digital signatures of documents. The other use, will be to share symmetric keys between user who wish to communicate. The box stores the private and public key pair of the user, and the public keys of people the user wishes to trade secrets with.
+This section will build on the system architecture. It describes the communication protocols, standard and libraries chosen to implement the operations. It will start by clarifying important assumptions. Then it will start with the initial state specifications, and finish by defining the protocol for each operation, introduced in chapter \ref{chap:arch}.
 
 % -----------------------------------------------------
 % -----------------------------------------------------
 \section{Initial State}\label{chap:solution:initial-state}
 
-The entities will receive the device with a pair of asymmetric keys, a private and public, generated inside the device from fabric. Each device will have the user's public keys, whom he wishes to communicate. The entity can request whose public keys he wants, before the device is initialized in fabric. This allows the users to share symmetric keys between them, which they can user to begin trading data securely. The device can also come with the symmetric keys already shared and stored in each user device.
-For each user or group a user wants to communicate with, he has a symmetric key stored in the device.
+The device will come from fabric configured and prepared with the necessary keys depending on two scenarios. In the simpler scenario, the device comes with the symmetric keys already shared and stored in each entities' device. They can begin to communicate immediately, with no setup necessary.
+In the other scenario, the entities will receive the device with a pair of asymmetric keys, a private and public, generated inside the device from fabric. Each device will have the user's public keys, whom he wishes to communicate. The entity can request whose public keys he wants, before the device is initialized in fabric. This allows the users to share symmetric keys between them, which they can user to begin trading data securely.
 
 % -----------------------------------------------------
 % -----------------------------------------------------
 \section{Protocol}\label{chap:solution:protocol}
 
-This section will explain and define the communication protocols between both components in more detail. For each operation, it will describe the different phases, what data is traded and why.
+
+This section will explain and define the communication protocols between both the client application and the hardware device in detail. For each operation, it will describe its goal, the different phases, what data is traded in each phase and why.
 
 \subsection{Device Standardization}
 
@@ -47,8 +47,6 @@ The protocol described is pictured in figure~\ref{fig:protocol:authentication}.
 	\item The first phase is initiated by the user by sending a message to check if the box is alive and connected to the computer.
 	\item The operation will move to the second phase when the user receives an affirmative response. He will then send the operation code, which indicates he wants to authenticate himself, and the authentication \ac{PIN}. The device will respond with a status parameter indicating failure or success. When successful the session between the user and the box will be unlocked, allowing the user to do other operations.
 \end{enumerate}
-
-%% TODO - in case I decide to keep the session ID, add paragraph explaining how it is used in all operations, else delete this
 
 % -----------------------------------------------------
 \subsection{Administration Protocol}\label{chap:solution:protocol:admin}
