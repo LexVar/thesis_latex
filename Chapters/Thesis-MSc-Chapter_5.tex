@@ -21,13 +21,13 @@ In the other scenario, the entities will receive the device with a pair of asymm
 % -----------------------------------------------------
 \section{Protocol}\label{chap:solution:protocol}
 
-
+All data and operations will flow through a serial connection between the client software in the individual's computer and the physical box. A communications protocol needs to defined, in other for this communication to occur.
 This section will explain and define the communication protocols between both the client application and the hardware device in detail. For each operation, it will describe its goal, the different phases, what data is traded in each phase and why.
 
 \subsection{Device Standardization}
 
-The solution should work with a plethora of devices, which will increase the adoptability of the solution among clients. This entails the use of a widely established protocol, which clearly defines a set of functions and standards the system should follow.
-This is where the \ac{PKCS} \#11 standard is again relevant. It allows operations to be standardized across different devices, increasing the range of supported devices. By implementing the system in accordance with these guidelines, it will have a higher device interoperability.
+The solution should support a plethora of devices, as it will increase the adoptability of the solution among clients. This entails the use of a widely established protocol, which clearly defines a set of functions and standards the system should follow.
+The \ac{PKCS} \#11 standard will be utilized to fulfill this requirements. It allows operations to be standardized across different devices, increasing the range of supported devices. By implementing the system in accordance with these guidelines, it will have a higher device interoperability. Additionally, it allows the application to use, create and modify objects, without exposing them to its memory.
 
 % -----------------------------------------------------
 \subsection{Authentication Protocol}\label{chap:solution:protocol:auth}
@@ -41,154 +41,97 @@ This is where the \ac{PKCS} \#11 standard is again relevant. It allows operation
 \end{figure}
 
 Before executing any operation the user must authenticate himself to the device.
-The protocol described is pictured in figure~\ref{fig:protocol:authentication}.
-
-\begin{enumerate}
-	\item The first phase is initiated by the user by sending a message to check if the box is alive and connected to the computer.
-	\item The operation will move to the second phase when the user receives an affirmative response. He will then send the operation code, which indicates he wants to authenticate himself, and the authentication \ac{PIN}. The device will respond with a status parameter indicating failure or success. When successful the session between the user and the box will be unlocked, allowing the user to do other operations.
-\end{enumerate}
+Figure~\ref{fig:protocol:authentication} depicts the authentication protocol.
+The user initiates by sending a message to check if the device is alive and connected to the computer. After the device responds with an acknowledge, the user software sends the authentication \ac{PIN}. The device will respond with a status parameter indicating failure or success. When it is successful, the session will be unlocked, allowing the user access to the main operations.
 
 % -----------------------------------------------------
 \subsection{Administration Protocol}\label{chap:solution:protocol:admin}
-%% Insert protocol image here
 \begin{figure}[h]
 	\centering
 	\includegraphics[width=0.5\textwidth]{./Images/change-PIN.png}
-	\caption{Change Authentication PIN protocol}
+	\caption{Protocol to Change Authentication PIN}
 	\label{fig:protocol:change-PIN}
 \end{figure}
 
-As explained before, there is only one administration operation, changing the authentication \ac{PIN}, pictured in figure~\ref{fig:protocol:change-PIN}.
-
-The user initiates by sending the operation code, identifying the operation and the new \ac{PIN} number. The device responds with the success or failure of the operation.
+There is only one administration operation, changing the authentication \ac{PIN}, pictured in figure~\ref{fig:protocol:change-PIN}.
+The user initiates by sending the change \ac{PIN} operation code, and the new \ac{PIN} number. The device responds with the return status of the operation.
 
 % -----------------------------------------------------
-\subsection{Data Exchange Protocol}\label{chap:solution:protocol:data}
+\subsection{Secure Communications Protocol}\label{chap:solution:protocol:comms}
+
+The protocol for operations which secure communications will be defined here. It covers the encryption and authentication operation, which enables secure communications and non-repudiation through qualified digital signatures.
 
 %% Insert protocol image here
 \begin{figure}[h]
 	\centering
 	\includegraphics[width=0.6\textwidth]{./Images/data-exchange.png}
-	\caption{Data Exchange Encryption Protocol}
+	\caption{Encryption+Authentication Protocol}
 	\label{fig:protocol:data-exchange}
 \end{figure}
 
-The protocol to encrypt and authenticate data illustrated in figure~\ref{fig:protocol:data-exchange} consists of:
-\begin{enumerate}
-	\item The user sends the operation code and the data size, signaling he wants to send some data;
-	\item The box will respond with an OK message that the user can begin transmitting the data. It will be transmitted a maximum of X bytes per `packet'. Each packet contains a part of the data and the size of the data in that packet. When the transmission ends, the device will confirm its reception;
-	\item The user subsequently will respond with the symmetric key ID, which he wants to encrypt and authenticate the data with. The box will handle the cryptographic operations and return a status message and the encrypted data size.
-	\item After the client confirms, the encrypted data with the additional MAC and IV parameters appended, will be returned in the same manner it was sent.
-\end{enumerate}
+The protocol to encrypt and authenticate data illustrated in figure~\ref{fig:protocol:data-exchange} consists of four phases:
+It starts with the user sending the operation code and the data size. The box will respond with an OK message signaling the client application can begin to transmit the data. A maximum of X bytes per message can be transmitted. Each message contains a part of the data and the size of the data in that packet. When the transmission ends, the device confirms its reception.
+In the third phase, the client software sends the ID of the symmetric key used to encrypt and authenticate communications with. The box will execute the cryptographic operations and return a status message and the encrypted data size.
+When the client acknowledges its reception, the encrypted data with the \ac{MAC} and \ac{IV} parameters appended, will be sent back, one message at a time.
 
-The protocol to decrypt and verify data authentication is very similar to the previous one, and is also pictured in figure~\ref{fig:protocol:data-exchange}.
+The protocol to decrypt and verify data authentication is very similar to the previous one, and is also pictured in figure~\ref{fig:protocol:data-exchange}. The differences are in phase three, after the ciphertext and symmetric key ID are transmitted, the device will decrypt and authenticate the data. It returns the operation status and the decrypted plaintext size if it was successful. It ends by transmitting the plaintext in the fourth phase to the client software.
 
-\begin{enumerate}
-	\item The operation code is sent, as well as the encrypted data size;
-	\item The box will respond with an OK message that the user can begin transmitting the data, one packet at a time;
-	\item When the data transmission ends, the device will confirm its reception, and the user will subsequently respond with the symmetric key ID, which can decrypt and verify the data authentication;
-	\item After performing the decryption and authentication operations, the device will return a message indicating its success or failure. In case of a successful operations, it will return, in the same manner it was sent, the plaintext data.
-\end{enumerate}
-
-In the case of digital signatures, the user's must have each others public keys, if they do not already have them.
-
-%% --------------------------
-%% Insert protocol image here
-\begin{figure}[h]
-	\centering
-	\includegraphics[width=0.6\textwidth]{./Images/signature-generate.png}
-	\caption{Digital Signature Generation}
-	\label{fig:protocol:signature-generate}
+\hfill
+\hfill
+%% ------------
+\begin{figure}
+	\centering     %%% not \center
+	\subfigure[Generation Protocol]{\label{fig:protocol:signature-generate}\includegraphics[width=79mm]{Images/signature-generate.png}}
+	\subfigure[Verification Protocol]{\label{fig:protocol:signature-verify}\includegraphics[width=79mm]{Images/signature-verify.png}}
+	\caption{Digital Signature Generation Protocols}
 \end{figure}
 
 The next protocols are relating to the generation and verification of digital signatures.
-The designed protocol for generation is represented in figure~\ref{fig:protocol:signature-verify}.
-
-% \begin{enumerate}
-%         \item The user initiates with the code operation and the plaintext data size;
-%         \item When the box responds with an OK message, the user transmits the data one packet at a time;
-%         \item In possession of the data, the device will generate the digital signature using the user's private key. When finished the signature is sent back.
-% \end{enumerate}
+The designed protocol for generation is represented in figure~\ref{fig:protocol:signature-generate}.
 The user initiates by sending the operation code and the plaintext data size.
-When the box responds with an OK message, the user transmits the data to be signed, one packet at a time.
-In possession of the data, the device will generate the digital signature using the user's private key. When finished the signature is sent back to the user.
-
-%% ----------------------------------------
-%% Insert protocol image here
-\begin{figure}[h]
-	\centering
-	\includegraphics[width=0.6\textwidth]{./Images/signature-verify.png}
-	\caption{Digital Signature Verification}
-	\label{fig:protocol:signature-verify}
-\end{figure}
+When the box responds with an OK message, the user transmits the data to be signed, one message at a time.
+In possession of the data, the device will generate the digital signature using the device's private key. When finished the signature is sent back to the user.
 
 The protocol for verifying digital signatures is pictured in figure~\ref{fig:protocol:signature-verify}.
-
-% \begin{enumerate}
-%         \item The user initiates with the code operation;
-%         \item When the box responds with an OK message, the user transmits the data one packet at a time;
-%         \item When done, the user also sends the signature and the name of the signer, so the device knows what public key to use to verify the signature;
-%         \item Then, the device will verify the digital signature using the signer's public key, data and signature. The result will be sent back to the user.
-% \end{enumerate}
-After the user sends the operation code, and the box responds with an OK message, the user transmits the data, used by the signer to generate the signature, one packet at a time.
+After the user sends the operation code, and the box responds with an OK message, the user transmits the data, used by the signer to generate the signature, one message at a time.
 When done, the user also sends the signature and the name of the signer, so the device knows what public key to use to verify the signature.
 Then, the device will verify the digital signature using the signer's public key, the data and the signature. The result will be sent back to the user.
 
 % -----------------------------------------------------
-\subsection{Key Exchange Protocol}\label{chap:solution:protocol:key}
+\subsection{Communication Management Protocol}\label{chap:solution:protocol:key}
+
+The protocols for the communication management operations are detailed next. The operations are importation of public keys from the list provided to entities, generation of new symmetric keys and storage of newly received symmetric keys.
 
 %% Insert protocol image here
 \begin{figure}[h]
 	\centering
-	\includegraphics[width=0.6\textwidth]{./Images/import-pub-key.png}
+	\includegraphics[width=0.5\textwidth]{./Images/import-pub-key.png}
 	\caption{Import Public Key}\label{fig:protocol:import-pub}
 \end{figure}
 
-Starting with the import public keys protocol, also represented in figure~\ref{fig:protocol:import-pub}.
-% \begin{enumerate}
-%         \item The user send a message with the operation code, indicating he wants to send someone's public key;
-%         \item After the device responds with an OK signal, the user sends the public key, and the name of the owner of the public key;
-%         \item The device then informs the user of the operation's success or failure.
-% \end{enumerate}
-The user send a message with the operation code, indicating he wants to store someone's public key.
-After the device responds with an OK signal, the user sends the public key, and the name of the owner of the public key.
-The device, stores the public key, associated to the name sent by the user, and informs the user of the operation's success or failure.
+The protocol to import public keys is pictured in figure~\ref{fig:protocol:import-pub}.
+Like previous protocols, it starts with the user sending a message with the operation code, indicating he wants to import someone's public key.
+After the device responds with an OK signal, the user sends the public key, and the name of the public key's owner.
+The device stores the key, associated to the owner's name, and informs the client software of the operation's success or failure.
+
+\hfill
+\hfill
 
 %% -------------------------------------
-Just like digital signatures, for users to be able to share symmetric keys between each other, they must possess each others public keys in their device. If not, they must physically meet to share them, and import them to their respective devices, with the available operation.
+Just like digital signatures, entities can share symmetric keys between each other if they each others public keys are stored in their devices. If not, they must first import them into their respective devices.
 
-%% Insert protocol image here
-\begin{figure}[h]
-	\centering
-	\includegraphics[width=0.6\textwidth]{./Images/new-key.png}
-	\caption{Protocol to generate new key to share with user.}
-	\label{fig:protocol:new-key}
+%% --------------------------
+\begin{figure}
+	\centering     %%% not \center
+	\subfigure[Generate key]{\label{fig:protocol:new-key}\includegraphics[width=79mm]{./Images/new-key.png}}
+	\subfigure[Save key]{\label{fig:protocol:save-key}\includegraphics[width=79mm]{./Images/save-key.png}}
+	\caption{Protocols for sharing keys}
 \end{figure}
 
-The protocol to generate a new symmetric key, and securely share it with a user is represented in figure~\ref{fig:protocol:new-key}.
-% \begin{enumerate}
-%         \item The user sends a message with the operation code;
-%         \item After the device responds with an OK signal, the user sends the key ID, the name the key will be saved as, and the name of the user he wants to share the key with, so the device knows which public key to use to secure the key;
-%         \item A new symmetric key will be generated and saved in the device's secure storage, with the key ID sent by the user. The box will encrypt and sign the key with public-key cryptography, and send it to the user, which he can securely share with the other user.
-% \end{enumerate}
-The user sends a message with the operation code.
-After the device responds with an OK signal, the user sends the key ID, the name the key will be saved as, and the name of the user he wants to share the key with, so the device knows which public key to use to secure the key.
-A new symmetric key will be generated and saved in the device's secure storage, with the key ID sent by the user. The box will encrypt and sign the key with public-key cryptography, and send it to the user, which he can securely share with the other user.
-
-%% Insert protocol image here
-\begin{figure}[h]
-	\centering
-	\includegraphics[width=0.6\textwidth]{./Images/save-key.png}
-	\caption{Protocol to save key, received from another user.}
-	\label{fig:protocol:save-key}
-\end{figure}
+The protocol to generate a new symmetric key, and secure it to be shared with other entities is detailed in figure~\ref{fig:protocol:new-key}.
+After both sides trade the operation code and OK status, the user sends the key ID, which will identify the symmetric key, and the name of the entity it will be shared with, so the device knows which public key to use to secure the key.
+A new symmetric key will be generated and saved in the device's secure storage, with the key ID sent by the client application. The device encrypts and signs the key with public-key cryptography, and sends it back to the application, one message at a time. The user can then securely share the key with the other entity.
 
 The protocol for the other user to save the newly received symmetric key, and store it inside their device is in figure~\ref{fig:protocol:save-key}.
-
-% \begin{enumerate}
-%         \item The user sends a message with the operation code;
-%         \item After the device responds with an OK signal, the user sends the key ID, the name of the key sender, and the encrypted and signed key;
-%         \item The device will then verify the signature with the sender's public key and decrypt the key, subsequently saving it in the device's secure storage along with other keys already present.
-% \end{enumerate}
 After the operations code is sent and the OK signal is returned, the user sends the key ID, the name of the key sender, and the encrypted and signed key.
-The device will then verify the signature with the sender's public key and decrypt the key, subsequently saving it in the device's secure storage along with other keys already present.
+Then, the device verifies the signature and decrypts the key, subsequently saving it in the device's secure storage along with other symmetric keys already present.
