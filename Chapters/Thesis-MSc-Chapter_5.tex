@@ -19,6 +19,13 @@ The application was implemented using the C programming language, with the SoftC
 The client software was also implemented in C, and is composed of a simple interface which allows communication through the cable, to the device.
 
 % -----------------------------------------------------
+\subsection{Cryptographic Algorithms}\label{chap:implementation:tools:algorithms}
+
+As previously mentioned, \ac{AES} is a popular symmetric-key standard. The security of \ac{AES}-\ac{GCM} in hardware is considered to be unsurpassed by any authenticated-encryption scheme~\cite{aesmodes}.
+Unfortunately, the SmartFusion2 board, does not support this encryption algorithm. Therefore the solution is a combination of an encryption algorithm with an authentication scheme. The board supports the encryption modes for confidentiality: \ac{ECB}, \ac{CBC}, \ac{OFB} and \ac{CTR}, as well as \ac{HMAC} with the \ac{SHA}-256 hash function for authentication. CTR mode is the most favourable option because of its efficiency and security, assuming the IV is unique for each message. For combining the CTR and HMAC algorithms, studies have shown that a combination of secure encryption and secure MAC must use the encrypt-then-MAC method~\cite{encryptmacorder}. This implementation will use the smaller key size of 128 bit, since it is a secure choice and storage space is limited in the device. However, the symmetric keys for each communication will be 256 bits, with 128 bits used for encryption, and the other 128 bits for authentication with \ac{HMAC}.
+
+% TODO - ECC, asymmetric keys
+
 % -----------------------------------------------------
 \subsection{Device Standardization}\label{chap:implementation:tools:standardization}
 
@@ -27,13 +34,12 @@ The \ac{PKCS} \#11 standard will be utilized to fulfill this requirements. It al
 
 % -----------------------------------------------------
 % -----------------------------------------------------
-% -----------------------------------------------------
-% -----------------------------------------------------
 \section{Protocol}\label{chap:implementation:protocol}
 
 All data and operations will flow through a serial connection between the client software in the individual's computer and the physical box. A communications protocol needs to defined, in other for this communication to occur.
 This section will explain and define the communication protocols between both the client application and the hardware device in detail. For each operation, it will describe its goal, the different phases, what data is traded in each phase and why.
 
+% -----------------------------------------------------
 \subsection{Initial State}\label{chap:implementation:protocol:initial-state}
 
 The device will come from fabric configured and prepared with the necessary keys depending on two scenarios. In the simpler scenario, the device comes with the symmetric keys already shared and stored in each entities' device. They can begin to communicate immediately, with no setup necessary.

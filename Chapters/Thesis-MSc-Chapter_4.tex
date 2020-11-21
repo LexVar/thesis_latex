@@ -68,8 +68,8 @@ Secure communications with \textbf{confidentiality} and \textbf{authentication}.
 	\caption{Procedure to secure data with authentication and confidentiality}
 \end{figure}
 
-Beginning in figure~\ref{fig:arch-encrypt}, the plaintext data sent to the device is first encrypted with the symmetric key \textit{K1}. Then a \ac{MAC} is generated from the encrypted data, using the symmetric key. Both fragments of information are returned to the user, and the user can then send it to other entities in possession of the used \textit{K1} key.
-Following with figure~\ref{fig:arch-decrypt}, when a device receives the ciphertext, it decrypts the data using the same \textit{K1} key. Then it computes the MAC of the received \ac{IV} appended with the decrypted data. If the computed and received \ac{MAC} are identical, the data is authenticated.
+Beginning in figure~\ref{fig:arch-encrypt}, the plaintext data sent to the device is first encrypted with the symmetric key \textit{K1}, using a randomly generated \ac{IV}. Then a \ac{MAC} is generated from the encrypted data and \ac{IV}, using the symmetric key. All fragments of information (IV, ciphertext, MAC) are returned to the user, and the user can then send it to other entities in possession of the used \textit{K1} key.
+Following with figure~\ref{fig:arch-decrypt}, when a device receives the ciphertext, it decrypts the data using the same \textit{K1} key and received \ac{IV}. Then it computes the MAC of the received \ac{IV} appended with the decrypted data. If the computed and received \ac{MAC} are identical, the data is authenticated.
 
 \begin{figure}[h]
 	\centering     %%% not \center
