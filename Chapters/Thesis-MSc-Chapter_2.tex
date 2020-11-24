@@ -16,23 +16,22 @@ This section goes into detail on the necessary concepts required to perfectly un
 There are several cryptographic services relevant to this work, namely:
 \begin{itemize}
     \item Confidentiality: used to hide the content of information from unauthorized entities;
-    
-    \item Data Integrity: ability to detect the unauthorized modification of data;
-    
-    \item Authentication: used to ascertain the identify or origin of a message. Authentication is achieved if the combination of data integrity and freshness (prevention of replay attacks: when a valid message is replayed by a malicious entity);
+    \item Data Integrity: ability to protect from unauthorized modification of data;
+    \item Authentication: used to ascertain the origin of a message;
+	    %Authentication is achieved if the combination of data integrity and freshness (prevention of replay attacks: when a valid message is replayed by a malicious entity);
     
     \item Non-Repudiation: prevents an entity from denying the authorship of a document or message.
 \end{itemize}
 
-To  guarantee these services, there are two types of keys: symmetric and asymmetric.
-Symmetric keys are shared by 2 or more communicating parties. The keys are smaller and the operations are faster than with asymmetric keys.
+To guarantee these services, two types of key infrastructure exist: symmetric and asymmetric.
+Symmetric keys are shared by two or more communicating parties. The same key is used to encrypt and decrypt data. The keys are smaller and the operations are faster than with asymmetric keys.
 
 Asymmetric keys constitute a pair for each party, one private and one public key. The private key is personal to its owner and should never be shared. The public key may be shared widely to other parties. Asymmetric keys are bigger and the operations are slower compared to symmetric key algorithms.
 
 There are two types of ciphers regarding the procedure: stream and block ciphers.
-Stream ciphers generate an infinite stream of pseudo-random bits as the key, know as key-stream. The stream is used to encrypt, usually 1 bit of plaintext at a time. The operation to combine the key-stream and plaintext is an exclusive-or (XOR). Stream ciphers are usually faster than block ciphers, have lower memory requirements and are therefore cheaper and more suitable to embedded devices with limited memory. However they are prone to weaknesses based on usage, in particular, using the same \ac{IV} more than once. 
+Stream ciphers generate an infinite stream of pseudo-random bits as the key, know as key-stream. The stream is used to encrypt, usually 1 bit of plaintext at a time. The operation to combine the key-stream and plaintext is an exclusive-or (XOR). Stream ciphers are usually faster than block ciphers, have lower memory requirements and thus are more suitable to embedded devices with limited memory. However they are prone to weaknesses if not implemented correctly, in particular, using the same \ac{IV} more than once. 
 
-Block ciphers encrypt fixed-length groups of bits, called blocks, with a symmetric key. They have a higher memory usage, in order to keep the blocks in memory. Since the plaintext is encrypted one block at a time, if the plaintext length is not a multiple of the block size, the last block needs to be padded. This can be taken advantage of by attackers if not done correctly. Another side effect of using blocks is, it will be more susceptible to noise in transmissions. If a bit is flipped with a stream cipher, only the corresponding bit is affected. While with a block cipher, more than 1 bit is affected, depending on the mode.
+Block ciphers encrypt fixed-length groups of bits, called blocks, with a symmetric key. They have a higher memory usage, in order to keep the blocks in memory. Since the plaintext is encrypted one block at a time, if the plaintext length is not a multiple of the block size, the last block needs to be padded. Another caveat of blocks ciphers is, they are more susceptible to noise in transmissions. If a bit is flipped with a stream cipher, only the corresponding bit is affected. While with a block cipher, more than 1 bit is affected, depending on the mode.
 
 Symmetric ciphers support both block and stream ciphers while asymmetric use block ciphers.
 
@@ -48,19 +47,19 @@ A cryptography hash function generates a fixed dimension value (digest) based on
     \item Given a hash value, it should be hard to find an input text that produces that hash value.
 \end{enumerate}
 
-Popular hash functions include MD5, \ac{SHA}-1, \ac{SHA}-2 and \ac{SHA}-3. Collisions against MD5 can be performed in seconds and have been produced against \ac{SHA}-1 as well. Thus, these hash functions are considered broken and should not be used. Currently, \ac{SHA}-2 and the newest \ac{SHA}-3 are recommended. The \ac{SHA}-2 algorithm provides different functions which vary on the size of the digest. For example, the \ac{SHA}-256 function produces a 256 bit digest and \ac{SHA}-512 a 512 bit digest. All functions are secure for the foreseeable future, there is no practical security advantage in using a bigger digest.
+Popular and recommended hash functions include \ac{SHA}-2 and the newer \ac{SHA}-3~\cite{dang2015secure}. Both versions have several flavours. \ac{SHA}-2 provides different functions which vary on the size of the digest. For example, the \ac{SHA}-256 function produces a 256 bit digest and \ac{SHA}-512 a 512 bit digest.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \subsection{Symmetric Encryption}\label{chap:background:crypto:symmetric}
 
-Symmetric ciphers use symmetric keys and are frequently used to achieve, data integrity, authentication and confidentiality.
+Symmetric ciphers use symmetric keys and are frequently used to achieve data integrity, authentication and confidentiality.
 
-One of the most popular symmetric-key algorithms is the \ac{AES}. This algorithm uses 128-bit blocks for block cipher modes and the keys can be 128, 192 or 256 bits. \ac{AES} has block and stream cipher modes.
+The \ac{AES} is one of the most popular symmetric-key algorithms and its different modes of operation. It uses 128-bit blocks for block cipher modes and the keys can be 128, 192 or 256 bits. \ac{AES} has both block and stream cipher modes. Relevant modes for this work, are presented next.
 
 \textbf{\ac{ECB}} is the simplest mode. It is a block cipher and works by encrypting each block with the symmetric key. If the same key is used, for equal plaintext blocks, the result will always be the same. For this reason, patterns are easily seen and the mode is considered insecure.
 
 \textbf{\ac{CBC}} is another block cipher mode. It combines the first block of plaintext and an IV with the XOR operator and encrypts the result. For the subsequent blocks, the previous ciphertext is used instead of the IV. The message needs to be padded to a multiple of the block size. If this is not done correctly, it can be exploited with a padding oracle attack \cite{paddingoracle}. Implementing ciphertext stealing, resolves the issue and is recommended for the security of \ac{CBC} \cite{ciphertextstealing}.
-Encryption is not parallelizable since a ciphertext block depends on all the blocks before it. Another disadvantage of \ac{CBC} is it cannot precompute data to improve encryption performance.
+Encryption is not parallelizable, since a ciphertext block depends on all the blocks before it. Another disadvantage of \ac{CBC} is it cannot precompute data to improve encryption performance.
 To decrypt a ciphertext block, only the previous ciphertext block is needed. Therefore random read access is supported and decryption can be parallelized.
 Regarding error propagation, when a bit is flipped in the ciphertext, the plaintext block will be completely corrupted and the corresponding bit of the next block will be inverted.
 
@@ -70,11 +69,11 @@ The block cipher is only used in the encryption direction, which means the messa
 The downside of needing to encrypt the IV multiple times, is the encryption and decryption are not parallelizable and random read access is not possible. However, the multiple encryptions of the IV can be precomputed in order to increase the performance of both encryption and decryption.
 Changes to a ciphertext block, only affect the corresponding bits.
 
-\textbf{\ac{CFB}} is a combination of \ac{OFB} and \ac{CBC}. It xors the encrypted \ac{IV} with the plaintext block. The result is then used for the next block.
+\textbf{\ac{CFB}} is a combination of \ac{OFB} and \ac{CBC}. The xor operation is applied on the encrypted \ac{IV} with the plaintext block. The result is then used for the next block.
 Similarly to \ac{OFB}, \ac{CFB} is effectively a stream cipher. Yet, akin to \ac{CBC}, and for the same reasons, encryption is not parallelizable, opposed to decryption which is. Random read access is possible, contrary to preprocessing which is not.
-An interesting difference of \ac{CFB} is it can become self-synchronous, meaning it will recover if s bits are lost. If s=1, it can recover from slips of any number of bits, if s=8 it can recover from slips of any number of bytes. However for every blockcipher call, \ac{CFB} only processes s bits, compared to 128 bits (block size), which is a major performance cost.
+A specific condition of \ac{CFB} is it can become self-synchronous, meaning it will recover if s bits are lost. If s=1, it can recover from slips of any number of bits, if s=8 it can recover from slips of any number of bytes. However for every blockcipher call, \ac{CFB} only processes s bits, compared to 128 bits (block size), which is a major performance cost.
 
-\textbf{\ac{CTR}} mode concatenates an IV with a counter beginning at 0. Each sequence is encrypted and xor'ed with the plaintext block. For each block the sequence is incremented by 1.
+\textbf{\ac{CTR}} mode concatenates an IV with a counter beginning at 0. Each sequence is encrypted and applied the xor operation with the plaintext block. For each block the sequence is incremented by 1.
 This mode is comparable to \ac{OFB}, as it is also a stream cipher, the encryption operation is exactly the same as the decryption and an error affects only the respective bits.
 However it does not have the performance disadvantages of \ac{OFB}. Encryption and decryption are parallelizable, random read access and preprocessing are both possible.
 It is worth noting that due to existing no need to implement decryption, it can save hardware costs and simplify code.
@@ -84,7 +83,7 @@ For every mode with an \ac{IV}, it needs to be sent along with the message to th
 \ac{CBC}, \ac{OFB} and \ac{CFB} modes are proved secure, assuming the \ac{IV} is random, and is unique, meaning it is only used once for each key and message. For \ac{CTR} mode, the IV does not need to be random, but it cannot be reused with the same key.
 After the \ac{IV} is used, there is no need for the value to be kept secret. It can be sent alongside the ciphertext.
 
-Regarding performance, \ac{CBC} is slower than \ac{CTR} mode. \ac{CFB} (even with s = 128) and \ac{OFB} are slower still.
+Regarding performance, the paper~\cite{aesmodes} states \ac{CBC} is slower than \ac{CTR} mode. \ac{CFB} (even with s = 128) and \ac{OFB} are slower still.
 When efficiency characteristics matter, nothing comes close to \ac{CTR}: it has better performance characteristics, in multiple dimensions, than any of \ac{CBC}, \ac{CFB}, and \ac{OFB}.
 
 All these cipher modes are malleable, meaning an attacker can modify a ciphertext C, the result of encrypting plaintext P, to create ciphertext C' which will decrypt to plaintext P' that is similar to P. Malleability is connected to message integrity. This is not considered a relevant weakness since the modes only goal is to offer confidentiality guarantees, not integrity. If one wishes integrity it should pair one of these modes with a \ac{MAC}, or use a dedicated authenticated-encryption mode like \ac{CCM} or \ac{GCM} (discussed in Section~\ref{chap:background:crypto:aead}), which guarantee both confidentiality and integrity.
@@ -123,21 +122,21 @@ By using \ac{OMAC} instead of \ac{CBC-MAC}, it supports variable-length messages
 \textbf{\ac{GCM}} utilizes an encrypt-then-MAC approach. It first encrypts with \ac{CTR} mode, then uses Galois mode of authentication to generate the tag. The Galois field multiplication supports parallel computation, making this mode faster than \ac{CCM}.
 Evidently, like in normal \ac{CTR} mode, it needs a different \ac{IV} for each encrypted message.
 Beyond being parallelizable, it has the advantages \ac{EAX} has over \ac{CCM}. It is online and the \ac{AD} can be preproccesed.
-For security reasons, authentication tags should be at least 96 bits, even though the mode allows smaller tags. One limitation of \ac{GCM} is, it can encrypt a maximum of 64GiB of plaintext. Security analysis of several modes, decisively states that \ac{GCM} in hardware is unsurpassed by any authenticated-encryption scheme.
+For security reasons, authentication tags should be at least 96 bits, even though the mode allows smaller tags. One limitation of \ac{GCM} is, it can encrypt a maximum of 64GiB of plaintext. Security analysis of several modes, decisively states that \ac{GCM} in hardware is unsurpassed by any authenticated-encryption scheme~\cite{aesmodes}.
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \subsection{Asymmetric Encryption}\label{chap:background:crypto:assymetric}
 
 Asymmetric cryptography utilizes a pair of public and private keys. It is commonly used to provide confidentiality, data integrity, authentication and non-repudiation.
-The private keys must always remain secure with the owner. Public keys may be distributed as it does not compromise security. Encrypting a message with the public key, provides confidentiality, since only the owner who possesses the private key, can decipher the message. On the other hand, private key encryption provides authentication on account of only the owner is in possession of the private key. These two different concepts can be combined to provide confidentiality, authentication and non-repudiation to a message.
+The private keys must always remain secure with the owner. Public keys may be distributed as it does not compromise security. Encrypting a message with the public key, provides confidentiality, since only the owner who possesses the private key, can decipher the message. On the other hand, private key encryption provides authentication on account of only the owner is in possession of the private key. These two different concepts can be combined to provide confidentiality, authentication and non-repudiation, through digital signatures, to a message.
 
 Compared to symmetric keys, asymmetric keys are less risky to distribute, as the public key can be viewed by anyone. However, there is the problem of validating public keys, which consists of guaranteeing a public key is owned by the correct identity.
 
 Once two parties have traded public keys, asymmetric and symmetric keys can be combined in a hybrid encryption scheme. The scheme takes advantage of the faster symmetric encryption to cipher the data, and the asymmetric encryption to encrypt the symmetric key, and provide authentication. Alternatively, it can be used to share symmetric keys for usage with an authenticated-encryption scheme.
 
 % ECC, RSA
-There are two popular algorithms for public-key encryption, \ac{RSA} and \ac{ECC}.
+There are two popular algorithms for public-key encryption, \ac{RSA} and \ac{ECC}~\cite{mahto2016security}.
 \ac{RSA} has been used for decades, it is well established and widely used. It is based on the difficulty of factoring the product of two large prime numbers.
 
 \ac{ECC} is a more recent algorithm, based on the Elliptic Curve Discrete Logarithm Problem. For the same level of security, \ac{ECC} keys are smaller. Gupta \& Silakari, 2011~\cite{eccoverrsa}, give as an example a 160-bit \ac{ECC} key has similar security to a 1024-bit \ac{RSA} key. They also state that smaller key sizes may result in faster execution timings for the schemes, which is beneficial to systems where real time performance is a critical factor.
@@ -147,22 +146,24 @@ With the threat of quantum computers, both \ac{ECC} and \ac{RSA} could become ob
 \subsection{Digital Signatures}\label{chap:background:crypto:signatures}
 
 Signatures is a standard scheme for authenticating documents or digital messages and ensuring the signer cannot repudiate the signature. The digital signature is generated by a combination of asymmetric keys and hash functions.
-The digital signature is generated by first computing a hash of the message, then signing the hash with the author's private key. The message is not directly signed since public-key encryption is slow and messages are most likely bigger than the hash of the message, which has a fixed size. Third parties can validate the signature with only the signature and the author's public key. Only the author is in possession of their private key, so only he could have generated the signature.
+The digital signature is generated by first computing a hash of the message, then signing the hash with the author's private key. The message is not directly signed since public-key encryption is slow and messages are most likely bigger than the hash of the message, which has a fixed size. Third parties can validate the signature with the author's public key. Only the author, in possession of their private key, could have generated the signature.
 They are a digital version of handwritten signatures~\cite{digitalsignatures}, commonly used anywhere forgery detection is essential, for instance in financial transactions or software distribution.
 
-Qualified signatures are a special type of signatures where the private keys are generated and stored inside a device, such as a Smart Card, and never leave it. For the owner to sign a document, he needs to be in possession of the Smart Card (something owned) and a \ac{PIN} (something known). This strong signature legally represents a person or a group. This type of signatures are used in the Portuguese Citizen Card.
+Qualified signatures are a special type of signatures where the private keys are generated and stored inside a device, such as a Smart Card, and never leave it. For the owner to sign a document, the Smart Card is needed (something owned) and a \ac{PIN} (something known). This strong signature legally represents a person or a group. This type of signatures are used in the Portuguese Citizen Card.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \subsection{Public Key Infrastructure}\label{chap:background:PKI}
 
-Asymmetric cryptographic needs a secure mechanism to validate public keys, i.e guaranteeing a public key is owned by a certain identity.
+Asymmetric cryptographic needs a secure mechanism to validate public keys, achieved by guaranteeing a public key is owned by a certain identity.
 A \ac{PKI} is a central database of public-key certificates. It is responsible for managing, distributing, storing and revoking digital certificates. Digital certificates map public keys to identities and are used to verify that a specific public key belongs to a certain identity.
 A \ac{PKI} has several components e.g.\ a registration authority, a certification authority and a central database of stored keys.
 A user can also submit other entities' public keys. Other entities that trust the user responsible for the submission, can use the public keys to authenticate messages.
 There are alternative approaches to \ac{PKI}, such as a web of trust. This mechanism self-signs certificates and third parties attest these certificates. This approach is implemented in \ac{PGP}~\cite{modelingPKI}.
 
 %TLS
-\textbf{\ac{TLS}} is a cryptographic protocol that aims to provide confidentiality and data integrity, during transmission, over TCP/IP. It uses symmetric cryptography to encrypt data. A new symmetric key is generated for each connection.
+\subsection{Transport Layer Security}\label{chap:background:TLS}
+
+\textbf{\ac{TLS}} is a cryptographic protocol that aims to provide confidentiality and data integrity, during transmission, over TCP/IP \cite{rescorla2018transport}. It uses symmetric cryptography to encrypt data. A new symmetric key is generated for each connection.
 \ac{TLS} supports asymmetric cryptography which authenticates the identity of the communicating parties.
 \ac{TLS} is widely used in web browsing, e-mail and instant messaging.
 The protocol can provide perfect forward secrecy, unlike \ac{PGP}, assuring any past connections are secure, if in the future encryptions keys are disclosed.

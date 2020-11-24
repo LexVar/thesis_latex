@@ -22,13 +22,15 @@ The client software was also implemented in C, and is composed of a simple inter
 \subsection{Cryptographic Algorithms}\label{chap:implementation:tools:algorithms}
 
 As previously mentioned, \ac{AES} is a popular symmetric-key standard. The security of \ac{AES}-\ac{GCM} in hardware is considered to be unsurpassed by any authenticated-encryption scheme~\cite{aesmodes}.
-Unfortunately, the SmartFusion2 board, does not support this encryption algorithm. Therefore the solution is a combination of an encryption algorithm with an authentication scheme. The board supports the \ac{AES} encryption modes for confidentiality, either 128 or 256 bits: \ac{ECB}, \ac{CBC}, \ac{OFB} and \ac{CTR}. CTR mode is the most favourable option because of its efficiency and security, assuming the IV is unique for each message.
+Unfortunately, the SmartFusion2 board, does not support this encryption algorithm. Therefore the solution implements a combination of an encryption algorithm with an authentication scheme. The board supports the \ac{AES} encryption modes for confidentiality, either 128 or 256 bits: \ac{ECB}, \ac{CBC}, \ac{OFB} and \ac{CTR}. CTR mode is the most favourable option because of its efficiency and security, assuming the IV is unique for each message.
 For authentication, the board supports \ac{HMAC} with the \ac{SHA}-256 hash function, which uses a 256 bit symmetric key and generates a 256 bit code. For combining the CTR and HMAC algorithms, studies have shown that a combination of secure encryption and secure MAC must use the encrypt-then-MAC method~\cite{encryptmacorder}.
-When choosing key sizes, taking into account the limited storage capacity of the board, a smaller key size, but still secure is preferred. \ac{AES} guarantee both 128 and 256 bit security, with 128 and 256 bit keys. According to the \ac{NIST} recommendations~\cite{nistRecommendations}, both 128 and 256 bit security, are expected to be secure from 2031 and beyond. Since \ac{AES}-128 guarantees adequate security for the foreseeable future, and is smaller, it is the chosen option.
+When choosing key sizes, taking into account the limited storage capacity of the board, a smaller, but still secure, key size is preferred. \ac{AES} guarantee both 128 and 256 bit security, with 128 and 256 bit keys. According to the \ac{NIST} recommendations~\cite{nistRecommendations}, algorithms which guarantee both 128 and 256 bit security, are expected to be secure from 2031 and beyond. \ac{AES}-128 is chosen, since it guarantees adequate security for the foreseeable future, and is the smaller option.
 
+The system provides a single hash algorithm, \ac{SHA}-256, which has a security strength of 128 bits.
 The \ac{HMAC}-\ac{SHA}-256 algorithm needs a 256 bit key, different from the one used with encryption, to ensure the best security practices. Thus, for every communication, a 128 bit key for encryption and a 256 bit key for authentication is used. In total, a 384 bit symmetric key.
 The used algorithm for public-key cryptography is \ac{ECC} with 384 bit private and public keys, the only one supported by the board, which guarantees 192 bit security.
-Concluding, this section, the system guarantees 128 bit security, which is the minimum from all operations.
+
+The qualified digital signatures operation combines \ac{ECC} and the \ac{SHA}-256 hash algorithm, and provides 128 bit security, calculated by taking the smallest security strength value of both algorithms. For the encryption and authentication operation combining \ac{AES}-128 and \ac{HMAC}-\ac{SHA}-256, 128 bit security is provided.
 
 % -----------------------------------------------------
 \subsection{Device Standardization}\label{chap:implementation:tools:standardization}
