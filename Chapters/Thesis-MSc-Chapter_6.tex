@@ -8,9 +8,85 @@
 % The following line allows to ref this chapter
 \label{chap:evaluation}
 
+This chapter outlines the system evaluation. It is evaluated regarding performance and fullfilled requirements from the previous report and chapter ~\ref{chap:problem}.
+The performance tests discusses the objective, tests configuration, results and conclusions.
 % -----------------------------------------------------
 % -----------------------------------------------------
-\section{Performance}\label{chap:evaluation:performance}
+\section{Communications Performance}\label{chap:evaluation:comms}
+
+Firstly, the performance of the communication channel was tested. Beyond testing the channel performance, it allows to test the performance of the individual services without the communication component. 
+The client interface and HSM device communicate through a \ac{UART} serial port.
+The performance metrics measured are the average time to transmit data and channel throughput.
+
+% -----------------------------------------------------
+\subsection{Testing configuration}\label{chap:evaluation:comms:config}
+
+Only two program are running on the computer while performing the tests, the client program and the SoftConsole IDE needed to run the code on the smartfusion board.
+The serial port UART connection is configured with 115200 bit baud rate, 8 data bits, no parity bits and one stop bit.
+The elapsed time is measured through two calls to the function gettimeofday() in the C library "sys/time.h".
+
+The test was setup on the client application. The application sends a message to the device. It is sent back by the device after reception. The two calls to the time functions are performed in the client application right before sending and after receiving the original message.
+
+The message size was varied to study the performance and scalability of the serial port. For each message size, the test is repeated thirty times and the average time is taken from all repetitions.
+
+% -----------------------------------------------------
+\subsection{Results}\label{chap:evaluation:comms:results}
+
+\begin{figure}[h!]
+	\centering
+	\includegraphics[width=0.85\textwidth]{./Images/comms-performance.png}
+	\caption{Serial Port Communications Results}
+	\label{fig:performance:comms}
+\end{figure}
+
+As seen in figure~\ref{fig:performance:comms}, the average times range from approximately 0.016 seconds with a message of 50 bytes, to 2.6 seconds with a message of 30000 bytes.
+From the graph we can conclude the performance has linear scalability which is ideal for a system.
+The theoretical throughput is 14400 bytes = 115200/8 bytes, calculated from the baud rate.
+The experimental throughput is 3125 bytes per second with messages below 100 bytes and starts stabilizing around 12000 to 11000 bytes per second as message size increases.
+From this we conclude the practical throughput is close to the theoretical, and as expected stabilizes as the message size increases, as the sample size is bigger.
+
+% -----------------------------------------------------
+% -----------------------------------------------------
+\section{Services Performance}\label{chap:evaluation:services}
+
+The objective of these tests was to measure the performance of the services implemented in the board.
+The performance metric measured was the average time to finish the service, excluding the time spent on communications.
+
+The tested services were:
+\begin{itemize}
+	\item Data encryption + authentication
+	\item Data decryption + authentication
+	\item ECDH new key generation
+\end{itemize}
+
+% -----------------------------------------------------
+\subsection{Testing Configuration}\label{chap:evaluation:services:config}
+
+The same library used to measure the time in the communication tests was used.
+The time was measured at the client application before sending the message which will trigger the service at the HSM, and after it has received the result.
+
+In order to get a real time measurement, each operation was performed 1000 times on the HSM, with the communications only done once.
+From the resulting time, the predicted time spent on communications was subtracted using the data from the previous test. The result was then divided by 1000.
+
+The data encryption and decryption operations were ran with different data sizes, in order to asses the data size impact on performance.
+The ECDH key generation always uses a private and public key of the same size, so no message size variation is possible.
+
+% -----------------------------------------------------
+\subsection{Results}\label{chap:evaluation:services:results}
+
+\input{tables_and_code/services-performance.tex}
+
+The results in table~\ref{tab:data-performance} for the encryption and decryption operations are very similar due to both using the same board services, AES encryption and HMAC, but in a different order. It is also important to note AES encryption and decryption in CTR mode is essentially the same operation due the mode's characteristics.
+Relating to the variation in data size, the values vary between approximately 0.1284 and 0.1825 seconds, which is a very insignificant difference. Thus we can conclude, the data size has a negligible impact on the operations performance.
+
+\input{tables_and_code/ecdh-performance.tex}
+
+Regarding the key generation operation results in table~\ref{tab:data-performance}, two values were obtained through different methods. Due to the operation using SRAM-PUF services to enroll new keys in the eNVM memory, with limited write cycles and key slots, this operation cannot be repeated enough times to get a relevant enough sample size.
+So a trade off was achieved. The operation was performed 1000 times without the key enrollment operation, meaning only the ecdh key generation algorithm and key derivation function (SHA-256).
+Since the enrollment phase is presumed to be expensive, due to writing in eNVM memory, the test was also performed 10 times with key enrollment, to get an idea of its potential performance cost.
+
+A higher time of 0.5755 without enrollment and 1.726 with, compared to the previous operations is expected due to the higher cost of operations with asymmetric keys.
+However, comparing both values we can conclude saving the key in memory, has most likely the higher performance impact on the operation.
 
 % -----------------------------------------------------
 % -----------------------------------------------------
