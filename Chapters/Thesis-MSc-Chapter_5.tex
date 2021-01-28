@@ -59,7 +59,7 @@ After the operation code and received status message, the user sends the new \ac
 % -----------------------------------------------------
 \subsection{Secure Communications Protocol}\label{chap:implementation:protocol:comms}
 
-The protocol for operations which secure communications will be defined here. It covers the encryption and authentication operation, which enables secure communications and non-repudiation through qualified digital signatures.
+The protocol for operations which secure communications will be defined here. It covers the encryption and authentication operation, which enables secure communications.% and non-repudiation through qualified digital signatures.
 The protocol for secure data exchange illustrated in figure~\ref{fig:protocol:data-exchange} consists of four stages.
 
 \begin{figure}[h!]
@@ -80,25 +80,25 @@ The protocol to decrypt and authenticate is identical to the one pictured in fig
 \hfill
 \hfill
 
-The next protocols are relating to the generation and verification of digital signatures.
-The designed protocol for generation is represented in figure~\ref{fig:protocol:signature-generate}.
+% The next protocols are relating to the generation and verification of digital signatures.
+% The designed protocol for generation is represented in figure~\ref{fig:protocol:signature-generate}.
 %% ------------
-\begin{figure}[h!]
-	\centering     %%% not \center
-	\subfigure[Generation Protocol]{\label{fig:protocol:signature-generate}\includegraphics[width=79mm]{Images/signature-generate.png}}
-	\subfigure[Verification Protocol]{\label{fig:protocol:signature-verify}\includegraphics[width=79mm]{Images/signature-verify.png}}
-	\caption{Digital Signature Generation Protocols}
-\end{figure}
+% \begin{figure}[h!]
+%         \centering     %%% not \center
+%         \subfigure[Generation Protocol]{\label{fig:protocol:signature-generate}\includegraphics[width=79mm]{Images/signature-generate.png}}
+%         \subfigure[Verification Protocol]{\label{fig:protocol:signature-verify}\includegraphics[width=79mm]{Images/signature-verify.png}}
+%         \caption{Digital Signature Generation Protocols}
+% \end{figure}
 
-The user initiates by sending the operation code and the plaintext data size.
-When the box responds with an OK message, the user transmits the data to be signed, one message at a time.
-In possession of the data, the device will generate the digital signature using the device's private key. When finished the signature is sent back to the user.
-
-The protocol for verifying digital signatures is pictured in figure~\ref{fig:protocol:signature-verify}.
-After the user sends the operation code, and the box responds with an OK message, the user transmits the data, used by the signer to generate the signature, one message at a time.
-When done, the user also sends the signature and the name of the signer, so the device knows what public key to use to verify the signature.
-Then, the device will verify the digital signature using the signer's public key, the data and the signature. The result will be sent back to the user.
-
+% The user initiates by sending the operation code and the plaintext data size.
+% When the box responds with an OK message, the user transmits the data to be signed, one message at a time.
+% In possession of the data, the device will generate the digital signature using the device's private key. When finished the signature is sent back to the user.
+%
+% The protocol for verifying digital signatures is pictured in figure~\ref{fig:protocol:signature-verify}.
+% After the user sends the operation code, and the box responds with an OK message, the user transmits the data, used by the signer to generate the signature, one message at a time.
+% When done, the user also sends the signature and the name of the signer, so the device knows what public key to use to verify the signature.
+% Then, the device will verify the digital signature using the signer's public key, the data and the signature. The result will be sent back to the user.
+%
 % -----------------------------------------------------
 \subsection{Communication Management Protocol}\label{chap:implementation:protocol:key}
 
