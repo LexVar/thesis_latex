@@ -1,12 +1,14 @@
 \begin{table}[h!]
+	% \large
 	\centering
+	\def\arraystretch{1.5}
 	\begin{tabular}{|l|l|l|} \cline{2-3}
 		\multicolumn{1}{l|}{} & \multicolumn{2}{l|}{Average Time (s)} \\ \hline
-		\centering Data Size & Encryption & Decryption  \\ \hline
-		79 & \textbf{0.128476885} & \textbf{0.128476268}	      \\ \hline
-		500 & \textbf{0.128476733} & \textbf{0.128491947}	      \\ \hline
-		1500 & \textbf{0.128523720} & \textbf{0.128534645}	      \\ \hline
-		2000 & \textbf{0.128522645} & \textbf{0.128508547}            \\ \hline
+		\centering Data Size (bytes) & Encryption & Decryption  \\ \hline
+		79 & \textbf{0.128477845} & \textbf{0.128477228}	      \\ \hline
+		500 & \textbf{0.128477693} & \textbf{0.128492907}	      \\ \hline
+		1500 & \textbf{0.128525000} & \textbf{0.128535925}	      \\ \hline
+		2000 & \textbf{0.128523925} & \textbf{0.128509827}            \\ \hline
 	\end{tabular}
 	\caption{Encryption/Decryption Performance.}
 	\label{tab:data-performance}

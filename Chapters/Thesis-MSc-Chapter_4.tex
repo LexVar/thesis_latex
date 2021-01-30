@@ -70,8 +70,9 @@ Both operations are pictured in figures~\ref{fig:arch-encrypt} and~\ref{fig:arch
 	\caption{Procedure to secure data with authentication and confidentiality}
 \end{figure}
 
-Beginning with figure~\ref{fig:arch-encrypt}. The plaintext data sent to the device is first encrypted with the symmetric key \textit{K1}, using a randomly generated \ac{IV}. Then a \ac{MAC} is generated from the encrypted data and \ac{IV}, using the symmetric key. All fragments of information (IV, ciphertext, MAC) are returned to the user, and the user can then send it to other entities in possession of the used \textit{K1} key.
-Following with figure~\ref{fig:arch-decrypt}, when a device receives the ciphertext, it decrypts the data using the same \textit{K1} key and received \ac{IV}. Then it computes the MAC of the received \ac{IV} appended with the decrypted data. If the computed and received \ac{MAC} are identical, the data is authenticated.
+Beginning with figure~\ref{fig:arch-encrypt}. The plaintext data sent to the device is first encrypted with the symmetric key \textit{K1}, using a randomly generated \ac{IV}. Then a \ac{MAC} is generated from the encrypted data and \ac{IV}, using the symmetric key. All fragments of information (MAC, IV, ciphertext) are returned to the user, and the user can then send it to other entities in possession of the used \textit{K1} key.
+
+Following with figure~\ref{fig:arch-decrypt}, when a device receives a encrypted message, it computes the MAC of the received \ac{IV} appended with the decrypted data. If the computed and received \ac{MAC} are identical, the ciphertext is decrypted using the same \textit{K1} key and the received \ac{IV}.
 
 Qualified digital signatures provide \textbf{non-repudiation} to a piece of data, using the private key generated inside the box. The user sends the data to the box, and the subsequent signature will be returned as pictured in figures~\ref{fig:arch-ds} and~\ref{fig:arch-ds-verify}.
 
@@ -97,15 +98,15 @@ An entity receives their device, prepared to communicate with other entities, an
 In order for an entity to communicate with a another entity, with no previously established communications, their device will generate a new symmetric key and store it in secure storage, or in non-volatile memory, encrypted with the device's public key.
 Figures~\ref{fig:arch-ecdh-alice} and \ref{fig:arch-ecdh-bob} illustrate the procedure Alice and Bob devices go through to generate new communication keys.
 
-\begin{figure}[h]
+\begin{figure}[h!]
 	\centering     %%% not \center
-	\subfigure[Alice generates key]{\label{fig:arch-ecdh-alice}\includegraphics[width=0.8\textwidth]{./Images/arch-ecdh-alice.png}}
-	\subfigure[Bob generates the same key]{\label{fig:arch-ecdh-bob}\includegraphics[width=0.8\textwidth]{./Images/arch-ecdh-bob.png}}
+	\subfigure[Alice generates key]{\label{fig:arch-ecdh-alice}\includegraphics[width=0.65\textwidth]{./Images/arch-ecdh-alice.png}}
+	\subfigure[Bob generates the same key]{\label{fig:arch-ecdh-bob}\includegraphics[width=0.65\textwidth]{./Images/arch-ecdh-bob.png}}
 	\caption{Alice and Bob generate new key from both asymmetric key pairs}
 \end{figure}
 
 The procedure is the same from the perspective of both devices. Alice's device has its private key and the Bob's public key. Bob's device has its private key and Alice's public key. Both generate the same secret from these values using the \ac{ECDH} algorithm, introduced in section \ref{chap:background:crypto:ecdh}.
-This secret then serves as input to a key derivation function, such as SHA-256 to derive the new key.
+This secret then serves as input to a key derivation function to derive a new key. This function receives the secret and a public know parameter, a salt, to generate a new key. Alternatively a hashing function such as SHA-256 can be used, but a key derivation function which takes a salt parameter is preferred, so multiple keys can be derived from the same secret.
 
 %The key is first signed with the sender's private key, which is stored in the device's secure storage, and then ciphered with the receiver's public key, which was imported before. Portrayed in figure~\ref{fig:arch-ecdh-bob}, Bob's device decrypts the message using its private key, and decrypts it again with Alice's public key. Finally the key is securely stored in the device, and both entities can subsequently establish secure communications.
 

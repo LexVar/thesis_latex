@@ -33,12 +33,19 @@ Sending the operation code acts as a acknowledge message to check if the device 
 Before executing any operation the user must authenticate himself to the device.
 Figure~\ref{fig:protocol:authentication} depicts the authentication protocol.
 
+%% ------------
 \begin{figure}[h!]
-	\centering
-	\includegraphics[width=0.4\textwidth]{./Images/authentication.png}
-	\caption{Authentication Protocol}
-	\label{fig:protocol:authentication}
+	\centering     %%% not \center
+	\subfigure[Authentication]{\label{fig:protocol:authentication}\includegraphics[width=70mm]{Images/authentication.png}}
+	\subfigure[Change Authentication PIN]{\label{fig:protocol:change-PIN}\includegraphics[width=70mm]{Images/change-PIN.png}}
+	\caption{Authentication and PIN change protocols}
 \end{figure}
+% \begin{figure}[h!]
+%         \centering
+%         \includegraphics[width=0.4\textwidth]{./Images/authentication.png}
+%         \caption{Authentication Protocol}
+%         \label{fig:protocol:authentication}
+% \end{figure}
 
 The user initiates by sending a operation code. After the "OK" message, the user provides the device with the authentication \ac{PIN}. The device will respond with a authentication response parameter indicating failure or success. If successful, the session will be unlocked, allowing the user access to the main operations.
 
@@ -47,12 +54,12 @@ The user initiates by sending a operation code. After the "OK" message, the user
 
 There is only one administration operation, to change the authentication \ac{PIN}, pictured in figure~\ref{fig:protocol:change-PIN}.
 
-\begin{figure}[h!]
-	\centering
-	\includegraphics[width=0.4\textwidth]{./Images/change-PIN.png}
-	\caption{Protocol to Change Authentication PIN}
-	\label{fig:protocol:change-PIN}
-\end{figure}
+% \begin{figure}[h!]
+%         \centering
+%         \includegraphics[width=0.4\textwidth]{./Images/change-PIN.png}
+%         \caption{Protocol to Change Authentication PIN}
+%         \label{fig:protocol:change-PIN}
+% \end{figure}
 
 After the operation code and received status message, the user sends the new \ac{PIN} number. The device responds with the status message of the operation.
 
@@ -64,7 +71,7 @@ The protocol for secure data exchange illustrated in figure~\ref{fig:protocol:da
 
 \begin{figure}[h!]
 	\centering
-	\includegraphics[width=0.6\textwidth]{./Images/data-exchange.png}
+	\includegraphics[width=0.55\textwidth]{./Images/data-exchange.png}
 	\caption{Encryption+Authentication Protocol}
 	\label{fig:protocol:data-exchange}
 \end{figure}
@@ -107,13 +114,13 @@ The protocol to generate a new symmetric key with another entity using asymmetri
 
 %% ------------
 \begin{figure}[h!]
-	\centering     %%% not \center
+	\centering
 	\subfigure[ECDH]{\label{fig:protocol:ecdh}\includegraphics[width=79mm]{Images/ecdh.png}}
 	\subfigure[Key Revocation]{\label{fig:protocol:delete-key}\includegraphics[width=79mm]{Images/delete-key.png}}
 	\caption{Communication Management Protocols}
 \end{figure}
 
-After stage 1, the client forwards the entity's public key to the device. Inside, it calls the ECDH algorithm with its private key and the received public key to generate a secret and run it through a key derivation function to obtain the new symmetric key.
+After stage 1, the client forwards the entity's public key to the device, waits for an "OK" status, and sends the salt value. The device calls the ECDH algorithm with its private key and the received public key to generate a secret and run it through a key derivation function with the salt value to obtain the new symmetric key.
 The new key is saved in secure storage with a new key id, which is returned to the client application.
 
 The protocol for deleting an existing symmetric key from the device's secure storage is detailed in figure~\ref{fig:protocol:delete-key}.
@@ -129,7 +136,7 @@ This section contains all details about the developed implementation on the Hard
 \subsection{Libraries and Tools}\label{chap:implementation:app:tools}
 
 The cryptographic software is running on the \ac{SoC} of a SmartFusion2 board from Microsemi, discussed in section~\ref{chap:background:computing:smartfusion}. It is an adequate device due to several components such as the required cryptographic functions in its system controller, a \ac{TRNG} essential for cryptography, secure storage for keys and anti-tampering protections.
-The application was implemented using the C programming language, with the SoftConsole v3.4 \ac{IDE} and libraries of the board functionalities, provided by Microsemi. The configuration was generated using Libero v11.8. The device functions as a \ac{HSM}, connected through a \ac{USB} connection to a computer.
+The application was implemented using the C programming language, with the SoftConsole v3.4 \ac{IDE} and libraries of the board functionalities, provided by Microsemi. The configuration was generated using Libero v11.8. The device functions as a \ac{HSM}, connected through a \ac{USB} connection to a computer. It was programmed using the external FlashPro4 programmer required to develop and debug embedded applications with SoftConsole \cite{smartfusionSecurityPractices}.
 The client software was also implemented in C, and is composed of a simple interface which allows communication through the cable, to the device.
 
 % -----------------------------------------------------
