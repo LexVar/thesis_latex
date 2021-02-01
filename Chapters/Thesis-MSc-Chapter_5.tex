@@ -130,32 +130,104 @@ After both sides trade operation code and OK status, the user sends the key ID, 
 % -----------------------------------------------------
 \section{Implementation}\label{chap:implementation:app}
 
-This section contains all details about the developed implementation on the Hardware Security Module device.
+This section contains all details about the developed implementation on the Hardware Security Module device and client interface.
 
 % -----------------------------------------------------
 \subsection{Libraries and Tools}\label{chap:implementation:app:tools}
 
 The cryptographic software is running on the \ac{SoC} of a SmartFusion2 board from Microsemi, discussed in section~\ref{chap:background:computing:smartfusion}. It is an adequate device due to several components such as the required cryptographic functions in its system controller, a \ac{TRNG} essential for cryptography, secure storage for keys and anti-tampering protections.
-The application was implemented using the C programming language, with the SoftConsole v3.4 \ac{IDE} and libraries of the board functionalities, provided by Microsemi. The configuration was generated using Libero v11.8. The device functions as a \ac{HSM}, connected through a \ac{USB} connection to a computer. It was programmed using the external FlashPro4 programmer required to develop and debug embedded applications with SoftConsole \cite{smartfusionSecurityPractices}.
-The client software was also implemented in C, and is composed of a simple interface which allows communication through the cable, to the device.
+The application was implemented using the C programming language, with the SoftConsole v3.4 \ac{IDE} and libraries of the board functionalities, provided by Microsemi. The configuration was generated using Libero v11.8.
+The device functions as a \ac{HSM}, connected through a \ac{USB} connection to a computer. It was programmed using the external FlashPro4 programmer required to develop and debug embedded applications with SoftConsole \cite{smartfusionSecurityPractices}.
+
+The client interface implemented the \ac{PKCS}\#11 standard for a higher device interoperability. The client interface was implemented in C++ for the open source MinGW compiler in Windows 10, and is composed of a simple command line interface which calls the implemented \ac{PKCS}\#11 interface functions based on the user's input.
 
 % -----------------------------------------------------
-\subsection{Cryptographic Algorithms}\label{chap:implementation:app:algorithms}
+\subsection{Communications}\label{chap:implementation:app:comms}
 
-As previously mentioned, \ac{AES} is a popular symmetric-key standard. The security of \ac{AES}-\ac{GCM} in hardware is considered to be unsurpassed by any authenticated-encryption scheme~\cite{aesmodes}.
-Unfortunately, the SmartFusion2 board, does not support this encryption algorithm. Therefore the solution implements a combination of an encryption algorithm with an authentication scheme. The board supports the \ac{AES} encryption modes for confidentiality, either 128 or 256 bits: \ac{ECB}, \ac{CBC}, \ac{OFB} and \ac{CTR}. CTR mode is the most favourable option because of its efficiency and security, assuming the IV is unique for each message.
-For authentication, the board supports \ac{HMAC} with the \ac{SHA}-256 hash function, which uses a 256 bit symmetric key and generates a 256 bit code. For combining the CTR and HMAC algorithms, studies have shown that a combination of secure encryption and secure MAC must use the encrypt-then-MAC method~\cite{encryptmacorder}.
-When choosing key sizes, taking into account the limited storage capacity of the board, a smaller, but still secure, key size is preferred. \ac{AES} guarantee both 128 and 256 bit security, with 128 and 256 bit keys. According to the \ac{NIST} recommendations~\cite{nistRecommendations}, algorithms which guarantee both 128 and 256 bit security, are expected to be secure from 2031 and beyond. \ac{AES}-128 is chosen, since it guarantees adequate security for the foreseeable future, and is the smaller option.
-
-The system provides a single hash algorithm, \ac{SHA}-256, which has a security strength of 128 bits.
-The \ac{HMAC}-\ac{SHA}-256 algorithm needs a 256 bit key, different from the one used with encryption, to ensure the best security practices. A 128 bit key can be used, if padded with zeros. Thus, for every communication, a 128 bit key for encryption and a 128 bit key for authentication is used. In total, a 256 bit shared secret.
-The used algorithm for public-key cryptography is \ac{ECC} with 384 bit private and public keys, the only one supported by the board, which guarantees 192 bit security.
-
-The qualified digital signatures operation combines \ac{ECC} and the \ac{SHA}-256 hash algorithm, and provides 128 bit security, calculated by taking the smallest security strength value of both algorithms. For the encryption and authentication operation combining \ac{AES}-128 and \ac{HMAC}-\ac{SHA}-256, 128 bit security is provided.
+% The computer running the client interface and the smartfusion board, running the HSM code, are connected through a \ac{USB} connection with the external FlashPro4 programmer.
+The device implementation uses the available \ac{UART} communication controller and corresponding drivers for communications.
+It allows the board to send and receive messages of 16 block bytes at a time.
+An abstraction layer on both ends was implemented to send and receive byte strings of any size with all the logic hidden.
+When data of variable size is exchanged, such as plaintext and ciphertext, before transmission, the number of bytes is sent, so the receiver can validate and know how many bytes to expect.
+In the case of fixed size data such as public keys and hashes this is not needed. For the remaining messages, which is usually a status message, all strings are terminated by the carriage return byte, so the receiver knows when the sender is done transmitting the message.
 
 % -----------------------------------------------------
-\subsection{Device Standardization}\label{chap:implementation:standards}
+% \subsection{Cryptographic Algorithms}\label{chap:implementation:app:algorithms}
+\subsection{Smartfusion Implementation}\label{chap:implementation:app:board}
 
-The solution should support a plethora of devices, as it will increase the adoptability of the solution among clients. This entails the use of a widely established protocol, which clearly defines a set of functions and standards the system should follow.
-The \ac{PKCS} \#11 standard will be utilized to fulfill this requirements. It allows operations to be standardized across different devices, increasing the range of supported devices. By implementing the system in accordance with these guidelines, it will have a higher device interoperability. Additionally, it allows the application to use, create and modify objects, without exposing them to its memory.
+The application in the device was implemented using several of the security services of the board: SRAM-PUF, AES, HMAC-SHA-256, ECC scalar point multiplication, KeyTree, \ac{NRBG} and tamper monitoring.
+
+\subsubsection*{Authentication}
+
+The authentication PIN is saved in the SRAM-PUF service in a predetermined slot. When authentication is performed, the PIN is fetched, compared with the client's supplied PIN and erased from memory.
+If the user is authenticated the PIN can be changed, by enrolling and overwriting the PIN assigned SRAM-PUF slot.
+
+\subsubsection*{Data Encryption + authentication}
+
+As previously mentioned, the security of \ac{AES}-\ac{GCM} in hardware is considered to be unsurpassed by any authenticated-encryption scheme~\cite{aesmodes}.
+Unfortunately, the SmartFusion2 board, does not support this encryption algorithm.
+Therefore the solution implements a combination of an encryption algorithm with an authentication scheme. Among the supported \ac{AES} modes, as concluded in chapter~\ref{chap:background}, CTR mode is the most favourable option because of its efficiency and security, assuming the IV is unique for each message.
+
+For authentication, the board supports \ac{HMAC} with the \ac{SHA}-256 hash function, which uses a 256 bit symmetric key and generates a 256 bit code. As concluded in section \ref{chap:background:crypto:mac}, it is a well-designed construction, even though it is not the most efficient.
+
+For combining these algorithms, studies have shown that a combination of secure encryption and secure \ac{MAC} must use the encrypt-then-MAC method~\cite{encryptmacorder}.
+Considering these guidelines, the data encryption/decryption and authentication implementation follows the protocol presented in figures~\ref{fig:arch-encrypt} and \ref{fig:arch-encrypt}.
+The key used in HMAC should be different from the one used in encryption, to ensure the best security practices. So in practice, a key used for securing communications is split into two keys, one for encryption and one for authentication.
+When choosing key sizes, taking into account the limited storage capacity of the board, a smaller, but still secure, key size is preferred. The \ac{AES} 128 bit or 256 bit services guarantee both 128 and 256 bit security. According to the \ac{NIST} recommendations~\cite{nistRecommendations}, algorithms which guarantee both 128 and 256 bit security, are expected to be secure from 2031 and beyond. Thus \ac{AES} with 128 bit keys is preferred, since it guarantees adequate security for the foreseeable future, and is the more conservative option.
+Even though the HMAC service needs a 256 bit key, a 128 bit key can be used with the upper 128 bits padded with zeros \cite{smartfusionSecurityPractices}.
+Therefore for every communication a 256 bit key is used, the lower 128 bits for encryption and upper 128 bits for authentication.
+
+On encryption, a unique 16 byte \ac{IV} is generated using the \ac{NRBG} service.
+The encryption and authentication keys, both 128 bit, are fetched from the SRAM-PUF service, using the slot (key ID) requested by the client application.
+The returned string is either the original plaintext, or the \ac{MAC}, \ac{IV} and ciphertext, concatenated in that order.
+
+% --------
+
+% The system provides a single hash algorithm, \ac{SHA}-256, which has a security strength of 128 bits.
+% The \ac{HMAC}-\ac{SHA}-256 algorithm needs a 256 bit key, different from the one used with encryption, to ensure the best security practices. A 128 bit key can be used, if padded with zeros. Thus, for every communication, a 128 bit key for encryption and a 128 bit key for authentication is used. In total, a 256 bit shared secret.
+
+% The qualified digital signatures operation combines \ac{ECC} and the \ac{SHA}-256 hash algorithm, and provides 128 bit security, calculated by taking the smallest security strength value of both algorithms. For the encryption and authentication operation combining \ac{AES}-128 and \ac{HMAC}-\ac{SHA}-256, 128 bit security is provided.
+
+% -----------------
+\subsubsection*{ECDH key generation + KeyTree}
+The supported \ac{ECC} P-384 curve guarantees 192 bit security.
+The implemented new key generation operation protocol is defined in figures~\ref{fig:arch-ecdh-alice} and \ref{fig:arch-ecdh-bob}.
+The peer's public key is supplied by the client application, and the device's private key is fetched from a predetermined PUF slot where it is saved.
+
+For the ECDH algorithm the ECC scalar multiplication board accelerator is used. It multiplies a scalar value of 48 bytes, the private key, with a point with a x and y coordinate of both 48 bytes (96 bytes total), the public key.
+The result is a 96 byte point, which is effectively the shared secret.
+Then to generate the 256 bit key, the KeyTree service is applied as a key derivation function on the shared secret combined with a salt, which can be public.
+The generated key is enrolled in the first available PUF slot, which is returned to the user as the newly generated key ID.
+
+\subsubsection*{Key Revocation}
+Key revocation only consists of deleting the key from the SRAM-PUF slot it is saved. This is a simple call to the API function.
+
+\subsubsection*{Tamper Detection}
+
+Tamper and failure events detection is implemented. When certain events occur, flags are set which prevent the user from performing operations, to protect all possible sensitive data. On tamper detection events, zeroization is performed on the device, erasing all keys and data from the device.
+
+% TODO: maybe for conclusion: the secure communications service provides 128 bit security, and the ECDH algorithm provides 192 bit security.
+
+% -----------------------------------------------------
+\subsection{PKCS\#11 Interface}\label{chap:implementation:app:interface}
+
+The application only supports one token and one session for the token.
+PKCS\#11 defines two types of users, the regular user and security office. The implemented application does not make that distinction. Both types of user can login and perform operations.
+The implemented application initializes the cryptoki application and opens the session with the device through the \texttt{C\_Initialize} and \texttt{C\_OpenSession} functions.
+The opposite \texttt{C\_CloseSession} and \texttt{C\_Finalize} functions close the session and terminate the cryptoki application.
+
+The interface handles the input from the user and uses the data to call the functions in the implemented PKCS\#11 API.
+First the user inputs the operation code he wishes to perform, and the application handles the correct API calls to the PKCS\#11 interface.
+The authentication operation calls the \texttt{C\_Login} function. The authentication PIN can then be changed with the \texttt{C\_SetPIN} function.
+The \texttt{C\_Logout} function logs out the user. Only the operation code is needed for this operation.
+
+To encrypt and authenticate some data, a local object for the secret key is created with \texttt{C\_CreateObject}. It does not contain the key data, only the key ID, so it can be passed of to the PKCS\#11 API. The encryption is performed through calls to \texttt{C\_EncryptInit} and then \texttt{C\_Encrypt}.
+The same logic applied to decryption with \texttt{C\_DecryptInit} and then \texttt{C\_Decrypt}
+
+For deleting a key on the device, first a secret key object is created with its ID, like before, and then a call to \texttt{C\_DestroyObject} handle the rest.
+A new key is generated with the ECDH mechanism and \ac{SHA}-256 key derivation function, with a call to \texttt{C\_DeriveKey}.
+
+Only one custom which is called directly is implemented. The \texttt{HSM\_C\_GetKeyList} returns the number of enrolled keys in the device.
+% The solution should support a plethora of devices, as it will increase the adoptability of the solution among clients. This entails the use of a widely established protocol, which clearly defines a set of functions and standards the system should follow.
+% The \ac{PKCS} \#11 standard will be utilized to fulfill this requirements. It allows operations to be standardized across different devices, increasing the range of supported devices. By implementing the system in accordance with these guidelines, it will have a higher device interoperability. Additionally, it allows the application to use, create and modify objects, without exposing them to its memory.
 
