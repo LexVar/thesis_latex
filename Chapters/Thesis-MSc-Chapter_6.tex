@@ -91,3 +91,20 @@ However, comparing both values we can conclude saving the key in memory, has mos
 % -----------------------------------------------------
 % -----------------------------------------------------
 \section{Requirements}\label{chap:evaluation:requirements}
+
+A M2S090TS smartfusion2 evaluation kit is priced at 384€ \cite{smartfusionPrice}.
+
+% ------------- Requirements ------------------
+% Devices should be distributable to individuals or entities with one or more individuals;
+% The system must allow communications between individuals representing themselves or an entity;
+% The system must be responsible for securing all communications against any sort of attacks;
+% The device should be independent from user's personal computers;
+% Users should be able to create secure communications with available and new entities;
+% m New secure connections should be created, if existing communications are suspected to be compromised;
+% It should provide an easy-to-use interface by everyone, including non-technical people;
+% It should have a relatively low cost, to allow distribution of several devices among multiple people;
+% Only authorized individuals should be able to use the device.
+% ---------------------------------------------
+
+% secure comms - aes and hmac services are not dpa resistant, so keys should be regularly replaced to avoid enough data which enables an attacker to break encryption. On the other hand this is only possible if the attacker has physical access to the device or potentially with some type of malware on the user's computer.
+% key generation - needs assymetric keys to generate new keys with public keys and salt traded beforehand - can be not user friendly

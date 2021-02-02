@@ -13,14 +13,14 @@ This section goes into detail on the necessary concepts required to perfectly un
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Cryptography}\label{chap:background:crypto}
 
-There are several cryptographic services relevant to this work, namely:
-\begin{itemize}
-    \item Confidentiality: used to hide the content of information from unauthorized entities;
-    \item Data Integrity: ability to protect from unauthorized modification of data;
-    \item Authentication: used to ascertain the origin of a message;
-	    %Authentication is achieved if the combination of data integrity and freshness (prevention of replay attacks: when a valid message is replayed by a malicious entity);
-    \item Non-Repudiation: prevents an entity from denying the authorship of a document or message.
-\end{itemize}
+There are several cryptographic services relevant to this work, namely: Confidentiality: used to hide the content of information from unauthorized entities; Data Integrity: ability to protect from unauthorized modification of data; Authentication: used to ascertain the origin of a message; Non-Repudiation: prevents an entity from denying the authorship of a document or message.
+% \begin{itemize}
+%     \item Confidentiality: used to hide the content of information from unauthorized entities;
+%     \item Data Integrity: ability to protect from unauthorized modification of data;
+%     \item Authentication: used to ascertain the origin of a message;
+%             %Authentication is achieved if the combination of data integrity and freshness (prevention of replay attacks: when a valid message is replayed by a malicious entity);
+%     \item Non-Repudiation: prevents an entity from denying the authorship of a document or message.
+% \end{itemize}
 
 To guarantee these services, two types of key infrastructure exist: symmetric and asymmetric.
 Symmetric keys are shared by two or more communicating parties. The same key is used to encrypt and decrypt data. The keys are smaller and the operations are faster than with asymmetric keys.
@@ -37,14 +37,15 @@ Symmetric ciphers support both block and stream ciphers while asymmetric use blo
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \subsection{Hash Functions}\label{chap:background:crypto:hash}
 
-A cryptography hash function generates a fixed dimension value (digest) based on variable input texts, such as messages or files. Secure hashes provide message integrity by comparing digests, calculated before, and after, transmission to determine if the message was altered. To achieve this, hash functions must have several properties:
-\begin{enumerate}
-    \item They must be deterministic, meaning the same input value must always result in the same hash value;
-    \item They must generate very different output values for similar inputs;
-    \item They must be collision resistant, meaning it should be hard to find two input messages that generate the same hash value;
-    \item The hash value should be computed relatively quickly;
-    \item Given a hash value, it should be hard to find an input text that produces that hash value.
-\end{enumerate}
+A cryptography hash function generates a fixed dimension value (digest) based on variable input texts, such as messages or files. Secure hashes provide message integrity by comparing digests, calculated before, and after, transmission to determine if the message was altered.
+To achieve this, hash functions must have several properties, more notably: the same input value always results in the same hash, very different outputs must be generated for very similar inputs, it should be hard to find two messages which generate the same hash and it should be hard to find n input that produces a given hash.
+% \begin{enumerate}
+%     \item They must be deterministic, meaning the same input value must always result in the same hash value;
+%     \item They must generate very different output values for similar inputs;
+%     \item They must be collision resistant, meaning it should be hard to find two input messages that generate the same hash value;
+%     \item The hash value should be computed relatively quickly;
+%     \item Given a hash value, it should be hard to find an input text that produces that hash value.
+% \end{enumerate}
 
 Popular and recommended hash functions include \ac{SHA}-2 and the newer \ac{SHA}-3~\cite{dang2015secure}. Both versions have several flavours. \ac{SHA}-2 provides different functions which vary on the size of the digest. For example, the \ac{SHA}-256 function produces a 256 bit digest and \ac{SHA}-512 a 512 bit digest.
 
@@ -68,10 +69,10 @@ The block cipher is only used in the encryption direction, which means the messa
 The downside of needing to encrypt the IV multiple times, is the encryption and decryption are not parallelizable and random read access is not possible. However, the multiple encryptions of the IV can be precomputed in order to increase the performance of both encryption and decryption.
 Changes to a ciphertext block, only affect the corresponding bits.
 
-\textbf{\ac{CFB}} is a combination of \ac{OFB} and \ac{CBC}. The xor operation is applied on the encrypted \ac{IV} with the plaintext block. The result is then used for the next block.
-Similarly to \ac{OFB}, \ac{CFB} is effectively a stream cipher. Yet, akin to \ac{CBC}, and for the same reasons, encryption is not parallelizable, opposed to decryption which is. Random read access is possible, contrary to preprocessing which is not.
-A specific condition of \ac{CFB} is it can become self-synchronous, meaning it will recover if s bits are lost. If s=1, it can recover from slips of any number of bits, if s=8 it can recover from slips of any number of bytes. However for every blockcipher call, \ac{CFB} only processes s bits, compared to 128 bits (block size), which is a major performance cost.
-
+% \textbf{\ac{CFB}} is a combination of \ac{OFB} and \ac{CBC}. The xor operation is applied on the encrypted \ac{IV} with the plaintext block. The result is then used for the next block.
+% Similarly to \ac{OFB}, \ac{CFB} is effectively a stream cipher. Yet, akin to \ac{CBC}, and for the same reasons, encryption is not parallelizable, opposed to decryption which is. Random read access is possible, contrary to preprocessing which is not.
+% A specific condition of \ac{CFB} is it can become self-synchronous, meaning it will recover if s bits are lost. If s=1, it can recover from slips of any number of bits, if s=8 it can recover from slips of any number of bytes. However for every blockcipher call, \ac{CFB} only processes s bits, compared to 128 bits (block size), which is a major performance cost.
+%
 \textbf{\ac{CTR}} mode concatenates an IV with a counter beginning at 0. Each sequence is encrypted and applied the xor operation with the plaintext block. For each block the sequence is incremented by 1.
 This mode is comparable to \ac{OFB}, as it is also a stream cipher, the encryption operation is exactly the same as the decryption and an error affects only the respective bits.
 However it does not have the performance disadvantages of \ac{OFB}. Encryption and decryption are parallelizable, random read access and preprocessing are both possible.
@@ -79,15 +80,17 @@ It is worth noting that due to existing no need to implement decryption, it can 
 
 For every mode with an \ac{IV}, it needs to be sent along with the message to the receiver, or the receiver will not be able to retrieve the entire message.
 
-\ac{CBC}, \ac{OFB} and \ac{CFB} modes are proved secure, assuming the \ac{IV} is random, and is unique, meaning it is only used once for each key and message. For \ac{CTR} mode, the IV does not need to be random, but it cannot be reused with the same key.
+% \ac{CBC}, \ac{OFB} and \ac{CFB} modes are proved secure, assuming the \ac{IV} is random, and is unique, meaning it is only used once for each key and message. For \ac{CTR} mode, the IV does not need to be random, but it cannot be reused with the same key.
+\ac{CBC} and \ac{OFB} modes are proved secure, assuming the \ac{IV} is random, and is unique, meaning it is only used once for each key and message. For \ac{CTR} mode, the IV does not need to be random, but it cannot be reused with the same key.
 After the \ac{IV} is used, there is no need for the value to be kept secret. It can be sent alongside the ciphertext.
 
-Regarding performance, the paper~\cite{aesmodes} states \ac{CBC} is slower than \ac{CTR} mode. \ac{CFB} (even with s = 128) and \ac{OFB} are slower still.
-When efficiency characteristics matter, nothing comes close to \ac{CTR}: it has better performance characteristics, in multiple dimensions, than any of \ac{CBC}, \ac{CFB}, and \ac{OFB}.
+% Regarding performance, the paper~\cite{aesmodes} states \ac{CBC} is slower than \ac{CTR} mode. \ac{CFB} (even with s = 128) and \ac{OFB} are slower still.
+Regarding performance, the paper~\cite{aesmodes} states \ac{CBC} is slower than \ac{CTR} mode. \ac{OFB} is even slower.
+When efficiency characteristics matter, nothing comes close to \ac{CTR}: it has better performance characteristics, in multiple dimensions, than any of \ac{CBC}, and \ac{OFB}.
 
 All these cipher modes are malleable, meaning an attacker can modify a ciphertext C, the result of encrypting plaintext P, to create ciphertext C' which will decrypt to plaintext P' that is similar to P. Malleability is connected to message integrity. This is not considered a relevant weakness since the modes only goal is to offer confidentiality guarantees, not integrity. If one wishes integrity it should pair one of these modes with a \ac{MAC}, or use a dedicated authenticated-encryption mode like \ac{CCM} or \ac{GCM} (discussed in Section~\ref{chap:background:crypto:aead}), which guarantee both confidentiality and integrity.
 
-\ac{XTS} is intended for encrypting data on a storage device. The mode is not approved for any other use. Instead of an IV, it uses the sector number and block index in the sector. It uses a ciphertext stealing to avoid padding in the last block. As expected, it provides no integrity. Therefore is susceptible to data tampering, any ciphertext will be decrypted, regardless of being modified or not.
+% \ac{XTS} is intended for encrypting data on a storage device. The mode is not approved for any other use. Instead of an IV, it uses the sector number and block index in the sector. It uses a ciphertext stealing to avoid padding in the last block. As expected, it provides no integrity. Therefore is susceptible to data tampering, any ciphertext will be decrypted, regardless of being modified or not.
 % XTS can be combined with a file system with checksums (related to hash functions, also used to verify data integrity) for all data and metadata on disk, such as ZFS or Btrfs.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -115,12 +118,13 @@ Due to performing two encryption operations, \ac{CBC-MAC} and then \ac{CTR}, it 
 It is not an online mode, meaning it needs to know the message and \ac{AD} length beforehand. Therefore, \ac{AD} cannot be preprocessed. It is only considered secure for fixed-length messages.
 Despite being a slower mode, it is secure and achieves its goals, so it is widely supported, included in \ac{IPsec}, \ac{TLS} and Bluetooth low energy.
 
-\ac{EAX} mode aims to improve on \ac{CCM} by replacing \ac{CBC-MAC} with \ac{OMAC}. Similarly to \ac{CCM}, it first generates the authentication tag with \ac{OMAC}, then encrypts with \ac{CTR}.
-By using \ac{OMAC} instead of \ac{CBC-MAC}, it supports variable-length messages and is online.
+% \ac{EAX} mode aims to improve on \ac{CCM} by replacing \ac{CBC-MAC} with \ac{OMAC}. Similarly to \ac{CCM}, it first generates the authentication tag with \ac{OMAC}, then encrypts with \ac{CTR}.
+% By using \ac{OMAC} instead of \ac{CBC-MAC}, it supports variable-length messages and is online.
 
 \textbf{\ac{GCM}} utilizes an encrypt-then-MAC approach. It first encrypts with \ac{CTR} mode, then uses Galois mode of authentication to generate the tag. The Galois field multiplication supports parallel computation, making this mode faster than \ac{CCM}.
 Evidently, like in normal \ac{CTR} mode, it needs a different \ac{IV} for each encrypted message.
-Beyond being parallelizable, it has the advantages \ac{EAX} has over \ac{CCM}. It is online and the \ac{AD} can be preprocessed.
+% Beyond being parallelizable, it has the advantages \ac{EAX} has over \ac{CCM}. It is online and the \ac{AD} can be preprocessed.
+Beyond being parallelizable, it is online and the \ac{AD} can be preprocessed.
 For security reasons, authentication tags should be at least 96 bits, even though the mode allows smaller tags. One limitation of \ac{GCM} is, it can encrypt a maximum of 64GiB of plaintext. Security analysis of several modes, decisively states that \ac{GCM} in hardware is unsurpassed by any authenticated-encryption scheme~\cite{aesmodes}.
 
 
@@ -192,7 +196,8 @@ A \ac{TRNG} can generate a sequence of numbers that cannot be predicted. Generat
 The standards defines an \ac{API} designed to interface between applications and cryptographic devices such as smart cards and hardware security modules~\cite{pkcs11analysis}. 
 Applications can use, create and modify objects, without exposing them to the application's memory.
 The standard has been widely used, promoting interoperability between devices. By using the same standard, it allows devices to take advantage of another device's \ac{API}.
-It allows applications to access cryptographic devices through slots. The slots represent a socket or device reader. A session can be established through the slot so the application can authenticate itself to a token with a default \ac{PIN}. The token holds private and public objects which can be keys and certificates. Only public objects are available to an unauthenticated session. The normal user has access to both private and public objects but cannot change the authentication \ac{PIN}s. The privileged user can change both his and the normal user's \ac{PIN}.
+It allows applications to access cryptographic devices through slots. The slots represent a socket or device reader. A session can be established through the slot so the application can authenticate itself to a token with a default \ac{PIN}. The token holds private and public objects which can be keys and certificates among others, and can be accessed by user's.
+% Only public objects are available to an unauthenticated session. The normal user has access to both private and public objects but cannot change the authentication \ac{PIN}s. The privileged user can change both his and the normal user's \ac{PIN}.
 % An attack scenario is possible if the host machine is compromised, an attacker can intercept the \ac{PIN}, which he can use to access the cryptographic device.
 \section{Secure Cryptoprocessors}\label{chap:background:cryptoprocessors}
 
