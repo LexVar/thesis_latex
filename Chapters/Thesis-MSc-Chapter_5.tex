@@ -3,7 +3,7 @@
 % !TEX root = ../main.tex
 % #############################################################################
 % Change the Name of the Chapter i the following line
-\fancychapter{Implementation and Protocol}
+\fancychapter{Implementation}
 \cleardoublepage
 % The following line allows to ref this chapter
 \label{chap:implementation}
@@ -204,7 +204,17 @@ Key revocation only consists of deleting the key from the SRAM-PUF slot it is sa
 
 \subsubsection*{Tamper Detection}
 
-Tamper and failure events detection is implemented. When certain events occur, flags are set which prevent the user from performing operations, to protect all possible sensitive data. On tamper detection events, zeroization is performed on the device, erasing all keys and data from the device. This process either makes the board unusable or reset to the default fabric state. This effectively has a denial-of-service effect but is a trade-off in order to avoid successful attacks and potential leaks of sensitive information.
+Tamper and failure events detection is implemented. When certain events occur, flags are set which prevent the user from performing operations, to protect all possible sensitive data.
+On tamper detection events, zeroization is performed on the device, erasing all keys and data from the device. This process either makes the board unusable or reset to the default fabric state.
+These measures effectively have a denial-of-service effect but is a trade-off in order to avoid successful attacks and potential leaks of sensitive information, e.g. \ac{DPA}.
+
+Using the AES and HMAC services, in the secure communications operation, which are not fully DPA-resistant, makes the keys and information vulnerable to these attacks, as discussed in section \ref{chap:background:computing:smartfusion}.
+Attackers need physical access to the board and voltage measurement tools to perform them.
+With the developed implementation using tamper detection, which blocks attackers from using the device and zeroization which erases all sensitive data from the device, helps mitigate this type of attacks.
+All this is invalid, if the attacks somehow gain access to the user's authentication PIN.
+Which is why regular replacement of symmetric keys used in the vulnerable operations is recommended, and is a missing feature of the implementation.
+For future work a feature could be developed where a central entity, once every month, sends a encrypted message using pre-distributed keys, with a new key set, to replace the existing set.
+% As discussed in section \ref{chap:background:computing:smartfusion}, physical access to the board is needed to perform these attacks
 
 % TODO: maybe for conclusion: the secure communications service provides 128 bit security, and the ECDH algorithm provides 192 bit security.
 
