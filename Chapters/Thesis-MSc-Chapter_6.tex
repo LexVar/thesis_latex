@@ -89,6 +89,8 @@ Since the enrollment phase is presumed to be expensive, due to writing in eNVM m
 
 A higher time of 0.577 seconds without enrollment and 1.764s with, compared to the previous operations is expected due to the higher cost of operations with asymmetric keys.
 However, comparing both values we can conclude saving the key in memory, has most likely the higher performance impact on the operation.
+This result is congruent with the one obtained by \cite{parrinha2017flexible} of 0.57s per ECC scalar multiplication.
+Thus we can conclude, the scalar multiplication is the second most expensive operation, after the key enrollment, since the key derivation function has a negligible impact on the processing time (0.577s with the function vs 0.57s without).
 
 % -----------------------------------------------------
 % -----------------------------------------------------

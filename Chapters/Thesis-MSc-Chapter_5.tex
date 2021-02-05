@@ -139,6 +139,12 @@ The cryptographic software is running on the \ac{SoC} of a SmartFusion2 board, v
 The application was implemented using the C programming language, with the SoftConsole v3.4 \ac{IDE} and libraries of the board functionalities, provided by Microsemi. The configuration was generated using Libero v11.7.
 The device functions as a \ac{HSM}, connected through a \ac{USB} connection to a computer. It was programmed using the external FlashPro4 programmer required to develop and debug embedded applications with SoftConsole \cite{smartfusionSecurityPractices}.
 
+% Mbedtls consideration
+The inclusion of a cryptography library, such as Mbedtls, designed for embedded systems was considered. The library provides algorithm implementations: ECDH, ECDSA, AES encryption, HMAC and support for generation of X.509v3 certificates. The library can be integrated with the boards functionalities and have unnecessary features disabled to lower the used memory \cite{parrinha2017flexible}.
+The paper compares the performance of operations on the smartfusion2 with the mbedtls library and the board's security cores. It concludes AES encryption has a higher throughput of 1.8 Mbit/s on the mbedtls implementation compared to the 730 Kbit/s on the embedded core. For the elliptic curve scalar multiplication, used for ECDH, the software implementation is significantly slower, from 28.4s per operation compared to 0.57s with the embedded core.
+Ultimately, the security services offered by the device provide the necessary functionality to fulfill the requirements defined previously, with the exception of generating the device's certificate, but this was done by exporting the public key, generating the certificate and loading the certificate on the device.
+Beyond increasing the memory footprint, the library does not offer significant performance benefits, or security measures against side-channel attacks similar to the one's offered by the device's services.
+
 The client interface implemented the \ac{PKCS}\#11 standard for a higher device interoperability. The client interface was implemented in C++ for the open source MinGW compiler in Windows 10, and is composed of a simple command line interface which calls the implemented \ac{PKCS}\#11 interface functions based on the user's input.
 
 % -----------------------------------------------------
@@ -159,8 +165,8 @@ The application in the device was implemented using several of the security serv
 
 \subsubsection*{Authentication}
 
-The authentication PIN is saved in the SRAM-PUF service in a predetermined slot. When authentication is performed, the PIN is fetched, compared with the client's supplied PIN and erased from memory.
-If the user is authenticated the PIN can be changed, by enrolling and overwriting the PIN assigned SRAM-PUF slot.
+The authentication PIN is saved in the SRAM-PUF service in a predefined and static slot. When authentication is performed, the PIN is fetched, compared with the client's supplied PIN and erased from memory.
+If the user is authenticated the PIN can be changed, by enrolling and overwriting the value in the PIN assigned SRAM-PUF slot.
 
 \subsubsection*{Secure Communications}
 
@@ -197,7 +203,7 @@ The peer's public key is supplied by the client application, and the device's pr
 For the ECDH algorithm the ECC scalar multiplication board accelerator is used. It multiplies a scalar value of 48 bytes, the private key, with a point with a x and y coordinate of both 48 bytes (96 bytes total), the public key.
 The result is a 96 byte point, which is effectively the shared secret.
 Then to generate the 256 bit key, the KeyTree service is applied as a key derivation function on the shared secret combined with a salt, which can be public.
-The generated key is enrolled in the first available PUF slot, which is returned to the user as the newly generated key ID.
+The generated key is enrolled in the first available PUF slot, which is provided by a function in the API, and is returned to the user as the newly generated key ID.
 
 \subsubsection*{Key Revocation}
 Key revocation only consists of deleting the key from the SRAM-PUF slot it is saved. This is a simple call to the API function.
