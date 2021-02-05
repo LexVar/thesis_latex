@@ -240,8 +240,8 @@ The device can generate new 48 byte private \ac{ECC} keys. The corresponding pub
 The device also includes a point addition service, which allows the implementation of an elliptic curve digital signature algorithm such as ECDSA.
 
 % -------
-The SRAM-PUF service allows the user to store extrinsic keys (value supplied by the user) and intrinsic keys (randomly generated).
-It supports up to 56 keys with a maximum size of 4096 bits.
+The SRAM-PUF service allows the user to store extrinsic keys (value supplied by the user) and intrinsic keys (randomly generated in the device).
+It holds up to 56 key slots with a maximum of 4096 bits each.
 
 It uses the random start-up behaviour of a 2KB \ac{SRAM} block to determine a static secret unique to each device. There is enough repeatability in the SRAM turn-on behaviour to reconstruct the same secret each time. This secret is used to derive or protect cryptographic keys with 256 bit security strength \cite{smartfusionSecurityPractices}.
 When power is removed, the secret disappears. There is not technology to detect the start-up behaviour of an SRAM. It is determined by atomic-scale manufacturing differences in SRAM transistors.
@@ -267,3 +267,23 @@ Other systems also implement solutions to secure boot code. Infineon secures the
 Texas Instruments Sitara processors allows the customer to specify a public key as a root of trust to be fused into the device. This key is used to authenticate other keys that can be used to authenticate software components.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{State of the Art}\label{chap:background:art}
+
+In general, HSMs have been used in specific applications, exploiting their cryptographic services, key storage and physical protections.
+
+Lesjak et al. \cite{iothardware} proposes a system to secure remote snapshot acquisition, between the vendor and customers, by attaching a hardware security module to the customer product. 
+The messages are protected with the authenticated-encryption scheme \ac{AES}-\ac{GCM} and a TLS connection.
+The Infineon security controller stores the TLS keys, and protects the data with the authenticated-encryption scheme using its TRNG, the diffie-hellman based ECMQV algorithm for key establishment using ECC keys. This controller also contains protections against side-channel attacks such as \ac{DPA} and physical manipulation.
+
+Seol et al. \cite{trustediaashsm} isolates critical operations and data from cloud administrators by implementing a HSM to isolate the cryptographic keys and data.
+
+Wolf et al. \cite{wolf2011design} implemented a HSM on a 663€ Xilinx Virtex-5 FPGA to secure e vehicles network communications. The cryptographic algorithms were implemented on the FPGA by the authors, AES-128 bit and ECC 256 bit. The board was connected to a microcontroller running linux with additional algorithms available from a cryptographic library.
+Secure coprocessors have also been used to store and manage symmetric keys for data encryption in systems which manage biomedical data \cite{canim2011biomedical}.
+% ----
+Existing HSMs capabilities and functionalities have been studied by some studies.
+Kehret et al. \cite{tlsintegration} studied two specific boards.
+VaultIC460 is a secure microcontroller manufactured by Inside Secure with a RISC CPU, it includes a varied offering of cryptographic algorithms such as: AES encryption, public-key cryptography with RSA and ECC, MAC, SHA, SSL support, as well as a random number generator. Additionally it includes several authentication mechanisms for users, to secure the connection between the application and device.
+It includes 112 KB of tamper resistant secure memory for key storage and a USB connection.
+
+ATECC508A from microsemi is a tiny security controller with asymmetric key cryptography algorithms: ECDSA and ECDH, along with SHA, a TRNG and storage of up to sixteen 256 bit keys.
+These type of controllers are not suitable for this work, it is very small and limited with only a single GPIO, and no symmetric key algorithms, preventing encryption of large amounts of data. They are designed to be added to IoT devices.
