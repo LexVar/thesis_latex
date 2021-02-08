@@ -69,6 +69,10 @@ After the operation code and received status message, the user sends the new \ac
 The protocol for operations which secure communications will be defined here. It covers the encryption and authentication operation, which enables secure communications.% and non-repudiation through qualified digital signatures.
 The protocol for secure data exchange illustrated in figure~\ref{fig:protocol:data-exchange} consists of four stages.
 
+\[E_{k1}\{Data, IV\}\, MAC_{k1}\{IV+E_{k1}\{Data, IV\}\}\]
+
+\[(MAC_{k1}\{IV+Ciphertext\} == MAC) => E_{k1}\{Ciphertext, IV\} => Data\] 
+
 \begin{figure}[h!]
 	\centering
 	\includegraphics[width=0.55\textwidth]{./Images/data-exchange.png}
@@ -89,6 +93,8 @@ The protocol to decrypt and authenticate is identical to the one pictured in fig
 
 % The next protocols are relating to the generation and verification of digital signatures.
 % The designed protocol for generation is represented in figure~\ref{fig:protocol:signature-generate}.
+\[Sign_{K_A}\{Hash\{Data\}\}\]
+
 %% ------------
 % \begin{figure}[h!]
 %         \centering     %%% not \center
@@ -107,10 +113,15 @@ The protocol to decrypt and authenticate is identical to the one pictured in fig
 % Then, the device will verify the digital signature using the signer's public key, the data and the signature. The result will be sent back to the user.
 %
 % -----------------------------------------------------
+
 \subsection{Communication Management Protocol}\label{chap:implementation:protocol:key}
 
 The protocols for the communication management operations are detailed next, namely for symmetric key generation and key revocation. 
 The protocol to generate a new symmetric key with another entity using asymmetric cryptography is detailed in figure~\ref{fig:protocol:ecdh}.
+
+\[KDF\{ECDH_{K_B}\{K_A^{-1}\}, Salt\}\]
+
+\[KDF\{ECDH_{K_A}\{K_B^{-1}\}, Salt\}\]
 
 %% ------------
 \begin{figure}[h!]
