@@ -240,9 +240,10 @@ For future work a feature could be developed where a central entity, once every 
 
 The application only supports one token and one session for the token.
 PKCS\#11 defines two types of users, the regular user and security office. The implemented application does not make that distinction. Both types of user can login and perform operations.
+The implemented PKCS\#11 API is presented in appendix \ref{chap:AppendixA}, table \ref{tab:pkcs11-api}.
+
 The implemented application initializes the cryptoki application and opens the session with the device through the \texttt{C\_Initialize} and \texttt{C\_OpenSession} functions.
 The opposite \texttt{C\_CloseSession} and \texttt{C\_Finalize} functions close the session and terminate the cryptoki application.
-
 The interface handles the input from the user and uses the data to call the functions in the implemented PKCS\#11 API.
 First the user inputs the operation code he wishes to perform, and the application handles the correct API calls to the PKCS\#11 interface.
 The authentication operation calls the \texttt{C\_Login} function. The authentication PIN can then be changed with the \texttt{C\_SetPIN} function.

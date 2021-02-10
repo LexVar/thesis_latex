@@ -1,0 +1,26 @@
+\begin{table}[]
+\centering
+\def\arraystretch{1.5}
+\begin{tabular}{|c|c|}
+	\hline
+	\textbf{PKCS\#11 Function} & \textbf{Description} \\ \hline
+	\texttt{C\_Initialize		}& Initializes the cryptoki application\\ \hline
+	\texttt{C\_Finalize		}& Closes the cryptoki application\\ \hline
+	\texttt{C\_OpenSession		}& Opens the session and communication port\\ \hline
+	\texttt{C\_CloseSession 	}& Close session and communication port\\ \hline
+	\texttt{C\_Login        	}& Authenticates users with a PIN\\ \hline
+	\texttt{C\_Logout        	}& Logout the user\\ \hline
+	\texttt{C\_SetPIN       	}& Change authentication PIN\\ \hline
+	\texttt{C\_CreateObject 	}& Creates local objects like symmetric keys and public keys\\ \hline
+	\texttt{C\_DestroyObject	}& Deletes remote object like a secret key\\ \hline
+	\texttt{C\_EncryptInit  	}& Initialize AES encryption operation\\ \hline
+	\texttt{C\_Encrypt      	}& Encrypt data with AES CTR mode\\ \hline
+	\texttt{C\_DecryptInit  	}& Initializes decryption operation\\ \hline
+	\texttt{C\_Decrypt      	}& Decrypts data with AES CTR mode\\ \hline
+	\texttt{C\_DeriveKey		}& Generate and derive new symmetric key, stored remotely\\ \hline
+	\texttt{C\_UnwrapKey		}& Unwrap key(s) to be stored remotely\\ \hline
+	\texttt{HSM\_C\_GetKeyListize	}& Custom function to get list of avaible remote symmetric keys\\ \hline
+\end{tabular}
+\caption{PKCS\#11 Implemented Interface API}
+\label{tab:pkcs11-api}
+\end{table}
