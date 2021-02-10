@@ -34,7 +34,7 @@ The message size was varied to study the performance and scalability of the seri
 
 \begin{figure}[h!]
 	\centering
-	\includegraphics[width=0.9\textwidth]{./Images/comms-performance.png}
+	\includegraphics[width=0.8\textwidth]{./Images/comms-time.png}
 	\caption{Serial Port Communications Results}
 	\label{fig:performance:comms}
 \end{figure}
@@ -44,7 +44,7 @@ From the graph we can conclude the performance has linear scalability which is i
 
 \begin{figure}[h!]
 	\centering
-	\includegraphics[width=0.9\textwidth]{./Images/comms-tput.png}
+	\includegraphics[width=0.8\textwidth]{./Images/comms-tput.png}
 	\caption{Serial Port Communications Throughput}
 	\label{fig:performance:tput}
 \end{figure}
@@ -55,7 +55,57 @@ From this we conclude the practical throughput is close to the theoretical, and 
 
 % -----------------------------------------------------
 % -----------------------------------------------------
-\section{Services Performance}\label{chap:evaluation:services}
+\section{Security Services Performance}\label{chap:evaluation:cores}
+
+\subsection{AES-128 and AES-256}\label{chap:evaluation:cores:aes}
+
+% \begin{figure}[h!]
+%         \centering     %%% not \center
+%         \subfigure[AES 128]{\label{fig:performance:aes128-compare}\includegraphics[width=70mm]{Images/aes128-compare.png}}
+%         \subfigure[AES 256]{\label{fig:performance:aes256-compare}\includegraphics[width=70mm]{Images/aes256-compare.png}}
+%         \caption{AES 128 and 256 bit time comparison}
+% \end{figure}
+\begin{figure}[h!]
+	\centering
+	\includegraphics[width=0.9\textwidth]{./Images/aes128-compare.png}
+	\caption{AES 128 processing time}
+	\label{fig:performance:aes128-compare}
+\end{figure}
+
+\begin{figure}[h!]
+	\centering
+	\includegraphics[width=0.9\textwidth]{./Images/aes256-compare.png}
+	\caption{AES 256 processing time}
+	\label{fig:performance:aes128-compare}
+\end{figure}
+
+\begin{figure}[h!]
+	\centering
+	\includegraphics[width=0.9\textwidth]{./Images/aes128-tput.png}
+	\caption{AES Throughput}
+	\label{fig:performance:aes-tput}
+\end{figure}
+
+% -----------------------------------------------------
+\subsection{SHA-256 Based Services}\label{chap:evaluation:cores:sha}
+
+\begin{figure}[h!]
+	\centering
+	\includegraphics[width=0.9\textwidth]{./Images/sha-compare.png}
+	\caption{SHA based services processing time}
+	\label{fig:performance:sha-compare}
+\end{figure}
+
+\begin{figure}[h!]
+	\centering
+	\includegraphics[width=0.9\textwidth]{./Images/sha-tput.png}
+	\caption{SHA based services throughput}
+	\label{fig:performance:sha-tput}
+\end{figure}
+
+% -----------------------------------------------------
+% -----------------------------------------------------
+\section{Implemented Services Performance}\label{chap:evaluation:services}
 
 The objective of these tests was to measure the performance of the services implemented in the board.
 The performance metric measured was the average time to finish the service, excluding the time spent on communications.
