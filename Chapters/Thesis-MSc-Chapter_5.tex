@@ -14,8 +14,8 @@ This section builds on the system architecture. It will start by describing the 
 % -----------------------------------------------------
 \section{Protocol}\label{chap:implementation:protocol}
 
-All data and operations will flow through a serial connection between the client software in the individual's computer and the physical box. A communications protocol needs to defined, in other for this communication to occur.
-This section will explain and define the communication protocols between both the client application and the hardware device in detail. For each operation, it will describe its goal, the different phases, what data is traded in each phase and why.
+All data and operations will flow through a serial connection between the client software in the individual's computer and the physical box. A communication protocol which sets the communication rules was defined.
+This section will describe this protocol between the client application and the hardware device. Each operation's goal, stage, what data is traded in each stage and why is detailed.
 
 % -----------------------------------------------------
 \subsection{Initial State}\label{chap:implementation:protocol:initial-state}
@@ -23,7 +23,7 @@ This section will explain and define the communication protocols between both th
 The device will come from fabric configured and prepared with the necessary keys depending on two scenarios. In the simpler scenario, the device comes with the symmetric keys already shared and stored in each entities' device. They can begin to communicate immediately, with no setup necessary.
 In the other scenario, the entities will receive the device with a pair of asymmetric keys, a private and public, generated inside the device from fabric. Each device will have the user's public keys, whom he wishes to communicate. The entity can request whose public keys he wants, before the device is initialized in fabric. This allows the users to share symmetric keys between them, which they can user to begin trading data securely.
 
-All communications start with the client sending the operation code and receiving an "OK" message, meaning the user has access to the operation. If the user is not authenticated he receives a "NOT AUTHORIZED" message.
+All communications start with the client sending the operation code and receiving an OK message, meaning the user has access to the operation. If the user is not authenticated he receives an appropriate error message.
 The authentication operation can always be be accessed by the user, all other operations can only be accessed after the user is authenticated.
 Sending the operation code acts as a acknowledge message to check if the device is connected and powered to the computer.
 
@@ -40,38 +40,19 @@ Figure~\ref{fig:protocol:authentication} depicts the authentication protocol.
 	\subfigure[Change Authentication PIN]{\label{fig:protocol:change-PIN}\includegraphics[width=70mm]{Images/change-PIN.png}}
 	\caption{Authentication and PIN change protocols}
 \end{figure}
-% \begin{figure}[h!]
-%         \centering
-%         \includegraphics[width=0.4\textwidth]{./Images/authentication.png}
-%         \caption{Authentication Protocol}
-%         \label{fig:protocol:authentication}
-% \end{figure}
 
-The user initiates by sending a operation code. After the "OK" message, the user provides the device with the authentication \ac{PIN}. The device will respond with a authentication response parameter indicating failure or success. If successful, the session will be unlocked, allowing the user access to the main operations.
+Any communication is initiated by the client interface sending the operation code.
+If the user is not authenticated, only the authentication operation is allowed.
+After the code, the device responds with an OK message and the user must supply the device with the correct authentication \ac{PIN}.
+The device responds with an appropriate failure or success status. If successful, the session will be unlocked, allowing the user access to all other operations.
 
-% -----------------------------------------------------
-\subsection{Administration Protocol}\label{chap:implementation:protocol:admin}
-
-There is only one administration operation, to change the authentication \ac{PIN}, pictured in figure~\ref{fig:protocol:change-PIN}.
-
-% \begin{figure}[h!]
-%         \centering
-%         \includegraphics[width=0.4\textwidth]{./Images/change-PIN.png}
-%         \caption{Protocol to Change Authentication PIN}
-%         \label{fig:protocol:change-PIN}
-% \end{figure}
-
-After the operation code and received status message, the user sends the new \ac{PIN} number. The device responds with the status message of the operation.
+The user is allowed to change the authentication \ac{PIN}. The protocol pictured in figure~\ref{fig:protocol:change-PIN} is exactly the same to the authentication, except the supplied \ac{PIN} is the new \ac{PIN} which will overwrite the current.
 
 % -----------------------------------------------------
 \subsection{Secure Communications Protocol}\label{chap:implementation:protocol:comms}
 
-The protocol for operations which secure communications will be defined here. It covers the encryption and authentication operation, which enables secure communications.% and non-repudiation through qualified digital signatures.
+The protocol for operations which secure communications will be defined here. It covers the encryption and authentication operation, which enables secure communications and the non-repudiation service through qualified digital signatures.
 The protocol for secure data exchange illustrated in figure~\ref{fig:protocol:data-exchange} consists of four stages.
-
-\[E_{k1}\{Data, IV\}\, MAC_{k1}\{IV+E_{k1}\{Data, IV\}\}\]
-
-\[(MAC_{k1}\{IV+Ciphertext\} == MAC) => E_{k1}\{Ciphertext, IV\} => Data\] 
 
 \begin{figure}[h!]
 	\centering
@@ -81,47 +62,58 @@ The protocol for secure data exchange illustrated in figure~\ref{fig:protocol:da
 \end{figure}
 
 The first stage is identical to all operations, the client sends the operation code and receives the authorization status. If he is not authorized, the user is required to authenticate first.
-In the second stage the user client application sends the data size to be encrypted, waits for the "OK", and starts sending the data one block at a time.
-A maximum of 16 bytes per message can be transmitted. Each message contains a part of the data and the size of the data in that packet. When the transmission ends, the device confirms its reception with an "OK" message.
-In the third stage, the client software sends the ID of the symmetric key used to secure communications with.
-In the final stage, after the box has finished the cryptographic operations, the device sends the result size to the client, waits for an "OK" message and sends the result. It consists of the encrypted data, MAC and IV.
+In the second stage the user client application sends the data size to be encrypted, waits for an OK status, and begins transmitting the data. Every message is transmitted one block at a time, each block is 16 bytes.
+When the transmission ends, the device confirms its reception.
+In the third stage, the client sends the ID of the symmetric key used to secure communications with.
 
-The protocol to decrypt and authenticate is identical to the one pictured in figure~\ref{fig:protocol:data-exchange}. The device receives the ciphertext, \ac{MAC} and \ac{IV}, and returns the original plaintext data.
+Once the third stage is finished, the implemented encryption and authentication / decryption and authentication service will be performed.
+The protocol for both are identical. The only difference is the transmitted data. For the encryption service, the device receives the plaintext data and returns a message with the generated \ac{MAC}, \ac{IV} and encrypted data. For decryption, the device receives the \ac{MAC}, \ac{IV}, ciphertext, and returns the original plaintext.
+
+The encryption service is pictured detailed in the formula:
+\[E_{key}\{Data, IV\}, MAC_{key}\{IV+E_{key}\{Data, IV\}\}\]
+First, the plaintext data is encrypted with a symmetric key and a randomly generated \ac{IV}. Next a \ac{MAC} is generated from the concatenated \ac{IV} and ciphertext.
+
+The decryption service is pictured in the following formula:
+\[(MAC_{key}\{IV+Ciphertext\} == MAC) => E_{key}\{Ciphertext, IV\} => Data\] 
+A new \ac{MAC} is generated from the concatenated \ac{IV} and ciphertext received. Then the received and computed {MAC}s are compared. If identical, the data is authenticated, and the ciphertext is decrypted with the same symmetric key used for encryption and the \ac{IV}, to obtain the plaintext.
+
+In the final stage, after the box has finished the cryptographic operations, the device sends the result size to the client, waits for an OK message and returns the result.
 
 \hfill
 \hfill
+% -------------------
+% -------------------
 
-% The next protocols are relating to the generation and verification of digital signatures.
-% The designed protocol for generation is represented in figure~\ref{fig:protocol:signature-generate}.
-\[Sign_{K_A}\{Hash\{Data\}\}\]
+The next protocols are relating to the generation and verification of digital signatures.
+The communication protocol for generation is represented in figure~\ref{fig:protocol:signature-generate}.
 
 %% ------------
-% \begin{figure}[h!]
-%         \centering     %%% not \center
-%         \subfigure[Generation Protocol]{\label{fig:protocol:signature-generate}\includegraphics[width=79mm]{Images/signature-generate.png}}
-%         \subfigure[Verification Protocol]{\label{fig:protocol:signature-verify}\includegraphics[width=79mm]{Images/signature-verify.png}}
-%         \caption{Digital Signature Generation Protocols}
-% \end{figure}
+\begin{figure}[h!]
+	\centering     %%% not \center
+	\subfigure[Generation Protocol]{\label{fig:protocol:signature-generate}\includegraphics[width=79mm]{Images/signature-generate.png}}
+	\subfigure[Verification Protocol]{\label{fig:protocol:signature-verify}\includegraphics[width=79mm]{Images/signature-verify.png}}
+	\caption{Digital Signature Generation Protocols}
+\end{figure}
 
-% The user initiates by sending the operation code and the plaintext data size.
-% When the box responds with an OK message, the user transmits the data to be signed, one message at a time.
-% In possession of the data, the device will generate the digital signature using the device's private key. When finished the signature is sent back to the user.
-%
-% The protocol for verifying digital signatures is pictured in figure~\ref{fig:protocol:signature-verify}.
-% After the user sends the operation code, and the box responds with an OK message, the user transmits the data, used by the signer to generate the signature, one message at a time.
-% When done, the user also sends the signature and the name of the signer, so the device knows what public key to use to verify the signature.
-% Then, the device will verify the digital signature using the signer's public key, the data and the signature. The result will be sent back to the user.
-%
+The user initiates by sending the operation code and the plaintext data size.
+After the first phase, the user sends the data size and the data after an OK message. 
+
+In possession of the data, the device will generate the digital signature using the device's private key and a hash function according to the formula: 
+\[Sign_{K}\{Hash\{Data\}\}\]
+When finished the signature is sent back to the user.
+
+The protocol for verifying digital signatures is pictured in figure~\ref{fig:protocol:signature-verify}.
+After the user sends the operation code, and the box responds with an OK message, the user transmits the data, used by the signer to generate the signature.
+When done, the user also sends the signature and the public key of the signer, so the device can verify the signature.
+\[\{Hash\{Data\}\} == Decrypt_{K_{-1}}\{Signature\}\]
+The hash is generated from the data using the same hash function as the signer. The result is compared with the value obtained from the decryption of the signature using the signer's public key. The signature is verified if the values are identical.
+The service result is sent back to the user.
+
 % -----------------------------------------------------
-
 \subsection{Communication Management Protocol}\label{chap:implementation:protocol:key}
 
 The protocols for the communication management operations are detailed next, namely for symmetric key generation and key revocation. 
 The protocol to generate a new symmetric key with another entity using asymmetric cryptography is detailed in figure~\ref{fig:protocol:ecdh}.
-
-\[KDF\{ECDH_{K_B}\{K_A^{-1}\}, Salt\}\]
-
-\[KDF\{ECDH_{K_A}\{K_B^{-1}\}, Salt\}\]
 
 %% ------------
 \begin{figure}[h!]
@@ -131,9 +123,14 @@ The protocol to generate a new symmetric key with another entity using asymmetri
 	\caption{Communication Management Protocols}
 \end{figure}
 
-After stage 1, the client forwards the entity's public key to the device, waits for an "OK" status, and sends the salt value. The device calls the ECDH algorithm with its private key and the received public key to generate a secret and run it through a key derivation function with the salt value to obtain the new symmetric key.
-The new key is saved in secure storage with a new key id, which is returned to the client application.
+After stage 1, the client forwards the entity's public key to the device, waits for an OK status, and sends the salt value.
+% The device calls the ECDH algorithm with its private key and the received public key to generate a secret and run it through a key derivation function with the salt value to obtain the new symmetric key. The service's formula is thus:
+The device will then generate a symmetric key using the formula:
+\[KDF\{ECDH_{K}\{K^{-1}\}, Salt\}\]
+A secret is generated from the \ac{ECDH} algorithm, with the device's private key, and another entity's public key. The same secret can be generated with the device's public key and the other entity's private key. 
+This secret is run through a key derivation function in conjunction with a salt which can be public, to generate a symmetric key. If both entities generate the same secret and agree on the same salt value, the generated key is identical.
 
+The new key is saved in secure storage with a new key id, which is returned to the client application.
 The protocol for deleting an existing symmetric key from the device's secure storage is detailed in figure~\ref{fig:protocol:delete-key}.
 After both sides trade operation code and OK status, the user sends the key ID, which identifies the symmetric key, and receives the operation status from the device after it has been deleted.
 
