@@ -31,43 +31,40 @@ Sending the operation code acts as a acknowledge message to check if the device 
 \subsection{Authentication Protocol}\label{chap:implementation:protocol:auth}
 
 Before executing any operation the user must authenticate himself to the device.
-Figure~\ref{fig:protocol:authentication} depicts the authentication protocol.
+Figure~\ref{fig:protocol:login} depicts the login protocol.
 
-%% ------------
 \begin{figure}[h!]
-	\centering     %%% not \center
-	\subfigure[Authentication]{\label{fig:protocol:authentication}\includegraphics[width=70mm]{Images/authentication.png}}
-	\subfigure[Change Authentication PIN]{\label{fig:protocol:change-PIN}\includegraphics[width=70mm]{Images/change-PIN.png}}
-	\caption{Authentication and PIN change protocols}
+	\centering
+	\includegraphics[width=0.50\textwidth]{./Images/authentication.png}
+	\caption{Communications protocol to login and change login PIN}
+	\label{fig:protocol:login}
 \end{figure}
 
-Any communication is initiated by the client interface sending the operation code.
-If the user is not authenticated, only the authentication operation is allowed.
-After the code, the device responds with an OK message and the user must supply the device with the correct authentication \ac{PIN}.
+If the user is not authenticated, only the authentication operation is allowed. The communication is initiated by the client interface. It sends the operation code and the login \ac{PIN}.
 The device responds with an appropriate failure or success status. If successful, the session will be unlocked, allowing the user access to all other operations.
 
-The user is allowed to change the authentication \ac{PIN}. The protocol pictured in figure~\ref{fig:protocol:change-PIN} is exactly the same to the authentication, except the supplied \ac{PIN} is the new \ac{PIN} which will overwrite the current.
+The user is allowed to change the login \ac{PIN}. The protocol is exactly the same as the login, with the exception that the supplied \ac{PIN} is the new \ac{PIN} which will overwrite the current. The user will receive an error status if not logged in.
 
 % -----------------------------------------------------
 \subsection{Secure Communications Protocol}\label{chap:implementation:protocol:comms}
 
-The protocol for operations which secure communications will be defined here. It covers the encryption and authentication operation, which enables secure communications and the non-repudiation service through qualified digital signatures.
-The protocol for secure data exchange illustrated in figure~\ref{fig:protocol:data-exchange} consists of four stages.
+The protocol for operations which secure communications are defined here. It covers the operation which enables secure data exchange by providing the confidentiality and authentication services. It also covers the qualified digital signatures which provide non-repudiation.
+The protocol which enables secure data exchange, illustrated in figure~\ref{fig:protocol:data-exchange}, consists of two transmissions.
 
 \begin{figure}[h!]
 	\centering
-	\includegraphics[width=0.55\textwidth]{./Images/data-exchange.png}
-	\caption{Encryption+Authentication Protocol}
+	\includegraphics[width=0.60\textwidth]{./Images/data-exchange.png}
+	\caption{Communication protocol for the encryption and authentication service using internal HSM keys}
 	\label{fig:protocol:data-exchange}
 \end{figure}
 
-The first stage is identical to all operations, the client sends the operation code and receives the authorization status. If he is not authorized, the user is required to authenticate first.
-In the second stage the user client application sends the data size to be encrypted, waits for an OK status, and begins transmitting the data. Every message is transmitted one block at a time, each block is 16 bytes.
-When the transmission ends, the device confirms its reception.
-In the third stage, the client sends the ID of the symmetric key used to secure communications with.
+The first transmission is started by the client sending the operation code and key ID, which identifies the internal \ac{HSM} key used to encrypt and authenticate.
+The device returns a status message. If the key ID was invalid or the user is not authenticated, the status is an error.
+In the second transmission the client application sends the data length, followed by the data to be encrypted and authenticated internally.
+Afterwards, the device start the encryption process and \ac{MAC} generation. When finished, the devices outputs the result length and result data. If there is a processing error, the result length is 0.
+% Every message is transmitted one block at a time, each block is 16 bytes.
 
-Once the third stage is finished, the implemented encryption and authentication / decryption and authentication service will be performed.
-The protocol for both are identical. The only difference is the transmitted data. For the encryption service, the device receives the plaintext data and returns a message with the generated \ac{MAC}, \ac{IV} and encrypted data. For decryption, the device receives the \ac{MAC}, \ac{IV}, ciphertext, and returns the original plaintext.
+The protocol for decryption and encryption is identical. The only difference is the transmitted data. For the encryption service, the device receives the plaintext data and returns a message with the generated \ac{MAC}, \ac{IV} and encrypted data. For decryption, the device receives the \ac{MAC}, \ac{IV}, ciphertext, and returns the original plaintext.
 
 The encryption service is pictured detailed in the formula:
 \[E_{key}\{Data, IV\}, MAC_{key}\{IV+E_{key}\{Data, IV\}\}\]
@@ -90,49 +87,69 @@ The communication protocol for generation is represented in figure~\ref{fig:prot
 %% ------------
 \begin{figure}[h!]
 	\centering     %%% not \center
-	\subfigure[Generation Protocol]{\label{fig:protocol:signature-generate}\includegraphics[width=79mm]{Images/signature-generate.png}}
-	\subfigure[Verification Protocol]{\label{fig:protocol:signature-verify}\includegraphics[width=79mm]{Images/signature-verify.png}}
-	\caption{Digital Signature Generation Protocols}
+	\subfigure[Generation]{\label{fig:protocol:signature-generate}\includegraphics[width=79mm]{Images/signature-generate.png}}
+	\subfigure[Verification]{\label{fig:protocol:signature-verify}\includegraphics[width=79mm]{Images/signature-verify.png}}
+	\caption{Communication protocol for generating digital signatures and verifying the signatures using the internal HSM asymmetric key pair}
 \end{figure}
 
-The user initiates by sending the operation code and the plaintext data size.
-After the first phase, the user sends the data size and the data after an OK message. 
+The protocols only have one transmission. They are separated only for readability.
+The client application sends the operation code, data length and data to be signed.
+The qualified digital signature will be generated using the internal private key and the data. Afterwards the device responds with the signature length and generated signature.
 
-In possession of the data, the device will generate the digital signature using the device's private key and a hash function according to the formula: 
+The device will generate the digital signature using the device's private key and a hash function according to the formula: 
 \[Sign_{K}\{Hash\{Data\}\}\]
-When finished the signature is sent back to the user.
 
 The protocol for verifying digital signatures is pictured in figure~\ref{fig:protocol:signature-verify}.
-After the user sends the operation code, and the box responds with an OK message, the user transmits the data, used by the signer to generate the signature.
-When done, the user also sends the signature and the public key of the signer, so the device can verify the signature.
+The client sends the operation code, signature length and generated signature, as well as the data length and data from which the signature was generated. The last piece the client sends is the public key of the device where the signature was generated.
+
+After verifying the signature, the device responds with the operation status.
+The data is verified using a hash function and the board's \ac{ECC} services.
 \[\{Hash\{Data\}\} == Decrypt_{K_{-1}}\{Signature\}\]
 The hash is generated from the data using the same hash function as the signer. The result is compared with the value obtained from the decryption of the signature using the signer's public key. The signature is verified if the values are identical.
-The service result is sent back to the user.
 
 % -----------------------------------------------------
-\subsection{Communication Management Protocol}\label{chap:implementation:protocol:key}
+\subsection{Key Management Protocols}\label{chap:implementation:protocol:key}
 
-The protocols for the communication management operations are detailed next, namely for symmetric key generation and key revocation. 
-The protocol to generate a new symmetric key with another entity using asymmetric cryptography is detailed in figure~\ref{fig:protocol:ecdh}.
+The protocols for the communication management operations are detailed next, namely for symmetric key generation. The protocol to generate a new symmetric key with another entity using asymmetric cryptography is detailed in figure~\ref{fig:protocol:ecdh}.
 
-%% ------------
 \begin{figure}[h!]
 	\centering
-	\subfigure[ECDH]{\label{fig:protocol:ecdh}\includegraphics[width=79mm]{Images/ecdh.png}}
-	\subfigure[Key Revocation]{\label{fig:protocol:delete-key}\includegraphics[width=79mm]{Images/delete-key.png}}
-	\caption{Communication Management Protocols}
+	\includegraphics[width=0.60\textwidth]{./Images/ecdh.png}
+	\caption{Communication protocol to generate symmetric keys, with the HSM internal private key, and stored them internally}
+	\label{fig:protocol:ecdh}
 \end{figure}
 
-After stage 1, the client forwards the entity's public key to the device, waits for an OK status, and sends the salt value.
 % The device calls the ECDH algorithm with its private key and the received public key to generate a secret and run it through a key derivation function with the salt value to obtain the new symmetric key. The service's formula is thus:
+The user forwards the operation code, public key and salt value to the device.
 The device will then generate a symmetric key using the formula:
 \[KDF\{ECDH_{K}\{K^{-1}\}, Salt\}\]
 A secret is generated from the \ac{ECDH} algorithm, with the device's private key, and another entity's public key. The same secret can be generated with the device's public key and the other entity's private key. 
 This secret is run through a key derivation function in conjunction with a salt which can be public, to generate a symmetric key. If both entities generate the same secret and agree on the same salt value, the generated key is identical.
 
-The new key is saved in secure storage with a new key id, which is returned to the client application.
-The protocol for deleting an existing symmetric key from the device's secure storage is detailed in figure~\ref{fig:protocol:delete-key}.
-After both sides trade operation code and OK status, the user sends the key ID, which identifies the symmetric key, and receives the operation status from the device after it has been deleted.
+The new key is then stored in non-volatile memory encrypted with the dedicated symmetric encryption key for storage, saved in its PUF slot.
+A new unique ID is generated for the key, which is stored alongside the key in memory. This ID is returned to the user along with the operation success status.
+
+% -----------------------------------------------------
+\subsection{Import Keys into HSM Protocol}\label{chap:implementation:protocol:import-keys}
+
+This section details the protocol to import a list of encrypted symmetric keys, into the device.
+The imported keys must be encrypted with a predefined symmetric key, stored in a dedicated PUF slot inside the device. This service is useful so a central management section with a similar device can distribute keys to the enrolled entities, on a regular schedule, such as monthly.
+The protocol for this service is pictured in figure \ref{fig:protocol:import-keys}.
+
+\begin{figure}[h!]
+	\centering
+	\includegraphics[width=0.60\textwidth]{./Images/import-keys.png}
+	\caption{Communication protocol to import encrypted symmetric keys, and store them encrypted in the HSM's memory}
+	\label{fig:protocol:import-keys}
+\end{figure}
+
+The only transmission consists in the client sending the operation code, keys length and key data.
+Then, the device decrypts and authenticates the keys using a predefined symmetric key stored in a secure PUF slot. The protocol used is the same for secure data exchange described in \ref{chap:implementation:protocol:data-exchange}.
+
+Each key consists of 1 byte for its ID, 1 byte for its size and remaining bytes for the key data.
+The decrypted list of keys is encrypted again, using \ac{AES} \ac{CTR} mode with another predefined symmetric key for storage of data in non-volatile memory. The ciphertext, randomly generated IV and ciphertext length is stored in memory. To provide authentication and thus protection against tampering, a \ac{MAC} is generated from the three pieces of data and stored in a PUF slot.
+
+In order to fetch a stored symmetric key to use in one of the implemented services, the \ac{MAC} is generated and compared to the PUF slot. If identical, the key can be decrypted from memory using the same key used for its encryption and identified with its ID.
 
 % -----------------------------------------------------
 % -----------------------------------------------------

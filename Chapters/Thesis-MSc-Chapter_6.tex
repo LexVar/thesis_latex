@@ -63,7 +63,7 @@ Thus we can conclude the practical throughput is close to the theoretical, and a
 
 % -----------------------------------------------------
 % -----------------------------------------------------
-\section{Smartufion2 Security Services}\label{chap:evaluation:board}
+\section{Smartfusion2 Security Services}\label{chap:evaluation:board}
 
 \subsection{AES-128 and AES-256}\label{chap:evaluation:board:aes}
 
@@ -109,9 +109,6 @@ Thus we can conclude the practical throughput is close to the theoretical, and a
 % -----------------------------------------------------
 \section{Implemented Services}\label{chap:evaluation:services}
 
-% -----------------------------------------------------
-\subsection{Testing Configuration}\label{chap:evaluation:services:config}
-
 The same library used to measure the time in the communication tests was used.
 The time was measured at the client application before sending the message which will trigger the service at the HSM, and after it has received the result.
 
@@ -122,16 +119,46 @@ The data encryption and decryption operations were ran with different data sizes
 The ECDH key generation always uses a private and public key of the same size, so no message size variation is possible.
 
 % -----------------------------------------------------
-\subsection{Results}\label{chap:evaluation:services:results}
+\subsection{Secure Communications}\label{chap:evaluation:services:comms}
 
-\input{tables_and_code/services-performance.tex}
+\begin{figure}[h!]
+	\centering
+	\includegraphics[width=0.9\textwidth]{./Images/op3-time.png}
+	\caption{Secure Communications Average Time}
+	\label{fig:performance:op34-time}
+\end{figure}
 
-The results in table~\ref{tab:data-performance} for the encryption and decryption operations are very similar due to both using the same board services, AES encryption and HMAC, but in a different order. It is also important to note AES encryption and decryption in CTR mode is essentially the same operation due the mode's characteristics.
+The results in table~\ref{fig:performance:op34-time} for the encryption and decryption operations are very similar due to both using the same board services, AES encryption and HMAC, but in a different order. It is also important to note AES encryption and decryption in CTR mode is essentially the same operation due the mode's characteristics.
 Relating to the variation in data size, the values vary between approximately 0.1284 and 0.1825 seconds, which is a very insignificant difference. Thus we can conclude, the data size has a negligible impact on the operations performance.
 
-\input{tables_and_code/ecdh-performance.tex}
+% -----------------------------------------------------
+\subsection{Import Keys}\label{chap:evaluation:services:import-key}
 
-Regarding the key generation operation results in table~\ref{tab:data-performance}, two values were obtained through different methods. Due to the operation using SRAM-PUF services to enroll new keys in the eNVM memory, with limited write cycles and key slots, this operation cannot be repeated enough times to get a relevant enough sample size.
+\begin{figure}[h!]
+	\centering
+	\includegraphics[width=0.9\textwidth]{./Images/import-time.png}
+	\caption{Import Keys Average Time}
+	\label{fig:performance:import-time}
+\end{figure}
+
+\begin{figure}[h!]
+	\centering
+	\includegraphics[width=0.9\textwidth]{./Images/services-compare-tput.png}
+	\caption{Implemented Services Throughput Comparison}
+	\label{fig:performance:services-tput}
+\end{figure}
+
+% -----------------------------------------------------
+\subsection{Key Generation}\label{chap:evaluation:services:key-gen}
+
+\begin{figure}[h!]
+	\centering
+	\includegraphics[width=0.45\textwidth]{./Images/op8-time.png}
+	\caption{Key Generation Average Time}
+	\label{fig:performance:op8-time}
+\end{figure}
+
+Regarding the key generation operation results in table~\ref{fig:performance:op8-time}, two values were obtained through different methods. Due to the operation using SRAM-PUF services to enroll new keys in the eNVM memory, with limited write cycles and key slots, this operation cannot be repeated enough times to get a relevant enough sample size.
 So a trade off was achieved. The operation was performed 1000 times without the key enrollment operation, meaning only the ecdh key generation algorithm and key derivation function (SHA-256).
 Since the enrollment phase is presumed to be expensive, due to writing in eNVM memory, the test was also performed 10 times with key enrollment, to get an idea of its potential performance cost.
 
