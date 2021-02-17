@@ -8,24 +8,18 @@
 % The following line allows to ref this chapter
 \label{chap:implementation}
 
-This section builds on the system architecture. It will start by describing the communication protocols for each operation introduced in chapter \ref{chap:arch}, used in the implementation. The last section lists the standards and libraries chosen for the implementation. It finishes by outlining the implementation details, choices and their rationale.
+This section presents the implementation details of the HSM's services and implemented solution. It will start by describing the communication protocols for each operation between the client interface and the device. The next section describes the implementation details such as the standards and libraries, the board's services and implemented operations.
 
 % -----------------------------------------------------
 % -----------------------------------------------------
 \section{Protocol}\label{chap:implementation:protocol}
 
 All data and operations will flow through a serial connection between the client software in the individual's computer and the physical box. A communication protocol which sets the communication rules was defined.
-This section will describe this protocol between the client application and the hardware device. Each operation's goal, stage, what data is traded in each stage and why is detailed.
-
-% -----------------------------------------------------
-\subsection{Initial State}\label{chap:implementation:protocol:initial-state}
-
-The device will come from fabric configured and prepared with the necessary keys depending on two scenarios. In the simpler scenario, the device comes with the symmetric keys already shared and stored in each entities' device. They can begin to communicate immediately, with no setup necessary.
-In the other scenario, the entities will receive the device with a pair of asymmetric keys, a private and public, generated inside the device from fabric. Each device will have the user's public keys, whom he wishes to communicate. The entity can request whose public keys he wants, before the device is initialized in fabric. This allows the users to share symmetric keys between them, which they can user to begin trading data securely.
-
-All communications start with the client sending the operation code and receiving an OK message, meaning the user has access to the operation. If the user is not authenticated he receives an appropriate error message.
-The authentication operation can always be be accessed by the user, all other operations can only be accessed after the user is authenticated.
-Sending the operation code acts as a acknowledge message to check if the device is connected and powered to the computer.
+This section will describe this protocol between the client application and the hardware device. Each operation's goal, stage, what data is traded in each transmission and why is detailed.
+The serial port connection transmits data one block at a time, each block contains a maximum of 16 bytes.
+Data is organized in fields, each field has a fixed number of bytes to hold a certain piece of data.
+The protocols are organized in transmissions. One transmission is two messages, one message from the client interface to the device, and another in the reverse direction.
+In the protocol diagrams which will be presented next, data flowing in the same direction consecutively may be shown separately in separate messages. This is only for visibility purposes, in practice, the data is sent together, each in its own field with a defined number of bytes.
 
 % -----------------------------------------------------
 \subsection{Authentication Protocol}\label{chap:implementation:protocol:auth}
@@ -62,7 +56,6 @@ The first transmission is started by the client sending the operation code and k
 The device returns a status message. If the key ID was invalid or the user is not authenticated, the status is an error.
 In the second transmission the client application sends the data length, followed by the data to be encrypted and authenticated internally.
 Afterwards, the device start the encryption process and \ac{MAC} generation. When finished, the devices outputs the result length and result data. If there is a processing error, the result length is 0.
-% Every message is transmitted one block at a time, each block is 16 bytes.
 
 The protocol for decryption and encryption is identical. The only difference is the transmitted data. For the encryption service, the device receives the plaintext data and returns a message with the generated \ac{MAC}, \ac{IV} and encrypted data. For decryption, the device receives the \ac{MAC}, \ac{IV}, ciphertext, and returns the original plaintext.
 
@@ -121,7 +114,7 @@ The protocols for the communication management operations are detailed next, nam
 
 % The device calls the ECDH algorithm with its private key and the received public key to generate a secret and run it through a key derivation function with the salt value to obtain the new symmetric key. The service's formula is thus:
 The user forwards the operation code, public key and salt value to the device.
-The device will then generate a symmetric key using the formula:
+The device will then generate a symmetric key with:
 \[KDF\{ECDH_{K}\{K^{-1}\}, Salt\}\]
 A secret is generated from the \ac{ECDH} algorithm, with the device's private key, and another entity's public key. The same secret can be generated with the device's public key and the other entity's private key. 
 This secret is run through a key derivation function in conjunction with a salt which can be public, to generate a symmetric key. If both entities generate the same secret and agree on the same salt value, the generated key is identical.
@@ -188,6 +181,17 @@ In the case of fixed size data such as public keys and hashes this is not needed
 
 The application in the device was implemented using several of the security services of the board: SRAM-PUF, AES, HMAC-SHA-256, ECC scalar point multiplication, KeyTree, \ac{NRBG} and tamper monitoring.
 
+% -----------------------------------------------------
+\subsection{Initial State}\label{chap:implementation:protocol:initial-state}
+
+The device will come from fabric configured and prepared with the necessary keys depending on two scenarios. In the simpler scenario, the device comes with the symmetric keys already shared and stored in each entities' device. They can begin to communicate immediately, with no setup necessary.
+In the other scenario, the entities will receive the device with a pair of asymmetric keys, a private and public, generated inside the device from fabric. Each device will have the user's public keys, whom he wishes to communicate. The entity can request whose public keys he wants, before the device is initialized in fabric. This allows the users to share symmetric keys between them, which they can user to begin trading data securely.
+
+All communications start with the client sending the operation code and receiving an OK message, meaning the user has access to the operation. If the user is not authenticated he receives an appropriate error message.
+The authentication operation can always be be accessed by the user, all other operations can only be accessed after the user is authenticated.
+Sending the operation code acts as a acknowledge message to check if the device is connected and powered to the computer.
+
+% -----------------------------------------------------
 \subsubsection*{Authentication}
 
 The authentication PIN is saved in the SRAM-PUF service in a predefined and static slot. When authentication is performed, the PIN is fetched, compared with the client's supplied PIN and erased from memory.
