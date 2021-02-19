@@ -59,12 +59,21 @@ Afterwards, the device start the encryption process and \ac{MAC} generation. Whe
 
 The protocol for decryption and encryption is identical. The only difference is the transmitted data. For the encryption service, the device receives the plaintext data and returns a message with the generated \ac{MAC}, \ac{IV} and encrypted data. For decryption, the device receives the \ac{MAC}, \ac{IV}, ciphertext, and returns the original plaintext.
 
-The encryption service is pictured detailed in the formula:
-\[E_{key}\{Data, IV\}, MAC_{key}\{IV+E_{key}\{Data, IV\}\}\]
+\begin{equation}
+	\label{eq:encrypt-mac}
+	E_{key}\{Data, IV\}, MAC_{key}\{IV+E_{key}\{Data, IV\}\}
+\end{equation}
+
+The encryption service is pictured in \ref{eq:encrypt-mac}.
 First, the plaintext data is encrypted with a symmetric key and a randomly generated \ac{IV}. Next a \ac{MAC} is generated from the concatenated \ac{IV} and ciphertext.
 
-The decryption service is pictured in the following formula:
-\[(MAC_{key}\{IV+Ciphertext\} == MAC) => E_{key}\{Ciphertext, IV\} => Data\] 
+
+\begin{equation}
+	\label{eq:decrypt-mac}
+	(MAC_{key}\{IV+Ciphertext\} == MAC) => E_{key}\{Ciphertext, IV\} => Data
+\end{equation}
+
+The decryption service is depicted in \ref{eq:decrypt-mac}.
 A new \ac{MAC} is generated from the concatenated \ac{IV} and ciphertext received. Then the received and computed {MAC}s are compared. If identical, the data is authenticated, and the ciphertext is decrypted with the same symmetric key used for encryption and the \ac{IV}, to obtain the plaintext.
 
 In the final stage, after the box has finished the cryptographic operations, the device sends the result size to the client, waits for an OK message and returns the result.
@@ -88,16 +97,24 @@ The communication protocol for generation is represented in figure~\ref{fig:prot
 The protocols only have one transmission. They are separated only for readability.
 The client application sends the operation code, data length and data to be signed.
 The qualified digital signature will be generated using the internal private key and the data. Afterwards the device responds with the signature length and generated signature.
+The device will generate the digital signature using the device's private key and a hash function according to the equation \ref{eq:signature-generate}.
 
-The device will generate the digital signature using the device's private key and a hash function according to the formula: 
-\[Sign_{K}\{Hash\{Data\}\}\]
+\begin{equation}
+	\label{eq:signature-generate}
+	Sign_{K}\{Hash\{Data\}\}
+\end{equation}
 
 The protocol for verifying digital signatures is pictured in figure~\ref{fig:protocol:signature-verify}.
 The client sends the operation code, signature length and generated signature, as well as the data length and data from which the signature was generated. The last piece the client sends is the public key of the device where the signature was generated.
 
 After verifying the signature, the device responds with the operation status.
-The data is verified using a hash function and the board's \ac{ECC} services.
-\[\{Hash\{Data\}\} == Decrypt_{K_{-1}}\{Signature\}\]
+The data is verified using a hash function and the board's \ac{ECC} services, as detailed in \ref{eq:signature-verify}.
+
+\begin{equation}
+	\label{eq:signature-verify}
+	\{Hash\{Data\}\} == Decrypt_{K_{-1}}\{Signature\}
+\end{equation}
+
 The hash is generated from the data using the same hash function as the signer. The result is compared with the value obtained from the decryption of the signature using the signer's public key. The signature is verified if the values are identical.
 
 % -----------------------------------------------------
@@ -114,8 +131,13 @@ The protocols for the communication management operations are detailed next, nam
 
 % The device calls the ECDH algorithm with its private key and the received public key to generate a secret and run it through a key derivation function with the salt value to obtain the new symmetric key. The service's formula is thus:
 The user forwards the operation code, public key and salt value to the device.
-The device will then generate a symmetric key with:
-\[KDF\{ECDH_{K}\{K^{-1}\}, Salt\}\]
+The device will then generate a symmetric key, using the process in equation \ref{eq:ecdh-kdf}.
+
+\begin{equation}
+	\label{eq:ecdh-kdf}
+	KDF\{ECDH_{K}\{K^{-1}\}, Salt\}
+\end{equation}
+
 A secret is generated from the \ac{ECDH} algorithm, with the device's private key, and another entity's public key. The same secret can be generated with the device's public key and the other entity's private key. 
 This secret is run through a key derivation function in conjunction with a salt which can be public, to generate a symmetric key. If both entities generate the same secret and agree on the same salt value, the generated key is identical.
 
@@ -137,7 +159,7 @@ The protocol for this service is pictured in figure \ref{fig:protocol:import-key
 \end{figure}
 
 The only transmission consists in the client sending the operation code, keys length and key data.
-Then, the device decrypts and authenticates the keys using a predefined symmetric key stored in a secure PUF slot. The protocol used is the same for secure data exchange described in \ref{chap:implementation:protocol:data-exchange}.
+Then, the device decrypts and authenticates the keys using a predefined symmetric key stored in a secure PUF slot. The protocol used is the same for secure data exchange described in the previous section.
 
 Each key consists of 1 byte for its ID, 1 byte for its size and remaining bytes for the key data.
 The decrypted list of keys is encrypted again, using \ac{AES} \ac{CTR} mode with another predefined symmetric key for storage of data in non-volatile memory. The ciphertext, randomly generated IV and ciphertext length is stored in memory. To provide authentication and thus protection against tampering, a \ac{MAC} is generated from the three pieces of data and stored in a PUF slot.
@@ -258,7 +280,7 @@ For future work a feature could be developed where a central entity, once every 
 
 The application only supports one token and one session for the token.
 PKCS\#11 defines two types of users, the regular user and security office. The implemented application does not make that distinction. Both types of user can login and perform operations.
-The implemented PKCS\#11 API is presented in appendix \ref{chap:AppendixA}, table \ref{tab:pkcs11-api}.
+The implemented PKCS\#11 API is listed in table \ref{tab:pkcs11-api}.
 
 The implemented application initializes the cryptoki application and opens the session with the device through the \texttt{C\_Initialize} and \texttt{C\_OpenSession} functions.
 The opposite \texttt{C\_CloseSession} and \texttt{C\_Finalize} functions close the session and terminate the cryptoki application.
