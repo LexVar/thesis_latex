@@ -65,46 +65,40 @@ Thus we can conclude the practical throughput is close to the theoretical, and a
 % -----------------------------------------------------
 \section{Smartfusion2 Security Services}\label{chap:evaluation:board}
 
-\subsection{AES-128 and AES-256}\label{chap:evaluation:board:aes}
-
 \begin{figure}[h!]
 	\centering
-	\includegraphics[width=0.9\textwidth]{./Images/aes128-compare.png}
-	\caption{AES 128 processing time}
-	\label{fig:performance:aes128:compare}
+	\includegraphics[width=0.9\textwidth]{./Images/aes-time.png}
+	\caption{AES 128/256 service time}
+	\label{fig:performance:aes:time}
 \end{figure}
 
 \begin{figure}[h!]
 	\centering
-	\includegraphics[width=0.9\textwidth]{./Images/aes256-compare.png}
-	\caption{AES 256 processing time}
-	\label{fig:performance:aes256:compare}
+	\includegraphics[width=0.9\textwidth]{./Images/sha-time.png}
+	\caption{SHA-256 service time}
+	\label{fig:performance:sha:time}
 \end{figure}
 
 \begin{figure}[h!]
 	\centering
-	\includegraphics[width=0.9\textwidth]{./Images/aes128-tput.png}
-	\caption{AES Throughput}
-	\label{fig:performance:aes:tput}
+	\includegraphics[width=0.9\textwidth]{./Images/hmac-time.png}
+	\caption{HMAC-SHA256 service time}
+	\label{fig:performance:hmac:time}
 \end{figure}
-
-% -----------------------------------------------------
-\subsection{SHA-256 Based Services}\label{chap:evaluation:board:sha}
 
 \begin{figure}[h!]
 	\centering
-	\includegraphics[width=0.9\textwidth]{./Images/sha-compare.png}
-	\caption{SHA based services processing time}
+	\includegraphics[width=0.9\textwidth]{./Images/sha-time-compare.png}
+	\caption{SHA based services time}
 	\label{fig:performance:sha:compare}
 \end{figure}
 
 \begin{figure}[h!]
 	\centering
-	\includegraphics[width=0.9\textwidth]{./Images/sha-tput.png}
-	\caption{SHA based services throughput}
-	\label{fig:performance:sha:tput}
+	\includegraphics[width=0.9\textwidth]{./Images/core-tput.png}
+	\caption{Security Services Throughput}
+	\label{fig:performance:cores:tput}
 \end{figure}
-
 % -----------------------------------------------------
 % -----------------------------------------------------
 \section{Implemented Services}\label{chap:evaluation:services}
@@ -123,9 +117,9 @@ The ECDH key generation always uses a private and public key of the same size, s
 
 \begin{figure}[h!]
 	\centering
-	\includegraphics[width=0.9\textwidth]{./Images/op3-time.png}
+	\includegraphics[width=0.9\textwidth]{./Images/encrypt-time.png}
 	\caption{Secure Communications Average Time}
-	\label{fig:performance:op34-time}
+	\label{fig:performance:encrypt-time}
 \end{figure}
 
 The results in table~\ref{fig:performance:op34-time} for the encryption and decryption operations are very similar due to both using the same board services, AES encryption and HMAC, but in a different order. It is also important to note AES encryption and decryption in CTR mode is essentially the same operation due the mode's characteristics.
@@ -143,7 +137,7 @@ Relating to the variation in data size, the values vary between approximately 0.
 
 \begin{figure}[h!]
 	\centering
-	\includegraphics[width=0.9\textwidth]{./Images/services-compare-tput.png}
+	\includegraphics[width=0.9\textwidth]{./Images/services-tput.png}
 	\caption{Implemented Services Throughput Comparison}
 	\label{fig:performance:services-tput}
 \end{figure}
@@ -153,9 +147,9 @@ Relating to the variation in data size, the values vary between approximately 0.
 
 \begin{figure}[h!]
 	\centering
-	\includegraphics[width=0.45\textwidth]{./Images/op8-time.png}
+	\includegraphics[width=0.45\textwidth]{./Images/new-key-time.png}
 	\caption{Key Generation Average Time}
-	\label{fig:performance:op8-time}
+	\label{fig:performance:new-key-time}
 \end{figure}
 
 Regarding the key generation operation results in table~\ref{fig:performance:op8-time}, two values were obtained through different methods. Due to the operation using SRAM-PUF services to enroll new keys in the eNVM memory, with limited write cycles and key slots, this operation cannot be repeated enough times to get a relevant enough sample size.
