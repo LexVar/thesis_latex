@@ -203,12 +203,6 @@ In the case of fixed size data such as public keys and hashes this is not needed
 
 The application in the device was implemented using several of the security services of the board: SRAM-PUF, AES, HMAC-SHA-256, ECC scalar point multiplication, KeyTree, \ac{NRBG} and tamper monitoring.
 
-% -----------------------------------------------------
-\subsection{Initial State}\label{chap:implementation:protocol:initial-state}
-
-The device will come from fabric configured and prepared with the necessary keys depending on two scenarios. In the simpler scenario, the device comes with the symmetric keys already shared and stored in each entities' device. They can begin to communicate immediately, with no setup necessary.
-In the other scenario, the entities will receive the device with a pair of asymmetric keys, a private and public, generated inside the device from fabric. Each device will have the user's public keys, whom he wishes to communicate. The entity can request whose public keys he wants, before the device is initialized in fabric. This allows the users to share symmetric keys between them, which they can user to begin trading data securely.
-
 All communications start with the client sending the operation code and receiving an OK message, meaning the user has access to the operation. If the user is not authenticated he receives an appropriate error message.
 The authentication operation can always be be accessed by the user, all other operations can only be accessed after the user is authenticated.
 Sending the operation code acts as a acknowledge message to check if the device is connected and powered to the computer.
