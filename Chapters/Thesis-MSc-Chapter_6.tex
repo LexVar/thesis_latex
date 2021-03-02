@@ -33,6 +33,15 @@ For the first, the measured operation is performed once in the device each trans
 Obvious outlier values were excluded from the experimental calculations. The adopted rule was that values which are significantly above or below the average, and are never repeated were eliminated from the sample set.
 For the second scenario, tests on components where the time to transmit messages needed to minimized to more accurately assess the corresponding component's performance, for each transmission the operation was performed 50 times. The resulting time was divided by 50 to obtain the processing time per operation.
 
+\begin{equation}
+	\label{eq:linear-eq}
+	Ttotal = Tcall + Tdata * KB of data
+\end{equation}
+
+\input{tables_and_code/cores-model.tex}
+
+\input{tables_and_code/services-model.tex}
+
 % -----------------------------------------------------
 \subsection{Communications}\label{chap:evaluation:performance:comms}
 
