@@ -61,12 +61,12 @@ Additionally the device is delivered with the necessary functionality and keys, 
 The main operations are responsible fore securing the communications between users. These operations will grant confidentiality, integrity and authentication to communications.
 % The main operations are responsible fore securing the communications between users. These operations will grant confidentiality, integrity, authentication and non-repudiation to communications.
 
-\begin{figure}[h]
-    \centering
-    \includegraphics[width=0.5\textwidth]{./Images/arch-data-service.png}
-    \caption{Secure data exchange service using internal keys usage example}
-    \label{fig:arch:data-service}
-\end{figure}
+% \begin{figure}[h]
+%     \centering
+%     \includegraphics[width=0.5\textwidth]{./Images/arch-data-service.png}
+%     \caption{Secure data exchange service using internal keys usage example}
+%     \label{fig:arch:data-service}
+% \end{figure}
 
 % The secure data exchange services are divided in two. The first provides \textbf{confidentiality} and \textbf{authentication} to a piece of data, such as a document.
 The secure data exchange services provides \textbf{confidentiality} and \textbf{authentication} to a piece of data, such as a document.
@@ -87,12 +87,12 @@ When a user wants to communicate with a new entity, the system provides two conv
 Then the user needs to send the information through the client software to the device. The new key is generated in the device and made available right away. Then data can be exchanged with the new entity, which must also request the control station for the analogous entity's public information.
 This service allows establishing connections with new entities when needed, by way of trusted third party, the control station. 
 
-\begin{figure}[h]
-    \centering
-    \includegraphics[width=0.65\textwidth]{./Images/arch-import-service.png}
-    \caption{Import key list to device usage example}
-    \label{fig:arch:import-service}
-\end{figure}
+% \begin{figure}[h]
+%     \centering
+%     \includegraphics[width=0.65\textwidth]{./Images/arch-import-service.png}
+%     \caption{Import key list to device usage example}
+%     \label{fig:arch:import-service}
+% \end{figure}
 
 The system can also be setup with a regular communication update schedule. It grants the flexibility of key revocation when needed, data exchange with new entities, as well as updating communication keys which have reached their expiration date, with no additional complexity to the user, to always safeguard the security of communications.
 Each month an entity can hand over a list of the entities it wishes to communicate with to the control station, which will accordingly yield the corresponding key set, as pictured in figure \ref{fig:arch:import-service}.
