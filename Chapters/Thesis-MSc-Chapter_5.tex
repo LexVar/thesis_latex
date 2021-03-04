@@ -10,161 +10,54 @@
 
 This section presents the implementation details of the HSM's services and implemented solution. It will start by describing the communication protocols for each operation between the client interface and the device. The next section describes the implementation details such as the standards and libraries, the board's services and implemented operations.
 
-% -----------------------------------------------------
-% -----------------------------------------------------
-\section{Protocol}\label{chap:implementation:protocol}
-
-All data and operations will flow through a serial connection between the client software in the individual's computer and the physical box. A communication protocol which sets the communication rules was defined.
-This section will describe this protocol between the client application and the hardware device. Each operation's goal, stage, what data is traded in each transmission and why is detailed.
-The serial port connection transmits data one block at a time, each block contains a maximum of 16 bytes.
-Data is organized in fields, each field has a fixed number of bytes to hold a certain piece of data.
-The protocols are organized in transmissions. One transmission is two messages, one message from the client interface to the device, and another in the reverse direction.
-In the protocol diagrams which will be presented next, data flowing in the same direction consecutively may be shown separately in separate messages. This is only for visibility purposes, in practice, the data is sent together, each in its own field with a defined number of bytes.
-
-% -----------------------------------------------------
-\subsection{Authentication Protocol}\label{chap:implementation:protocol:auth}
-
-Before executing any operation the user must authenticate himself to the device.
-Figure~\ref{fig:protocol:login} depicts the login protocol.
-
-\begin{figure}[h!]
-	\centering
-	\includegraphics[width=0.50\textwidth]{./Images/authentication.png}
-	\caption{Communications protocol to login and change login PIN}
-	\label{fig:protocol:login}
-\end{figure}
-
-If the user is not authenticated, only the authentication operation is allowed. The communication is initiated by the client interface. It sends the operation code and the login \ac{PIN}.
-The device responds with an appropriate failure or success status. If successful, the session will be unlocked, allowing the user access to all other operations.
-
-The user is allowed to change the login \ac{PIN}. The protocol is exactly the same as the login, with the exception that the supplied \ac{PIN} is the new \ac{PIN} which will overwrite the current. The user will receive an error status if not logged in.
-
-% -----------------------------------------------------
-\subsection{Secure Communications Protocol}\label{chap:implementation:protocol:comms}
-
-The protocol for operations which secure communications are defined here. It covers the operation which enables secure data exchange by providing the confidentiality and authentication services. It also covers the qualified digital signatures which provide non-repudiation.
-The protocol which enables secure data exchange, illustrated in figure~\ref{fig:protocol:data-exchange}, consists of two transmissions.
-
-\begin{figure}[h!]
-	\centering
-	\includegraphics[width=0.60\textwidth]{./Images/data-exchange.png}
-	\caption{Communication protocol for the encryption and authentication service using internal HSM keys}
-	\label{fig:protocol:data-exchange}
-\end{figure}
-
-The first transmission is started by the client sending the operation code and key ID, which identifies the internal \ac{HSM} key used to encrypt and authenticate.
-The device returns a status message. If the key ID was invalid or the user is not authenticated, the status is an error.
-In the second transmission the client application sends the data length, followed by the data to be encrypted and authenticated internally.
-Afterwards, the device start the encryption process and \ac{MAC} generation. When finished, the devices outputs the result length and result data. If there is a processing error, the result length is 0.
-
-The protocol for decryption and encryption is identical. The only difference is the transmitted data. For the encryption service, the device receives the plaintext data and returns a message with the generated \ac{MAC}, \ac{IV} and encrypted data. For decryption, the device receives the \ac{MAC}, \ac{IV}, ciphertext, and returns the original plaintext.
-
-\begin{equation}
-	\label{eq:encrypt-mac}
-	E_{key}\{Data, IV\}, MAC_{key}\{IV+E_{key}\{Data, IV\}\}
-\end{equation}
-
-The encryption service is pictured in \ref{eq:encrypt-mac}.
-First, the plaintext data is encrypted with a symmetric key and a randomly generated \ac{IV}. Next a \ac{MAC} is generated from the concatenated \ac{IV} and ciphertext.
-
-
-\begin{equation}
-	\label{eq:decrypt-mac}
-	(MAC_{key}\{IV+Ciphertext\} == MAC) => E_{key}\{Ciphertext, IV\} => Data
-\end{equation}
-
-The decryption service is depicted in \ref{eq:decrypt-mac}.
-A new \ac{MAC} is generated from the concatenated \ac{IV} and ciphertext received. Then the received and computed {MAC}s are compared. If identical, the data is authenticated, and the ciphertext is decrypted with the same symmetric key used for encryption and the \ac{IV}, to obtain the plaintext.
-
-In the final stage, after the box has finished the cryptographic operations, the device sends the result size to the client, waits for an OK message and returns the result.
-
-\hfill
-\hfill
-% -------------------
-% -------------------
-
-The next protocols are relating to the generation and verification of digital signatures.
-The communication protocol for generation is represented in figure~\ref{fig:protocol:signature-generate}.
-
-%% ------------
-\begin{figure}[h!]
-	\centering     %%% not \center
-	\subfigure[Generation]{\label{fig:protocol:signature-generate}\includegraphics[width=79mm]{Images/signature-generate.png}}
-	\subfigure[Verification]{\label{fig:protocol:signature-verify}\includegraphics[width=79mm]{Images/signature-verify.png}}
-	\caption{Communication protocol for generating digital signatures and verifying the signatures using the internal HSM asymmetric key pair}
-\end{figure}
-
-The protocols only have one transmission. They are separated only for readability.
-The client application sends the operation code, data length and data to be signed.
-The qualified digital signature will be generated using the internal private key and the data. Afterwards the device responds with the signature length and generated signature.
-The device will generate the digital signature using the device's private key and a hash function according to the equation \ref{eq:signature-generate}.
-
-\begin{equation}
-	\label{eq:signature-generate}
-	Sign_{K}\{Hash\{Data\}\}
-\end{equation}
-
-The protocol for verifying digital signatures is pictured in figure~\ref{fig:protocol:signature-verify}.
-The client sends the operation code, signature length and generated signature, as well as the data length and data from which the signature was generated. The last piece the client sends is the public key of the device where the signature was generated.
-
-After verifying the signature, the device responds with the operation status.
-The data is verified using a hash function and the board's \ac{ECC} services, as detailed in \ref{eq:signature-verify}.
-
-\begin{equation}
-	\label{eq:signature-verify}
-	\{Hash\{Data\}\} == Decrypt_{K_{-1}}\{Signature\}
-\end{equation}
-
-The hash is generated from the data using the same hash function as the signer. The result is compared with the value obtained from the decryption of the signature using the signer's public key. The signature is verified if the values are identical.
-
-% -----------------------------------------------------
-\subsection{Key Management Protocols}\label{chap:implementation:protocol:key}
-
-The protocols for the communication management operations are detailed next, namely for symmetric key generation. The protocol to generate a new symmetric key with another entity using asymmetric cryptography is detailed in figure~\ref{fig:protocol:ecdh}.
-
-\begin{figure}[h!]
-	\centering
-	\includegraphics[width=0.60\textwidth]{./Images/ecdh.png}
-	\caption{Communication protocol to generate symmetric keys, with the HSM internal private key, and stored them internally}
-	\label{fig:protocol:ecdh}
-\end{figure}
-
-% The device calls the ECDH algorithm with its private key and the received public key to generate a secret and run it through a key derivation function with the salt value to obtain the new symmetric key. The service's formula is thus:
-The user forwards the operation code, public key and salt value to the device.
-The device will then generate a symmetric key, using the process in equation \ref{eq:ecdh-kdf}.
-
-\begin{equation}
-	\label{eq:ecdh-kdf}
-	KDF\{ECDH_{K}\{K^{-1}\}, Salt\}
-\end{equation}
-
-A secret is generated from the \ac{ECDH} algorithm, with the device's private key, and another entity's public key. The same secret can be generated with the device's public key and the other entity's private key. 
-This secret is run through a key derivation function in conjunction with a salt which can be public, to generate a symmetric key. If both entities generate the same secret and agree on the same salt value, the generated key is identical.
-
-The new key is then stored in non-volatile memory encrypted with the dedicated symmetric encryption key for storage, saved in its PUF slot.
-A new unique ID is generated for the key, which is stored alongside the key in memory. This ID is returned to the user along with the operation success status.
-
-% -----------------------------------------------------
-\subsection{Import Keys into HSM Protocol}\label{chap:implementation:protocol:import-keys}
-
-This section details the protocol to import a list of encrypted symmetric keys, into the device.
-The imported keys must be encrypted with a predefined symmetric key, stored in a dedicated PUF slot inside the device. This service is useful so a central management section with a similar device can distribute keys to the enrolled entities, on a regular schedule, such as monthly.
-The protocol for this service is pictured in figure \ref{fig:protocol:import-keys}.
-
-\begin{figure}[h!]
-	\centering
-	\includegraphics[width=0.60\textwidth]{./Images/import-keys.png}
-	\caption{Communication protocol to import encrypted symmetric keys, and store them encrypted in the HSM's memory}
-	\label{fig:protocol:import-keys}
-\end{figure}
-
-The only transmission consists in the client sending the operation code, keys length and key data.
-Then, the device decrypts and authenticates the keys using a predefined symmetric key stored in a secure PUF slot. The protocol used is the same for secure data exchange described in the previous section.
-
-Each key consists of 1 byte for its ID, 1 byte for its size and remaining bytes for the key data.
-The decrypted list of keys is encrypted again, using \ac{AES} \ac{CTR} mode with another predefined symmetric key for storage of data in non-volatile memory. The ciphertext, randomly generated IV and ciphertext length is stored in memory. To provide authentication and thus protection against tampering, a \ac{MAC} is generated from the three pieces of data and stored in a PUF slot.
-
-In order to fetch a stored symmetric key to use in one of the implemented services, the \ac{MAC} is generated and compared to the PUF slot. If identical, the key can be decrypted from memory using the same key used for its encryption and identified with its ID.
+% % -----------------------------------------------------
+% \subsection{Key Management Protocols}\label{chap:implementation:protocol:key}
+%
+% The protocols for the communication management operations are detailed next, namely for symmetric key generation. The protocol to generate a new symmetric key with another entity using asymmetric cryptography is detailed in figure~\ref{fig:protocol:ecdh}.
+%
+% \begin{figure}[h!]
+%         \centering
+%         \includegraphics[width=0.60\textwidth]{./Images/ecdh.png}
+%         \caption{Communication protocol to generate symmetric keys, with the HSM internal private key, and stored them internally}
+%         \label{fig:protocol:ecdh}
+% \end{figure}
+%
+% % The device calls the ECDH algorithm with its private key and the received public key to generate a secret and run it through a key derivation function with the salt value to obtain the new symmetric key. The service's formula is thus:
+% The user forwards the operation code, public key and salt value to the device.
+% The device will then generate a symmetric key, using the process in equation \ref{eq:ecdh-kdf}.
+%
+% \begin{equation}
+%         \label{eq:ecdh-kdf}
+%         KDF\{ECDH_{K}\{K^{-1}\}, Salt\}
+% \end{equation}
+%
+% A secret is generated from the \ac{ECDH} algorithm, with the device's private key, and another entity's public key. The same secret can be generated with the device's public key and the other entity's private key.
+% This secret is run through a key derivation function in conjunction with a salt which can be public, to generate a symmetric key. If both entities generate the same secret and agree on the same salt value, the generated key is identical.
+%
+% The new key is then stored in non-volatile memory encrypted with the dedicated symmetric encryption key for storage, saved in its PUF slot.
+% A new unique ID is generated for the key, which is stored alongside the key in memory. This ID is returned to the user along with the operation success status.
+%
+% % -----------------------------------------------------
+% \subsection{Import Keys into HSM Protocol}\label{chap:implementation:protocol:import-keys}
+%
+% This section details the protocol to import a list of encrypted symmetric keys, into the device.
+% The imported keys must be encrypted with a predefined symmetric key, stored in a dedicated PUF slot inside the device. This service is useful so a central management section with a similar device can distribute keys to the enrolled entities, on a regular schedule, such as monthly.
+% The protocol for this service is pictured in figure \ref{fig:protocol:import-keys}.
+%
+% \begin{figure}[h!]
+%         \centering
+%         \includegraphics[width=0.60\textwidth]{./Images/import-keys.png}
+%         \caption{Communication protocol to import encrypted symmetric keys, and store them encrypted in the HSM's memory}
+%         \label{fig:protocol:import-keys}
+% \end{figure}
+%
+% The only transmission consists in the client sending the operation code, keys length and key data.
+% Then, the device decrypts and authenticates the keys using a predefined symmetric key stored in a secure PUF slot. The protocol used is the same for secure data exchange described in the previous section.
+%
+% Each key consists of 1 byte for its ID, 1 byte for its size and remaining bytes for the key data.
+% The decrypted list of keys is encrypted again, using \ac{AES} \ac{CTR} mode with another predefined symmetric key for storage of data in non-volatile memory. The ciphertext, randomly generated IV and ciphertext length is stored in memory. To provide authentication and thus protection against tampering, a \ac{MAC} is generated from the three pieces of data and stored in a PUF slot.
+%
+% In order to fetch a stored symmetric key to use in one of the implemented services, the \ac{MAC} is generated and compared to the PUF slot. If identical, the key can be decrypted from memory using the same key used for its encryption and identified with its ID.
 
 % -----------------------------------------------------
 % -----------------------------------------------------
@@ -222,7 +115,7 @@ Therefore the solution implements a combination of an encryption algorithm with 
 For authentication, the board supports \ac{HMAC} with the \ac{SHA}-256 hash function, which uses a 256 bit symmetric key and generates a 256 bit code. As concluded in section \ref{chap:background:crypto:mac}, it is a well-designed construction, even though it is not the most efficient.
 
 For combining these algorithms, studies have shown that a combination of secure encryption and secure \ac{MAC} must use the encrypt-then-MAC method~\cite{encryptmacorder}.
-Considering these guidelines, the data encryption/decryption and authentication implementation follows the protocol presented in section \ref{chap:implementation:protocol:comms}.
+Considering these guidelines, the data encryption/decryption and authentication implementation follows the protocol presented in figure \ref{fig:protocol:data-exchange}.
 The key used in HMAC should be different from the one used in encryption, to ensure the best security practices. So in practice, a key used for securing communications is split into two keys, one for encryption and one for authentication.
 When choosing key sizes, taking into account the limited storage capacity of the board, a smaller, but still secure, key size is preferred. The \ac{AES} 128 bit or 256 bit services guarantee both 128 and 256 bit security. According to the \ac{NIST} recommendations~\cite{nistRecommendations}, algorithms which guarantee both 128 and 256 bit security, are expected to be secure from 2031 and beyond. Thus \ac{AES} with 128 bit keys is preferred, since it guarantees adequate security for the foreseeable future, and is the more conservative option.
 Even though the HMAC service needs a 256 bit key, a 128 bit key can be used with the upper 128 bits padded with zeros \cite{smartfusionSecurityPractices}.
@@ -242,7 +135,7 @@ The returned string is either the original plaintext, or the \ac{MAC}, \ac{IV} a
 % -----------------
 \subsubsection*{Key Generation}
 The supported \ac{ECC} P-384 curve guarantees 192 bit security.
-The implemented new key generation operation protocol is defined in figures~\ref{fig:arch-ecdh-alice} and \ref{fig:arch-ecdh-bob}.
+The implemented new key generation operation protocol is defined in ~\ref{eq:ecdh-kdf}.
 The peer's public key is supplied by the client application, and the device's private key is fetched from a predetermined PUF slot where it is saved.
 
 For the ECDH algorithm the ECC scalar multiplication board accelerator is used. It multiplies a scalar value of 48 bytes, the private key, with a point with a x and y coordinate of both 48 bytes (96 bytes total), the public key.
