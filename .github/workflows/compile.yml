@@ -1,5 +1,4 @@
-# This is a basic workflow to help you get started with Actions
-
+# BASIC WORKFLOW
 name: Latex Compilation
 
 # Controls when the action will run. 
@@ -15,36 +14,26 @@ on:
 
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
-  # This workflow contains a single job called "build"
   build:
     # The type of runner that the job will run on
     runs-on: ubuntu-latest
 
+    container:
+      image: blang/latex:ubuntu
+
     # Steps represent a sequence of tasks that will be executed as part of the job
+    # Steps will now run on the container
     steps:
-      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
+      # Check out repository
       - uses: actions/checkout@v2
 
-      # - name: LaTeX linter
-        # You may pin to the exact commit or the version.
-        # uses: colinaaa/chktex-action@5dda098b973d69cdc61ace93fa7bfcef39efaade
-        # uses: colinaaa/chktex-action@v1.1.2
+      - name: Log container information
+        run: cat /etc/os-release
 
-      - name: LaTeX Action
-        # You may pin to the exact commit or the version.
-        # uses: fudan-mse/latex-action@eb2eb7ba472011213ac0a6286fd776494623362c
-        uses: fudan-mse/latex-action@v0.0.1
-        with:
-          # The root LaTeX file to be compiled
-          root_file: main.tex
-          # The LaTeX engine to be invoked
-          compiler: pdflatex # optional, default is latexmk
-          # Extra arguments to be passed to the LaTeX engine
-          # args: # optional, default is -pdf -file-line-error -interaction=nonstopmode
-          # Install extra packages by tlmgr
-          # extra_packages: # optional
-          # Install extra packages by apk
-          # extra_system_packages: # optional
+      - name: Compile latex document
+        run: make main
+
+      # Uploads the output pdf file to artefacts
       - uses: actions/upload-artifact@v2
         with:
           name: Thesis.pdf # output file
