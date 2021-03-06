@@ -74,11 +74,11 @@ Additionally, the device should have physical tamper-resistant measures and mech
 This means that even if an attacker is in possession of the physical device, it should be extremely difficult or even impossible to extract any information from it.
 % The solution should follow the \ac{PKCS} \#11 standards, to strengthen its security requirements.
 % -----------------------------------------------------
-The solution should work with a plethora of devices, which will increase the adoptability of the solution among clients.
 % This is where the widely established standard \ac{PKCS} \#11 is again relevant. It allows operations to be standardized across different devices, increasing the range of supported devices.
 % By implementing the system in accordance with these guidelines, it will have a higher device interoperability.
 
 % -----------------------------------------------------
+The solution should work with a plethora of devices, which will increase the adoptability of the solution among clients.
 The system should provide an application on the user's device, which will communicate with the physical device, and make the operation's available to the user through a simple interface for the regular non-tech savvy user.
 Another related requirement is the usage of a common connection solution, e.g. \ac{USB} cable, to further increase the pool of supported devices.
 In addition, the system should perform the operations in a reasonable time to minimize the user's wait, and improve the user experience.
@@ -109,8 +109,8 @@ The simplest is when it is not needed to authenticate the individual user, only 
 The second scenario, is when an entity wishes to authenticate each individual user with access to the device. 
 This would entail a more complex process. A user will be assigned the role of administrator. For example, in the military, this could be assigned to the top ranking general. The administrator, using the administrator \ac{PIN}, is able to register new users with their own private \ac{PIN}, access the logs of which user logged in and when, as well as, which messages they sent and received.
 The registration of a new user can be done physically with both administrator and user present. Afterwards, the registered user can use their credentials to authenticate himself, and use the entities device to communicate.
-% The administrator authenticates himself to the device, begins the registration process and allows the user to insert their name and \ac{PIN}.
 It is important to note that in all scenarios, only the users or the entity is authenticated, the device does not authenticate itself to the user.
+% The administrator authenticates himself to the device, begins the registration process and allows the user to insert their name and \ac{PIN}.
 
 % -----------------------------------------------------
 \subsection{Secure Communications}\label{chap:problem:scenarios:comms}
@@ -123,7 +123,7 @@ For a user to send secure data, first he authenticates himself to the device, th
 \begin{figure}[h!]
     \centering
     \includegraphics[width=0.5\textwidth]{./Images/user-data-service.png}
-    \caption{Secure data exchange service using internal keys usage example}
+    \caption{Secure data exchange service example using internal keys}
     \label{fig:user:data-service}
 \end{figure}
 
