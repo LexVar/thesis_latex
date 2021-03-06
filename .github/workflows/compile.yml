@@ -31,7 +31,7 @@ jobs:
         run: cat /etc/os-release
 
       - name: Compile latex document
-        run: make main
+        run: make pdf
 
       # Uploads the output pdf file to artefacts
       - uses: actions/upload-artifact@v2
