@@ -5,9 +5,9 @@ name: Latex Compilation
 on:
   # Triggers the workflow on push or pull request events but only for the master branch
   push:
-    branches: [ master ]
+    branches: [ releases ]
   pull_request:
-    branches: [ master ]
+    branches: [ releases ]
 
   # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
@@ -36,5 +36,5 @@ jobs:
       # Uploads the output pdf file to artefacts
       - uses: actions/upload-artifact@v2
         with:
-          name: Thesis.pdf # output file
+          name: Thesis # output file
           path: main.pdf   # path to file
