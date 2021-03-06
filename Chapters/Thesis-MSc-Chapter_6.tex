@@ -8,45 +8,40 @@
 % The following line allows to ref this chapter
 \label{chap:evaluation}
 
-This chapter concerns the system and board evaluation. The system and board were evaluated regarding its perfromance and the fullfilled requirements outlined in the previous project report and the problem definition chapter \ref{chap:problem}.
+This chapter concerns the system and board evaluation. The system and board were evaluated regarding its performance and the fullfilled requirements outlined in the previous project report and the problem definition chapter \ref{chap:problem}.
 % -----------------------------------------------------
 % -----------------------------------------------------
 \section{Performance Tests}\label{chap:evaluation:performance}
 
 The test objectives, configuration, results and conclusions are detailed for every tested component.
 The communication channel, smartfusion2 board's security services and implemented services were tested.
-The measured performance metrics were the processing time for every test, and the tested component's throughput.
+Two performance metrics were calculated, the test processing time, and the tested component's throughput.
 
 % -----------------------------------------------------
 \subsection{Testing configuration}\label{chap:evaluation:performance:config}
 
-The tests were all performed on a Windows 10 computer, connected to the HSM device through a \ac{UART} serial port. The implemented PKCS\#11 program interface was used to run the tests.
-Two programs were running on the computer while performing the tests, the client program on powershell and the SoftConsole IDE to run the code on the smartfusion board.
-For all tests, the serial port UART connection was configured with a 115200 bit/s baud rate, 8 data bits, no parity bits and one stop bit.
-The elapsed time was measured in the client application using the function \texttt{gettimeofday()} available in the C library \texttt{sys/time.h}.
-
-In order to thoroughly study the performance and scalability of each component, the transmitted data size was varied, only for components where it is logical and can potentially have a performance impact.
-Since the board does not provide a clock and \ac{API} to measure elapsed time, the time has to be measured on the client's side.
-Time measurement starts in the client interface right before sending a message to the device which triggers the operation, and stops when the client receives a message from the device, after the operation is finished.
+The tests were all performed on a Windows 10 computer, connected to the smartfusion2 device through a \ac{UART} serial port. The implemented PKCS\#11 program interface was used to run the tests.
+Two programs were running on the computer while performing the tests, the PKCS\#11 interface program and the SoftConsole IDE to run the code on the smartfusion board.
+For all tests, the serial port UART connection was configured with a 115200 bit/s baud rate.%, 8 data bits, no parity bits and one stop bit.
+Since the board does not provide a clock and \ac{API} to measure elapsed time, the time has to be measured in the interface software side.
+The elapsed time was measured using the function \texttt{gettimeofday()} available in the C library \texttt{sys/time.h}.
+Time measurement starts right before sending a message to the device which triggers the operation, and stops when the client receives a message from the device, after the operation is finished.
+In order to thoroughly study the performance and scalability of each component, the transmitted data size was varied, only for components where it is logical and can potentially have a performance impact. The data size was tested, when possible, up to 36 KBytes. The size is limited by the device's \ac{RAM} of 64 KB.
 Tests were performed in two different configurations.
-For the first, the measured operation is performed once in the device each transmission. This transmission is repeated multiple times for every set of values, until an acceptable variance is achieved. For most components the variance is well bellow 1\%. The more volatile test results have a variance below 4\%.
 Obvious outlier values were excluded from the experimental calculations. The adopted rule was that values which are significantly above or below the average, and are never repeated were eliminated from the sample set.
-For the second scenario, tests on components where the time to transmit messages needed to minimized to more accurately assess the corresponding component's performance, for each transmission the operation was performed 50 times. The resulting time was divided by 50 to obtain the processing time per operation.
-
-\begin{equation}
-	\label{eq:linear-eq}
-	Ttotal = Tcall + Tdata * KB of data
-\end{equation}
-
-\input{tables_and_code/cores-model.tex}
-
-\input{tables_and_code/services-model.tex}
+For the first test configuration, the measured operation is performed once in the device each transmission. This transmission is repeated multiple times for every set of values, until an acceptable variance is achieved. For most components the variance is well bellow 1\%. % The more volatile test results have a variance below 4\%.
+For most components the first configuration produced unstable results with a high variance, due to the communications overhead on every test run.
+Thus, a second test configuration was applied on components where the time to transmit messages needs to be minimized to more accurately assess its performance. For each transmission, the operation was performed 100 consecutive times in the board. The resulting time was divided by 100 to obtain the average processing time of the operation.
+With the second configuration, the tests are visibly more stable.
+A test example of the difference between both configurations results was on testing the \ac{AES} security service. The first scenario's communication overhead was on average 15\% compared to the second configuration results, with a peak 61\% overhead for small data sizes. Additionally when plotting the results, the second results scale almost perfectly linear, and the first results' are significantly more unstable.
 
 % -----------------------------------------------------
 \subsection{Communications}\label{chap:evaluation:performance:comms}
 
-In order to assess the communication channel performance, the average time to transmit data was measured. The client sent the data and the device sent the data back immediately without performing another operation. The test, in accordance with the first scenario, was repeated at least 30 times for each data length. The highest variance did not go above 0.2\%.
+In order to assess the communication channel performance, and its impact on the system, the average time to transmit data was measured. For each test, the interface sent some data of a specific size to the device, and it returned an acknowledge message on reception. The test, in accordance with the first scenario, was repeated at least 30 times for each data size. The highest variance did not go above 0.2\%.
 The average transmission times for each value are displayed in figure \ref{fig:comms:time}.
+The values range from 0.048 seconds for 0.5 KB, to 3.2 s for 36 KB.
+From the graph we can conclude the performance has linear scalability.
 
 \begin{figure}[h!]
 	\centering
@@ -55,11 +50,11 @@ The average transmission times for each value are displayed in figure \ref{fig:c
 	\label{fig:comms:time}
 \end{figure}
 
-The values range from 0.016 seconds for 50 bytes, to 2.6 seconds for 29 KBytes.
-From the graph we can conclude the performance has linear scalability which is ideal for a system.
-
 For the subsequent graphic, the throughput was calculated from the transmission tests, for every repetition.
 Figure~\ref{fig:comms:tput} plots the experimental throughput and theoretical throughput. The theoretical throughput was calculated from the baud rate \(115200/8 = 14.06 KBytes/s\).
+We observe the experimental throughput starts at around 10 KB/s for smaller data sizes and stabilizes around 11 KB/s as data size increases.
+We can conclude the practical throughput is close to the theoretical, and as expected stabilizes as the data size increases.
+
 \begin{figure}[h!]
 	\centering
 	\includegraphics[width=0.8\textwidth]{./Images/comms-tput.png}
@@ -67,50 +62,28 @@ Figure~\ref{fig:comms:tput} plots the experimental throughput and theoretical th
 	\label{fig:comms:tput}
 \end{figure}
 
-We observe the experimental throughput is 3.05 KB/s for data below 100 bytes and starts stabilizing around 12 KB/s to 11 KB/s as data size increases.
-Thus we can conclude the practical throughput is close to the theoretical, and as expected stabilizes as the sample size increases, meaning, more bytes are transmitted.
-
 % -----------------------------------------------------
 % -----------------------------------------------------
-\section{Smartfusion2 Security Services}\label{chap:evaluation:board}
+\subsection{Smartfusion2 Security Services}\label{chap:evaluation:board}
 
-\begin{figure}[h!]
-	\centering
-	\includegraphics[width=0.9\textwidth]{./Images/aes-time.png}
-	\caption{AES 128/256 service time}
-	\label{fig:performance:aes:time}
-\end{figure}
+\begin{equation}
+	\label{eq:linear-eq}
+	Ttotal = Tcall + Tdata * KBytes
+\end{equation}
 
-\begin{figure}[h!]
-	\centering
-	\includegraphics[width=0.9\textwidth]{./Images/sha-time.png}
-	\caption{SHA-256 service time}
-	\label{fig:performance:sha:time}
-\end{figure}
+\input{tables_and_code/cores-model.tex}
 
-\begin{figure}[h!]
-	\centering
-	\includegraphics[width=0.9\textwidth]{./Images/hmac-time.png}
-	\caption{HMAC-SHA256 service time}
-	\label{fig:performance:hmac:time}
-\end{figure}
-
-\begin{figure}[h!]
-	\centering
-	\includegraphics[width=0.9\textwidth]{./Images/sha-time-compare.png}
-	\caption{SHA based services time}
-	\label{fig:performance:sha:compare}
-\end{figure}
-
+% TODO
 \begin{figure}[h!]
 	\centering
 	\includegraphics[width=0.9\textwidth]{./Images/core-tput.png}
-	\caption{Security Services Throughput}
-	\label{fig:performance:cores:tput}
+	\caption{TODO}
+	\label{fig:performance:core-tput}
 \end{figure}
+
 % -----------------------------------------------------
 % -----------------------------------------------------
-\section{Implemented Services}\label{chap:evaluation:services}
+\subsection{Implemented Services}\label{chap:evaluation:services}
 
 The same library used to measure the time in the communication tests was used.
 The time was measured at the client application before sending the message which will trigger the service at the HSM, and after it has received the result.
@@ -121,47 +94,22 @@ From the resulting time, the predicted time spent on communications was subtract
 The data encryption and decryption operations were ran with different data sizes, in order to asses the data size impact on performance.
 The ECDH key generation always uses a private and public key of the same size, so no message size variation is possible.
 
-% -----------------------------------------------------
-\subsection{Secure Communications}\label{chap:evaluation:services:comms}
+\input{tables_and_code/services-model.tex}
 
-\begin{figure}[h!]
-	\centering
-	\includegraphics[width=0.9\textwidth]{./Images/encrypt-time.png}
-	\caption{Secure Communications Average Time}
-	\label{fig:performance:encrypt-time}
-\end{figure}
-
-The results in table~\ref{fig:performance:op34-time} for the encryption and decryption operations are very similar due to both using the same board services, AES encryption and HMAC, but in a different order. It is also important to note AES encryption and decryption in CTR mode is essentially the same operation due the mode's characteristics.
-Relating to the variation in data size, the values vary between approximately 0.1284 and 0.1825 seconds, which is a very insignificant difference. Thus we can conclude, the data size has a negligible impact on the operations performance.
-
-% -----------------------------------------------------
-\subsection{Import Keys}\label{chap:evaluation:services:import-key}
-
-\begin{figure}[h!]
-	\centering
-	\includegraphics[width=0.9\textwidth]{./Images/import-time.png}
-	\caption{Import Keys Average Time}
-	\label{fig:performance:import-time}
-\end{figure}
-
+% TODO
 \begin{figure}[h!]
 	\centering
 	\includegraphics[width=0.9\textwidth]{./Images/services-tput.png}
-	\caption{Implemented Services Throughput Comparison}
+	\caption{TODO}
 	\label{fig:performance:services-tput}
 \end{figure}
 
-% -----------------------------------------------------
-\subsection{Key Generation}\label{chap:evaluation:services:key-gen}
+% TODO
+The results in table~ for the encryption and decryption operations are very similar due to both using the same board services, AES encryption and HMAC, but in a different order. It is also important to note AES encryption and decryption in CTR mode is essentially the same operation due the mode's characteristics.
+Relating to the variation in data size, the values vary between approximately 0.1284 and 0.1825 seconds, which is a very insignificant difference. Thus we can conclude, the data size has a negligible impact on the operations performance.
 
-\begin{figure}[h!]
-	\centering
-	\includegraphics[width=0.45\textwidth]{./Images/new-key-time.png}
-	\caption{Key Generation Average Time}
-	\label{fig:performance:new-key-time}
-\end{figure}
-
-Regarding the key generation operation results in table~\ref{fig:performance:op8-time}, two values were obtained through different methods. Due to the operation using SRAM-PUF services to enroll new keys in the eNVM memory, with limited write cycles and key slots, this operation cannot be repeated enough times to get a relevant enough sample size.
+% TODO
+Regarding the key generation operation results in table~, two values were obtained through different methods. Due to the operation using SRAM-PUF services to enroll new keys in the eNVM memory, with limited write cycles and key slots, this operation cannot be repeated enough times to get a relevant enough sample size.
 So a trade off was achieved. The operation was performed 1000 times without the key enrollment operation, meaning only the ecdh key generation algorithm and key derivation function (SHA-256).
 Since the enrollment phase is presumed to be expensive, due to writing in eNVM memory, the test was also performed 10 times with key enrollment, to get an idea of its potential performance cost.
 
@@ -190,3 +138,7 @@ A M2S090TS smartfusion2 evaluation kit is priced at 384€ \cite{smartfusionPric
 
 % secure comms - aes and hmac services are not dpa resistant, so keys should be regularly replaced to avoid enough data which enables an attacker to break encryption. On the other hand this is only possible if the attacker has physical access to the device or potentially with some type of malware on the user's computer.
 % key generation - needs assymetric keys to generate new keys with public keys and salt traded beforehand - can be not user friendly
+
+% -----------------------------------------------------
+% -----------------------------------------------------
+\section{Summary}\label{chap:evaluation:summary}
