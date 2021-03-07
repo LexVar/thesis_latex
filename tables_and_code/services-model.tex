@@ -3,10 +3,10 @@
 \def\arraystretch{1.5}
 \begin{tabular}{|c|c|c|c|c|c|c|}
 \hline
-Services   & Encrypt + MAC	  & Decrypt + MAC  & Import Keys & ECDSA & ECDH   \\ \hline
-	Tcall (ms) & 79.491 & 79.939 & 514.148  & 629.932 & 964.535 \\ \hline
-	Tdata (ms) & 15.356 & 15.347 & 0.1747 & 0.937 & - \\ \hline
-	MAE \%	   & 11.14 & 11.167 & 0.011 & 0.182 & - \\ \hline
+Time/Service   & Encrypt + MAC	  & Decrypt + MAC  & Import Keys & ECDSA & ECDH   \\ \hline
+	constant (ms) & 79.491 & 79.939 & 514.148  & 629.932 & 964.535 \\ \hline
+	data (ms) & 15.356 & 15.347 & 0.175 & 0.937 & - \\ \hline
+	MAE \%	   & 11.140 & 11.167 & 0.011 & 0.182 & - \\ \hline
 \end{tabular}
 \caption{Implemented services linear performance values}
 \label{tab:services-model}
@@ -17,10 +17,10 @@ Services   & Encrypt + MAC	  & Decrypt + MAC  & Import Keys & ECDSA & ECDH   \\ 
 \def\arraystretch{1.5}
 \begin{tabular}{|c|c|c|c|c|c|c|}
 \hline
-Services   & Encrypt + MAC	  & Decrypt + MAC  & Import Keys & ECDSA   \\ \hline
-	Tcall (ms) & 11.477 & 11.417 & 0.002 & 0.138 \\ \hline
-	Tdata (ms) & 13.977 & 13.977 & 1.942 & 1.542 \\ \hline
-	MAE \%	   & 14.213 & 14.342 & 0.127 & 1.76 \\ \hline
+Time/Service   & Encrypt + MAC	  & Decrypt + MAC  & Import Keys & ECDSA   \\ \hline
+	constant (ms) & 11.477 & 11.417 & 0.002 & 0.138 \\ \hline
+	data (ms) & 13.977 & 13.977 & 1.942 & 1.542 \\ \hline
+	MAE \%	   & 14.213 & 14.342 & 0.127 & 1.760 \\ \hline
 \end{tabular}
 \caption{Implemented services linear performance values}
 \label{tab:services-model}

@@ -29,7 +29,7 @@ Time measurement starts right before sending a message to the device which trigg
 In order to thoroughly study the performance and scalability of each component, the transmitted data size was varied, only for components where it is logical and can potentially have a performance impact. The data size was tested, when possible, up to 36 KBytes. The size is limited by the device's \ac{RAM} of 64 KB.
 Tests were performed in two different configurations.
 Obvious outlier values were excluded from the experimental calculations. The adopted rule was that values which are significantly above or below the average, and are never repeated were eliminated from the sample set.
-For the first test configuration, the measured operation is performed once in the device each transmission. This transmission is repeated multiple times for every set of values, until an acceptable variance is achieved. For most components the variance is well bellow 1\%. % The more volatile test results have a variance below 4\%.
+For the first test configuration, the measured operation is performed once in the device each transmission. This transmission is repeated multiple times, minimum thirty, for each set of values, until an acceptable variance is achieved. For most components the variance is well bellow 1\%. % The more volatile test results have a variance below 4\%.
 For most components the first configuration produced unstable results with a high variance, due to the communications overhead on every test run.
 Thus, a second test configuration was applied on components where the time to transmit messages needs to be minimized to more accurately assess its performance. For each transmission, the operation was performed 100 consecutive times in the board. The resulting time was divided by 100 to obtain the average processing time of the operation.
 With the second configuration, the tests are visibly more stable.
@@ -38,7 +38,7 @@ A test example of the difference between both configurations results was on test
 % -----------------------------------------------------
 \subsection{Communications}\label{chap:evaluation:performance:comms}
 
-In order to assess the communication channel performance, and its impact on the system, the average time to transmit data was measured. For each test, the interface sent some data of a specific size to the device, and it returned an acknowledge message on reception. The test, in accordance with the first scenario, was repeated at least 30 times for each data size. The highest variance did not go above 0.2\%.
+In order to assess the communication channel performance, and its impact on the system, the average time to transmit data was measured. For each test, the interface sent some data of a specific size to the device, and it returned an acknowledge message on reception. The test, in accordance with the first scenario, was repeated at least thirty times for each data size. The highest variance did not go above 0.2\%.
 The average transmission times for each value are displayed in figure \ref{fig:comms:time}.
 The values range from 0.048 seconds for 0.5 KB, to 3.2 s for 36 KB.
 From the graph we can conclude the performance has linear scalability.
@@ -46,7 +46,7 @@ From the graph we can conclude the performance has linear scalability.
 \begin{figure}[h!]
 	\centering
 	\includegraphics[width=0.8\textwidth]{./Images/comms-time.png}
-	\caption{Average Data Transmission Times}
+	\caption{Serial Port data transmission times}
 	\label{fig:comms:time}
 \end{figure}
 
@@ -58,7 +58,7 @@ We can conclude the practical throughput is close to the theoretical, and as exp
 \begin{figure}[h!]
 	\centering
 	\includegraphics[width=0.8\textwidth]{./Images/comms-tput.png}
-	\caption{Serial Port Communications Throughput}
+	\caption{Serial port data transmission throughput}
 	\label{fig:comms:tput}
 \end{figure}
 
@@ -66,12 +66,28 @@ We can conclude the practical throughput is close to the theoretical, and as exp
 % -----------------------------------------------------
 \subsection{Smartfusion2 Security Services}\label{chap:evaluation:board}
 
+All the security core accelerators of the smartfusion2 SoC were tested. This includes \ac{AES}, \ac{SHA}, \ac{HMAC}, KeyTree based \ac{SHA} and \ac{ECC} scalar multiplication and point addition.
+As discussed before, all services were tested using the two presented configurations. The results of the second configuration are significantly more stable and will are presented next.
+Twenty different data sizes were used in the test, from 0.5 KB to 36 KB.
+
+The services were tested taking into account three different time components \(T_{total} = T_{call} + T_{transmittion} + T_{service}\), with the first test configuration. The call fraction is the time it takes calling the PKCS\#11 API, before any data is transmitted or the service is executed. From the results, it can be concluded this component's impact on performance is negligible, since it is almost always 0.
+Predictably, the transmission time always follow the performance model studied in the previous section.
+Thus, the following security core and implemented services tests focused on solely measuring the performance of the service. To get a complete conclusion of the performance of the overall system, the total service processing time can be added to the serial port time.
+Regarding the time test results, all services followed a near perfect linear evolution in function of the processed data size. Thus, each accelerator's performance can be modeled with a formula composed of two different components \ref{eq:linear-eq}, a factor independent of the data being processed, present in every service call, and a component dependent on the data size.
+
 \begin{equation}
 	\label{eq:linear-eq}
-	Ttotal = Tcall + Tdata * KBytes
+	T_{total} = T_{constant} + T_{data} * KBytes
 \end{equation}
+Linear regression was used to calculate these values, presented in table \ref{tab:core-model}. The median average percentage error was calculated to assess the accuracy of the calculated models for representing each service's performance. Services which receive a fixed data size such as, the \ac{ECC} and KeyTree services, only have a constant time component.
 
 \input{tables_and_code/cores-model.tex}
+
+All time values are presented in milliseconds, the median average percentage error represents the error of the model values compared to the real results.
+The \ac{AES} service was tested with all possible variations. Namely, with 128 bit and 256 bit keys, with all four available modes, with encryption and decryption. Only one result is shown since there was no variation in all results. The chosen \ac{AES} mode, key size or encryption/decryption operation does not impact the performance positively or negatively.
+Regarding the results, the higher time factor dependent of the data implicates the service time increases faster. Overall the \ac{AES} and \ac{HMAC} total service time increases faster due to this compared to \ac{SHA}, which increases significantly slower. The constant time is similar among the three services with \ac{HMAC}'s a little higher.
+The error percentages are all bellow 1 \%, proving the calculated models accurately represent all three services' performance.
+The \ac{ECC} services are the slowest performers, particularly the scalar multiplication, each run taking more than half a second.
 
 % TODO
 \begin{figure}[h!]
@@ -81,18 +97,11 @@ We can conclude the practical throughput is close to the theoretical, and as exp
 	\label{fig:performance:core-tput}
 \end{figure}
 
+This graphic represents the throughput calculated from the processing time results previously gathered. The graphic shows all services throughput, shown in KB/ms, increases as the data size also increases, all eventually stabilizing at a specific value. \ac{AES} stabilizes at around 1.2 KB/ms, and both \ac{SHA} and \ac{HMAC} at around 0.1 KB/ms.
+
 % -----------------------------------------------------
 % -----------------------------------------------------
 \subsection{Implemented Services}\label{chap:evaluation:services}
-
-The same library used to measure the time in the communication tests was used.
-The time was measured at the client application before sending the message which will trigger the service at the HSM, and after it has received the result.
-
-In order to get a real time measurement, each operation was performed 1000 times on the HSM, with the communications only done once.
-From the resulting time, the predicted time spent on communications was subtracted using the data from the previous test. The result was then divided by 1000.
-
-The data encryption and decryption operations were ran with different data sizes, in order to asses the data size impact on performance.
-The ECDH key generation always uses a private and public key of the same size, so no message size variation is possible.
 
 \input{tables_and_code/services-model.tex}
 
