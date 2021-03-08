@@ -77,7 +77,7 @@ Regarding the time test results, all services followed a near perfect linear evo
 
 \begin{equation}
 	\label{eq:linear-eq}
-	T_{total} = T_{constant} + T_{data} * KBytes
+	T_{total} = T_{constant} + T_{data} * KB
 \end{equation}
 Linear regression was used to calculate these values, presented in table \ref{tab:core-model}. The median average percentage error was calculated to assess the accuracy of the calculated models for representing each service's performance. Services which receive a fixed data size such as, the \ac{ECC} and KeyTree services, only have a constant time component.
 
@@ -86,14 +86,13 @@ Linear regression was used to calculate these values, presented in table \ref{ta
 All time values are presented in milliseconds, the median average percentage error represents the error of the model values compared to the real results.
 The \ac{AES} service was tested with all possible variations. Namely, with 128 bit and 256 bit keys, with all four available modes, with encryption and decryption. Only one result is shown since there was no variation in all results. The chosen \ac{AES} mode, key size or encryption/decryption operation does not impact the performance positively or negatively.
 Regarding the results, the higher time factor dependent of the data implicates the service time increases faster. Overall the \ac{AES} and \ac{HMAC} total service time increases faster due to this compared to \ac{SHA}, which increases significantly slower. The constant time is similar among the three services with \ac{HMAC}'s a little higher.
-The error percentages are all bellow 1 \%, proving the calculated models accurately represent all three services' performance.
+The error percentages are all bellow 1\%, proving the calculated models accurately represent all three services' performance.
 The \ac{ECC} services are the slowest performers, particularly the scalar multiplication, each run taking more than half a second.
 
-% TODO
 \begin{figure}[h!]
 	\centering
 	\includegraphics[width=0.9\textwidth]{./Images/core-tput.png}
-	\caption{TODO}
+	\caption{Security services throughput evolution}
 	\label{fig:performance:core-tput}
 \end{figure}
 
@@ -103,35 +102,44 @@ This graphic represents the throughput calculated from the processing time resul
 % -----------------------------------------------------
 \subsection{Implemented Services}\label{chap:evaluation:services}
 
+All implemented services from chapter \ref{chap:implementation} were tested from a data size of 0.5 KB to 20 KB. Each service performance depends on the used accelerator's, among other factors such as writing, access to memory or other implemented logic.
+Four implemented services were tested, encryption and authentication, decryption and authentication, import keys service, all three using the \ac{AES} and \ac{HMAC} accelerators, \ac{ECDSA} and \ac{ECDH}, both using the \ac{ECC} scalar multiplication accelerator and a \ac{SHA} accelerator.
+Similarly to the previous core tests, the time results evolve linearly and the equation components for each service were calculated using the linear regression algorithm. The values are presented in table \ref{tab:services-model}.
+
 \input{tables_and_code/services-model.tex}
 
-% TODO
+Analyzing the results, both encryption/decryption and authentication services predictably have very similar values, due to being based on the same board's accelerators and \ac{AES} encryption and decryption having no discernible performance difference. The data dependent value is identical to the sum of both \ac{AES} and \ac{HMAC} values, \(11.124+7.815\approx18.872\).
+For both services the results were calculated from the 5 KB data size to 20 KB. This is due to outlier values obtained from 0.5 KB to 5 KB, in those size ranges each operation time was constant at 128 ms for every data size value. 
+The import keys service results in odd values, most likely for the same unknown reasons of the previous services outlier values, noting that this service was only tested up to 5 KB of data. This limit is due to the \ac{RAM} limitations of the \ac{HSM}, more demanding than other operations to key storage in memory.
+The key generation with \ac{ECDH} and \ac{SHA}-based KeyTree derivation function performs at a constant 964.535 ms. The most demanding services is the scalar multiplication which takes half a second, and importing the key to memory, using the import keys service.
+\ac{ECDSA} values increase very slowly with increasing data sizes, with a similar value to the \ac{SHA} result. The biggest impact on performance is on the constant value from scalar multiplication.
+We can also conclude the measured models are a good representation of the performance, all median average error percentages are below 0.4\%.
+
 \begin{figure}[h!]
 	\centering
 	\includegraphics[width=0.9\textwidth]{./Images/services-tput.png}
-	\caption{TODO}
+	\caption{Implemented services throughput evolution}
 	\label{fig:performance:services-tput}
 \end{figure}
 
-% TODO
-The results in table~ for the encryption and decryption operations are very similar due to both using the same board services, AES encryption and HMAC, but in a different order. It is also important to note AES encryption and decryption in CTR mode is essentially the same operation due the mode's characteristics.
-Relating to the variation in data size, the values vary between approximately 0.1284 and 0.1825 seconds, which is a very insignificant difference. Thus we can conclude, the data size has a negligible impact on the operations performance.
+Figure \ref{fig:performance:services-tput} plots the results for throughput (KB/s) for the implemented services. Encrypt/decryption + MAC services' throughput increases and stabilizes at around 50 Kb/s, while \ac{ECDSA} and key importation present linear scalability.
 
 % TODO
-Regarding the key generation operation results in table~, two values were obtained through different methods. Due to the operation using SRAM-PUF services to enroll new keys in the eNVM memory, with limited write cycles and key slots, this operation cannot be repeated enough times to get a relevant enough sample size.
-So a trade off was achieved. The operation was performed 1000 times without the key enrollment operation, meaning only the ecdh key generation algorithm and key derivation function (SHA-256).
-Since the enrollment phase is presumed to be expensive, due to writing in eNVM memory, the test was also performed 10 times with key enrollment, to get an idea of its potential performance cost.
+% The results in table~ for the encryption and decryption operations are very similar due to both using the same board services, AES encryption and HMAC, but in a different order. It is also important to note AES encryption and decryption in CTR mode is essentially the same operation due the mode's characteristics.
+% Relating to the variation in data size, the values vary between approximately 0.1284 and 0.1825 seconds, which is a very insignificant difference. Thus we can conclude, the data size has a negligible impact on the operations performance.
 
-A higher time of 0.577 seconds without enrollment and 1.764s with, compared to the previous operations is expected due to the higher cost of operations with asymmetric keys.
-However, comparing both values we can conclude saving the key in memory, has most likely the higher performance impact on the operation.
-This result is congruent with the one obtained by \cite{parrinha2017flexible} of 0.57s per ECC scalar multiplication.
-Thus we can conclude, the scalar multiplication is the second most expensive operation, after the key enrollment, since the key derivation function has a negligible impact on the processing time (0.577s with the function vs 0.57s without).
+% TODO
+% Regarding the key generation operation results in table~, two values were obtained through different methods. Due to the operation using SRAM-PUF services to enroll new keys in the eNVM memory, with limited write cycles and key slots, this operation cannot be repeated enough times to get a relevant enough sample size.
+% So a trade off was achieved. The operation was performed 1000 times without the key enrollment operation, meaning only the ecdh key generation algorithm and key derivation function (SHA-256).
+% Since the enrollment phase is presumed to be expensive, due to writing in eNVM memory, the test was also performed 10 times with key enrollment, to get an idea of its potential performance cost.
+
+% This result is congruent with the one obtained by \cite{parrinha2017flexible} of 0.57s per ECC scalar multiplication.
 
 % -----------------------------------------------------
 % -----------------------------------------------------
 \section{Requirements}\label{chap:evaluation:requirements}
 
-A M2S090TS smartfusion2 evaluation kit is priced at 384€ \cite{smartfusionPrice}.
+% A M2S090TS smartfusion2 evaluation kit is priced at 384€ \cite{smartfusionPrice}.
 
 % ------------- Requirements ------------------
 % Devices should be distributable to individuals or entities with one or more individuals;
