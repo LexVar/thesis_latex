@@ -102,18 +102,19 @@ This graphic represents the throughput calculated from the processing time resul
 % -----------------------------------------------------
 \subsection{Implemented Services}\label{chap:evaluation:services}
 
-All implemented services from chapter \ref{chap:implementation} were tested from a data size of 0.5 KB to 20 KB. Each service performance depends on the used accelerator's, among other factors such as writing, access to memory or other implemented logic.
-Four implemented services were tested, encryption and authentication, decryption and authentication, import keys service, all three using the \ac{AES} and \ac{HMAC} accelerators, \ac{ECDSA} and \ac{ECDH}, both using the \ac{ECC} scalar multiplication accelerator and a \ac{SHA} accelerator.
-Similarly to the previous core tests, the time results evolve linearly and the equation components for each service were calculated using the linear regression algorithm. The values are presented in table \ref{tab:services-model}.
+All implemented services from chapter \ref{chap:implementation} were tested from a data size of 0.5 KB to 20 KB. Each service performance depends on the used accelerator's, among other factors such as memory access for reads and writes or additional code logic.
+Four implemented services were tested, encryption and authentication, decryption and authentication, the import keys service, all three using the \ac{AES} and \ac{HMAC} accelerators, \ac{ECDSA} and \ac{ECDH}, both using the \ac{ECC} scalar multiplication accelerator and a \ac{SHA} accelerator. It is worth noting the encryption service also uses the \ac{TRNG} service to generate a random \ac{IV}.
+Similarly to the previous core tests results, the time performance results evolve linearly and the equation components for each service were calculated using the linear regression algorithm. The results are presented in table \ref{tab:services-model}.
 
 \input{tables_and_code/services-model.tex}
 
-Analyzing the results, both encryption/decryption and authentication services predictably have very similar values, due to being based on the same board's accelerators and \ac{AES} encryption and decryption having no discernible performance difference. The data dependent value is identical to the sum of both \ac{AES} and \ac{HMAC} values, \(11.124+7.815\approx18.872\).
-For both services the results were calculated from the 5 KB data size to 20 KB. This is due to outlier values obtained from 0.5 KB to 5 KB, in those size ranges each operation time was constant at 128 ms for every data size value. 
-The import keys service results in odd values, most likely for the same unknown reasons of the previous services outlier values, noting that this service was only tested up to 5 KB of data. This limit is due to the \ac{RAM} limitations of the \ac{HSM}, more demanding than other operations to key storage in memory.
+Analyzing the results, both encryption/decryption and authentication services predictably have very similar values, due to being based on the same board's accelerators and \ac{AES} encryption and decryption having no discernible performance difference.
+There is however a detectable difference in the constant component, which is most likely due to the random \ac{IV} generation with the board's \ac{TRNG} on the encryption service, whereas in the decryption is not present.
+The data dependent value, of both services, is extremely close to the sum of the previously calculated values of \ac{AES} and \ac{HMAC}, \(11.124+7.815=18.939\approx18.953\approx18.946\).
+The import keys service was tested until 5 KB because of the \ac{HSM}'s '\ac{RAM} limitations, more demanding than other operations due to keys being storage in the same memory as the code. With 5 KB of key storage available, the system can store up to 20 symmetric keys of 32 bits, used to secure communications. However this can be bypassed by storing the keys in a high capacity external storage connected to the device. The keys are stored encrypted with internal keys, so they are secure.
 The key generation with \ac{ECDH} and \ac{SHA}-based KeyTree derivation function performs at a constant 964.535 ms. The most demanding services is the scalar multiplication which takes half a second, and importing the key to memory, using the import keys service.
 \ac{ECDSA} values increase very slowly with increasing data sizes, with a similar value to the \ac{SHA} result. The biggest impact on performance is on the constant value from scalar multiplication.
-We can also conclude the measured models are a good representation of the performance, all median average error percentages are below 0.4\%.
+The median average percentage error for the encryption/decryption and MAC and \ac{ECDSA} are models is below 0.19\%, so the models almost perfectly represent the performance. The import keys service model has the highest error with 2.86\%, due to its nearly constant behaviour for lower data size values. From 0.5 KB to 2 KB it takes a constant 386 ms, and from there starts to increase linearly.
 
 \begin{figure}[h!]
 	\centering
@@ -122,7 +123,8 @@ We can also conclude the measured models are a good representation of the perfor
 	\label{fig:performance:services-tput}
 \end{figure}
 
-Figure \ref{fig:performance:services-tput} plots the results for throughput (KB/s) for the implemented services. Encrypt/decryption + MAC services' throughput increases and stabilizes at around 50 Kb/s, while \ac{ECDSA} and key importation present linear scalability.
+Figure \ref{fig:performance:services-tput} plots the results for throughput (KB/s) for the implemented services.
+Encrypt/decryption and MAC services' throughput stabilizes at around 52.5 Kb/s, while \ac{ECDSA} and key importation present a somewhat linear scalability as data size increases.
 
 % TODO
 % The results in table~ for the encryption and decryption operations are very similar due to both using the same board services, AES encryption and HMAC, but in a different order. It is also important to note AES encryption and decryption in CTR mode is essentially the same operation due the mode's characteristics.
