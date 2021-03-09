@@ -141,7 +141,14 @@ Encrypt/decryption and MAC services' throughput stabilizes at around 52.5 Kb/s, 
 % -----------------------------------------------------
 \section{Requirements}\label{chap:evaluation:requirements}
 
-% A M2S090TS smartfusion2 evaluation kit is priced at 384€ \cite{smartfusionPrice}.
+
+% The smartfusion2 SoC is a portable HSM which can be assigned to individuals.
+% The secure data exchange allows communications between individuals or groups of individuals.
+% The system handles all operations, the user does not have unnecessary responsibilities.
+% The device has physical anti-tampering measures and the communications are secured with the data exchange service.
+% The system also allows communications with new entities with similar devices.
+% It provides a easy-to-use interface software for the user's computer, using the PKCS\#11 standard to increase device interoperability.
+% Compared to the available HSM's on the market, the device is one of the cheapest, a M2S090TS smartfusion2 evaluation kit is priced at 384 € \cite{smartfusionPrice}.
 
 % ------------- Requirements ------------------
 % Devices should be distributable to individuals or entities with one or more individuals;
@@ -153,6 +160,22 @@ Encrypt/decryption and MAC services' throughput stabilizes at around 52.5 Kb/s, 
 % It should provide an easy-to-use interface by everyone, including non-technical people;
 % It should have a relatively low cost, to allow distribution of several devices among multiple people;
 % Only authorized individuals should be able to use the device.
+% -----------------------------------------------------
+% In order to secure communications, the following services must be guaranteed: confidentiality, integrity and authentication.
+% With asymmetric keys the system can provide non-repudiation to documents or files, by means of qualified digital signatures.
+
+% -----------------------------------------------------
+% The device must store all keys related to the entity who owns the device.
+% The device must support secure storage in order to store the user's sensitive information, such as the cryptographic keys.
+% These keys must never be exposed to the outside environment of the device to ensure the security of communications and independence of the system.
+% All cryptographic operations must also be performed inside the device.
+% Additionally, the device should have physical tamper-resistant measures and mechanisms in place, in case of an intrusion, such as, permanent erasure of all sensitive data.
+% This means that even if an attacker is in possession of the physical device, it should be extremely difficult or even impossible to extract any information from it.
+% -----------------------------------------------------
+% The solution should work with a plethora of devices, which will increase the adoptability of the solution among clients.
+% The system should provide an application on the user's device, which will communicate with the physical device, and make the operation's available to the user through a simple interface for the regular non-tech savvy user.
+% Another related requirement is the usage of a common connection solution, e.g. \ac{USB} cable, to further increase the pool of supported devices.
+% In addition, the system should perform the operations in a reasonable time to minimize the user's wait, and improve the user experience.
 % ---------------------------------------------
 
 % secure comms - aes and hmac services are not dpa resistant, so keys should be regularly replaced to avoid enough data which enables an attacker to break encryption. On the other hand this is only possible if the attacker has physical access to the device or potentially with some type of malware on the user's computer.

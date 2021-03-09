@@ -88,22 +88,22 @@ In addition, the system should perform the operations in a reasonable time to mi
 \section{Use Case Scenarios}\label{chap:problem:scenarios}
 
 This section will define and detail the use cases the solution must satisfy and provide to the user. The combination of the use cases satisfy the client requirements in Section~\ref{chap:problem:requirements}.
-Figure~\ref{fig:main-system} will be used as an example and illustration for the different scenarios.
+Figure~\ref{fig:user:data-service} will be used as an example and illustration for the different scenarios.
 
-\begin{figure}[h!]
-    \centering
-    \includegraphics[width=0.7\textwidth]{./Images/main-figure.png}
-    \caption{System Usage Example}
-    \label{fig:main-system}
-\end{figure}
+% \begin{figure}[h!]
+%     \centering
+%     \includegraphics[width=0.7\textwidth]{./Images/main-figure.png}
+%     \caption{System Usage Example}
+%     \label{fig:main-system}
+% \end{figure}
 
 % -----------------------------------------------------
 \subsection{Authenticating the User}\label{chap:problem:scenarios:auth}
 
 Every user must authenticate himself, before using the device. This can be done by providing a \ac{PIN}, which the device will verify before unlocking the session for the user.
 The device will come from fabric with a default authentication \ac{PIN}. The users should be allowed to change this number.
-For \textbf{personal} devices, there is only one user, the owner, as illustrated by Alice and Bob in figure~\ref{fig:main-system}. There is only the single authentication \ac{PIN}, which when sent to the device, unlocks the session, and the user can access its services.
-For \textbf{groups} and entities, there can be multiple users, illustrated by Charlie. In this case, there are different scenarios for authentication.
+For \textbf{personal} devices, there is only one user, the owner, as illustrated by Bob in figure~\ref{fig:user:data-service}. There is only the single authentication \ac{PIN}, which when sent to the device, unlocks the session, and the user can access its services.
+For \textbf{groups} and entities, there can be multiple users, illustrated by Alice. In this case, there are different scenarios for authentication.
 The simplest is when it is not needed to authenticate the individual user, only the entity. There is only a single authentication \ac{PIN} for the entity. All the user's with permission to communicate in behalf of the entity, must know the \ac{PIN}. They only need to send the number to the device to be allowed access to its operations.
 
 The second scenario, is when an entity wishes to authenticate each individual user with access to the device. 
@@ -122,7 +122,7 @@ For a user to send secure data, first he authenticates himself to the device, th
 
 \begin{figure}[h!]
     \centering
-    \includegraphics[width=0.5\textwidth]{./Images/user-data-service.png}
+    \includegraphics[width=0.7\textwidth]{./Images/user-data-service.png}
     \caption{Secure data exchange service example using internal keys}
     \label{fig:user:data-service}
 \end{figure}
@@ -191,3 +191,7 @@ Another, less cumbersome possibility for the user, is whenever an entity is adde
 
 % Adding to the previous scenario with asymmetric keys, users will be able to establish secure communications with new entities. This is achieved by distributing a list of available entities to communicate with.
 % When and individual, e.g. Alice, wants to establish communications with a new entity, such as Bob, she needs to get Bob's key from the received list. Then they can securely trade a new key, and begin communications.
+
+% -----------------------------------------------------
+% -----------------------------------------------------
+\section{Summary}\label{chap:problem:summary}

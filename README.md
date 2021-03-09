@@ -1,4 +1,4 @@
-# Thesis Paper latex docs
+# Thesis latex docs
 
 Latex document of my thesis paper.
 Based on the template of Prof. Rui Cruz.
@@ -13,8 +13,12 @@ __Author__: Alexandre Valente Rodrigues
 
 __Supervisor__: Prof. Ricardo Chaves
 
-__Date__: 
+__Date__: May 2021
 
+## PDF CI Compilation
+
+A github CI is available to compile the latex files in a docker container and return the pdf as an artefact.
+Alternatively it can locally compiled with docker. Clone the repository, and run `make` which by default compiles the pdf in a docker container with a ubuntu image with a full latex installation.
 
 ## Template Documentation
 
@@ -102,7 +106,3 @@ For those purposes, replace that file with your own file, and if the name is dif
 	\bibliography{./Thesis-MSc-Bibliography}
 
 #####################
-
-Enjoy
-
-Rui Santos Cruz
