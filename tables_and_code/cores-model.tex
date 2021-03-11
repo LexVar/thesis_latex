@@ -1,13 +1,27 @@
 \begin{table}[h!]
 \centering
 \def\arraystretch{1.5}
-\begin{tabular}{|c|c|c|c|c|c|c|}
+\begin{tabular}{|c|c|c|c|c|c|c|c|}
 \hline
-	Time (ms)   & AES     & SHA    & HMAC    & KeyTree & ECC Add. & ECC Mult.   \\ \hline
-constant  & 0.489  & 0.498  & 0.783   & 1.655   & 7.204   & 545.381 \\ \hline
-data  & 11.124  & 0.807 & 7.815   & -       & -       & -      \\ \hline
-MAE 	   & 0.01\%  & 0.83\%  & 0.13\%   & -	  & -	    & -   \\ \hline
+	Time (ms)   & AES     & SHA    & HMAC   & TRNG  & KeyTree & ECC Add. & ECC Mult.   \\ \hline
+	constant  & 0.489  & 0.498  & 0.783  &  0.368  & 1.655   & 7.204   & 545.381 \\ \hline
+	data  & 11.124  & 0.807 & 7.815 & 0.007   & -       & -       & -      \\ \hline
+	MAE 	   & 0.01\%  & 0.83\%  & 0.13\% & 2.29\%  & -	  & -	    & -   \\ \hline
 \end{tabular}
 \caption{Security services time values according to a linear model}
+\label{tab:core-model}
+\end{table}
+
+\begin{table}[h!]
+\centering
+\def\arraystretch{1.5}
+\begin{tabular}{|c|c|c|c|c|c|c|}
+\hline
+	Time (ms)   & Read RAM & Write RAM & Read NVM & Write NVM  & Fetch PUF & Enroll PUF \\ \hline
+	constant  & -  & 0.241  & 0.01   & 0.008  & 128.49 & 747.84  \\ \hline
+	data      & -  & 0.287  & 0.02   & 0.298  & 0.006  & 0.008  \\ \hline
+	MAE       & -  & 2.76\% & 3.76\% & 0.31\% & 0.17\% & 0.06\%  \\ \hline
+\end{tabular}
+\caption{Smartfusion2 memory performance time values according to a linear model}
 \label{tab:core-model}
 \end{table}
