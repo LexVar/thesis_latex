@@ -42,6 +42,7 @@ In order to assess the communication channel performance, and its impact on the 
 The average transmission times for each value are displayed in figure \ref{fig:comms:time}.
 The values range from 0.048 seconds for 0.5 KB, to 3.2 s for 36 KB.
 From the graph we can conclude the performance has linear scalability.
+The performance can be modelled by a linear equation with values in seconds, \(T_{total} = 0.0073 + 0.0886 * KB\), with a median average percentage error 0.92 \%.
 
 \begin{figure}[h!]
 	\centering
@@ -88,6 +89,13 @@ The \ac{AES} service was tested with all possible variations. Namely, with 128 b
 Regarding the results, the higher time factor dependent of the data implicates the service time increases faster. Overall the \ac{AES} and \ac{HMAC} total service time increases faster due to this compared to \ac{SHA}, which increases significantly slower. The constant time is similar among the three services with \ac{HMAC}'s a little higher.
 The error percentages are all bellow 1\%, proving the calculated models accurately represent all three services' performance.
 The \ac{ECC} services are the slowest performers, particularly the scalar multiplication, each run taking more than half a second.
+
+\begin{figure}[h!]
+	\centering
+	\includegraphics[width=0.9\textwidth]{./Images/software-core-time.png}
+	\caption{Performance comparison of board's services compared to a software implementation}
+	\label{fig:performance:software-core-time}
+\end{figure}
 
 \begin{figure}[h!]
 	\centering
