@@ -92,19 +92,36 @@ The \ac{ECC} services are the slowest performers, particularly the scalar multip
 
 \begin{figure}[h!]
 	\centering
-	\includegraphics[width=0.9\textwidth]{./Images/software-core-time.png}
-	\caption{Performance comparison of board's services compared to a software implementation}
-	\label{fig:performance:software-core-time}
-\end{figure}
-
-\begin{figure}[h!]
-	\centering
 	\includegraphics[width=0.9\textwidth]{./Images/core-tput.png}
 	\caption{Security services throughput evolution}
 	\label{fig:performance:core-tput}
 \end{figure}
 
 This graphic represents the throughput calculated from the processing time results previously gathered. The graphic shows all services throughput, shown in KB/ms, increases as the data size also increases, all eventually stabilizing at a specific value. \ac{AES} stabilizes at around 1.2 KB/ms, and both \ac{SHA} and \ac{HMAC} at around 0.1 KB/ms.
+
+% -----------------------------------------------------
+% -----------------------------------------------------
+\subsubsection{Software Comparison}\label{chap:evaluation:services:software}
+
+% Dois bibliotecas foram usadas, uma para AES e a outra para SHA-256 e HMAC-SHA-256. Esta ultima foi a mesma utilizada para computar hmac continuamente no serviços de secure comms.
+% https://github.com/intel/tinycrypt
+% Mbedtls foi experimentada, retirando todas os algoritmos desnecessários mas ocupada demasiado espaço para incluir na placa limitada a 64 KB de RAM.
+
+% AES
+
+% HMAC
+
+% SHA
+% Os resultados de HMAC e SHA é esperado que seja mt similar devido ao HMAC ser baseado em 2 operações de sha. Olhando para os resultados de cores, são estranhos devido ao desempenho consideralvemente mais lento do HMAC comparado a SHA.
+% Comparado aos resultados com software, no qual HMAC é neglegivelmente mais lento, HMAC e SHA tem performance sobreposta, um pouco mais lento que o core de SHA mas consideravelmente mais rápido do que HMAC.
+% Não encontrei nenhuma explicação razoável para esta imensa descrepancia. Uma das razões que pode contribuir é que a implementalão de HMAC é resistente a ataques diferenciais DPA, embora isso n explica a descrepancia com a performance do core de SHA.
+
+\begin{figure}[h!]
+	\centering
+	\includegraphics[width=0.9\textwidth]{./Images/software-core-time.png}
+	\caption{Performance comparison of board's services compared to a software implementation}
+	\label{fig:performance:software-core-time}
+\end{figure}
 
 % -----------------------------------------------------
 % -----------------------------------------------------

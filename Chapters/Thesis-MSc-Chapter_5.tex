@@ -59,15 +59,12 @@ This section presents the implementation details of the HSM's services and imple
 %
 % In order to fetch a stored symmetric key to use in one of the implemented services, the \ac{MAC} is generated and compared to the PUF slot. If identical, the key can be decrypted from memory using the same key used for its encryption and identified with its ID.
 
-% -----------------------------------------------------
-% -----------------------------------------------------
-\section{Implementation}\label{chap:implementation:app}
 % All data is either stored in the secure eNVM portion, or in the non-volatile memory, encrypted with an internal \ac{KEK}.
 
 This section contains all details about the developed implementation on the Hardware Security Module device and client interface.
 
 % -----------------------------------------------------
-\subsection{Libraries and Tools}\label{chap:implementation:app:tools}
+\section{Libraries and Tools}\label{chap:implementation:tools}
 
 The cryptographic software is running on the \ac{SoC} of a SmartFusion2 board, version M2S090TS from Microsemi, with the specifications described in section~\ref{chap:background:computing:smartfusion}. It is an adequate device due to several components such as the required cryptographic functions in its system controller, a \ac{TRNG} essential for cryptography, secure storage for keys and anti-tampering protections.
 The application was implemented using the C programming language, with the SoftConsole v3.4 \ac{IDE} and libraries of the board functionalities, provided by Microsemi. The configuration was generated using Libero v11.7.
@@ -82,7 +79,7 @@ Beyond increasing the memory footprint, the library does not offer significant p
 The client interface implemented the \ac{PKCS}\#11 standard for a higher device interoperability. The client interface was implemented in C++ for the open source MinGW compiler in Windows 10, and is composed of a simple command line interface which calls the implemented \ac{PKCS}\#11 interface functions based on the user's input.
 
 % -----------------------------------------------------
-\subsection{Communications}\label{chap:implementation:app:comms}
+\section{Communications}\label{chap:implementation:comms}
 
 % The computer running the client interface and the smartfusion board, running the HSM code, are connected through a \ac{USB} connection with the external FlashPro4 programmer.
 The device implementation uses the available \ac{UART} communication controller and corresponding drivers for communications.
@@ -93,7 +90,7 @@ In the case of fixed size data such as public keys and hashes this is not needed
 
 % -----------------------------------------------------
 % \subsection{Cryptographic Algorithms}\label{chap:implementation:app:algorithms}
-\subsection{Smartfusion Implementation}\label{chap:implementation:app:board}
+\section{Services}\label{chap:implementation:services}
 
 The application in the device was implemented using several of the security services of the board: SRAM-PUF, AES, HMAC-SHA-256, ECC scalar point multiplication, KeyTree, \ac{NRBG} and tamper monitoring.
 
@@ -102,12 +99,21 @@ The authentication operation can always be be accessed by the user, all other op
 Sending the operation code acts as a acknowledge message to check if the device is connected and powered to the computer.
 
 % -----------------------------------------------------
-\subsubsection*{Authentication}
+\subsection{Authentication}\label{chap:implementation:services:authentication}
 
 The authentication PIN is saved in the SRAM-PUF service in a predefined and static slot. When authentication is performed, the PIN is fetched, compared with the client's supplied PIN and erased from memory.
 If the user is authenticated the PIN can be changed, by enrolling and overwriting the value in the PIN assigned SRAM-PUF slot.
 
-\subsubsection*{Secure Communications}
+\subsection{Secure Communications}\label{chap:implementation:services:secure}
+
+% 1. Comecei com CTR + MAC - descrever algoritmo do project report
+%         - Explicar conclusões e pk das escolhas
+% 2. foi possível cifrar dados até 18K com dois buffers iguais para input e output. Limite da RAM de 64KB
+% 3. O core permite utilizar 1 buffer para os dois, permitiu duplicar o tamanho dos dados a cifrar, para 36K utilizando o mesmo buffer
+% 4. Problema: placa não permite cifrar por blocos e cifra contínua
+% 5. Encontrei uma solução: aproveitar as caracteristicas do modo de cifra CBC que utiliza o bloco cifrado anterior como IV do próximo, para cifrar por blocos de 36K, o máximo possível de cifrar de 1 vez.
+% 6. computação de HMAC continua n é possível. Para isso foi utilizada um implementação de software com a biblioteca: https://github.com/ogay/hmac.
+% 7. Isto permite cifrar uma quantidade ilimitada de dados.
 
 As previously mentioned, the security of \ac{AES}-\ac{GCM} in hardware is considered to be unsurpassed by any authenticated-encryption scheme~\cite{aesmodes}.
 Unfortunately, the SmartFusion2 board, does not support this encryption algorithm.
@@ -134,7 +140,18 @@ The returned string is either the original plaintext, or the \ac{MAC}, \ac{IV} a
 % The qualified digital signatures operation combines \ac{ECC} and the \ac{SHA}-256 hash algorithm, and provides 128 bit security, calculated by taking the smallest security strength value of both algorithms. For the encryption and authentication operation combining \ac{AES}-128 and \ac{HMAC}-\ac{SHA}-256, 128 bit security is provided.
 
 % -----------------
-\subsubsection*{Key Generation}
+\subsection{Digital Signatures}\label{chap:implementation:services:signatures}
+
+% A placa inclui multiplicação de pontos por escalares, o que permite gerar chaves com ECDH e computar a chave public a partir da chave privada. Para além de multiplicação a placa inclui adição de pontos.
+% Para ser possível implementar assinaturas digitais com ECDSA, é necessário uma biblioteca de operações com big numbers. 48 bytes - chave privada
+% Bibliotecas de big numbers ocupam imenso espaço de RAM, a que foi testada ocupa 54KB, ocupa quase a memória inteira e limita a quantidade de dados que é possível assinar a 1.5 KB, desligando todos os outros serviços implementados.
+
+% -----------------
+\subsection{Key Importation}\label{chap:implementation:services:key-import}
+
+% -----------------
+\subsection{Key Generation}\label{chap:implementation:services:key-generation}
+
 The supported \ac{ECC} P-384 curve guarantees 192 bit security.
 The implemented new key generation operation protocol is defined in ~\ref{eq:ecdh-kdf}.
 The peer's public key is supplied by the client application, and the device's private key is fetched from a predetermined PUF slot where it is saved.
@@ -144,10 +161,12 @@ The result is a 96 byte point, which is effectively the shared secret.
 Then to generate the 256 bit key, the KeyTree service is applied as a key derivation function on the shared secret combined with a salt, which can be public.
 The generated key is enrolled in the first available PUF slot, which is provided by a function in the API, and is returned to the user as the newly generated key ID.
 
-\subsubsection*{Key Revocation}
+% -----------------
+\subsection{Key Revocation}\label{chap:implementation:services:key-revocation}
 Key revocation only consists of deleting the key from the SRAM-PUF slot it is saved. This is a simple call to the API function.
 
-\subsubsection*{Tamper Detection}
+% -----------------
+\subsection{Tamper Detection}\label{chap:implementation:services:tamper-detection}
 
 Tamper and failure events detection is implemented. When certain events occur, flags are set which prevent the user from performing operations, to protect all possible sensitive data.
 On tamper detection events, zeroization is performed on the device, erasing all keys and data from the device. This process either makes the board unusable or reset to the default fabric state.
@@ -164,7 +183,7 @@ For future work a feature could be developed where a central entity, once every 
 % TODO: maybe for conclusion: the secure communications service provides 128 bit security, and the ECDH algorithm provides 192 bit security.
 
 % -----------------------------------------------------
-\subsection{PKCS\#11 Interface}\label{chap:implementation:app:interface}
+\section{PKCS\#11 Interface}\label{chap:implementation:app:interface}
 
 The application only supports one token and one session for the token.
 PKCS\#11 defines two types of users, the regular user and security office. The implemented application does not make that distinction. Both types of user can login and perform operations.
