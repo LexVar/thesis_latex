@@ -1,24 +1,28 @@
 \begin{table}[]
 \centering
 \def\arraystretch{1.5}
-\begin{tabular}{|c|c|}
+\begin{tabular}{|c|l|}
 	\hline
 	\textbf{PKCS\#11 Function} & \textbf{Description} \\ \hline
-	\texttt{C\_Initialize		}& Initializes the cryptoki application\\ \hline
-	\texttt{C\_Finalize		}& Closes the cryptoki application\\ \hline
-	\texttt{C\_OpenSession		}& Opens the session and communication port\\ \hline
-	\texttt{C\_CloseSession 	}& Close session and communication port\\ \hline
-	\texttt{C\_Login        	}& Authenticates users with a PIN\\ \hline
-	\texttt{C\_Logout        	}& Logout the user\\ \hline
-	\texttt{C\_SetPIN       	}& Change authentication PIN\\ \hline
-	\texttt{C\_CreateObject 	}& Creates local objects like symmetric keys and public keys\\ \hline
-	\texttt{C\_DestroyObject	}& Deletes remote object like a secret key\\ \hline
-	\texttt{C\_EncryptInit  	}& Initialize AES encryption operation\\ \hline
-	\texttt{C\_Encrypt      	}& Encrypt data with AES CTR mode\\ \hline
-	\texttt{C\_DecryptInit  	}& Initializes decryption operation\\ \hline
-	\texttt{C\_Decrypt      	}& Decrypts data with AES CTR mode\\ \hline
+	% \texttt{C\_Initialize		}& Initializes the cryptoki application\\ \hline
+	% \texttt{C\_Finalize		}& Closes the cryptoki application\\ \hline
+	% \texttt{C\_OpenSession		}& Opens the session and communication port\\ \hline
+	% \texttt{C\_CloseSession 	}& Close session and communication port\\ \hline
+	% \texttt{C\_Login        	}& Authenticates users with a PIN\\ \hline
+	% \texttt{C\_Logout        	}& Logout the user\\ \hline
+	% \texttt{C\_SetPIN       	}& Change authentication PIN\\ \hline
+	\texttt{C\_CreateObject 	}& Creates local objects referencing remote keys by ID \\ \hline
+	\texttt{C\_DestroyObject	}& Deletes remote object (keys)\\ \hline
+	\texttt{C\_EncryptInit  	}& Initializes continuous AES encryption and HMAC generation \\ \hline
+	\texttt{C\_EncryptUpdate  	}& Encrypts and generates MAC from data block \\ \hline
+	\texttt{C\_EncryptFinal  	}& Finishes encryption operation, returns the generated MAC\\ \hline
+	\texttt{C\_Encrypt      	}& Secure data with AES CTR mode and HMAC\\ \hline
+	\texttt{C\_DecryptInit  	}& Initializes continuous AES decryption and HMAC verification\\ \hline
+	\texttt{C\_DecryptUpdate  	}& Decrypts and generates MAC from data block\\ \hline
+	\texttt{C\_DecryptFinal  	}& Finishes decryption operation, returns MAC verification status\\ \hline
+	\texttt{C\_Decrypt      	}& Secure data with AES CTR mode and HMAC\\ \hline
 	\texttt{C\_DeriveKey		}& Generate and derive new symmetric key, store it in device \\ \hline
-	\texttt{C\_UnwrapKey		}& Import symmetric keys into device\\ \hline
+	\texttt{C\_UnwrapKey		}& Import set of symmetric keys into device\\ \hline
 	\texttt{HSM\_C\_GetKeyListize	}& Custom function to get list of avaible remote symmetric keys\\ \hline
 \end{tabular}
 \caption{PKCS\#11 Implemented Interface API}
