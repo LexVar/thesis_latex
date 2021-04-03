@@ -78,7 +78,7 @@ Regarding the time test results, all services followed a near perfect linear evo
 
 \begin{equation}
 	\label{eq:linear-eq}
-	T_{total} = T_{constant} + T_{data} * KB
+	T_{Total} = T_{Constant} + T_{Data} * KB
 \end{equation}
 Linear regression was used to calculate these values, presented in table \ref{tab:core-model}. The median average percentage error was calculated to assess the accuracy of the calculated models for representing each service's performance. Services which receive a fixed data size such as, the \ac{ECC} and KeyTree services, only have a constant time component.
 
@@ -150,6 +150,14 @@ The median average percentage error for the encryption/decryption and MAC and \a
 
 Figure \ref{fig:performance:services-tput} plots the results for throughput (KB/s) for the implemented services.
 Encrypt/decryption and MAC services' throughput stabilizes at around 52.5 Kb/s, while \ac{ECDSA} and key importation present a somewhat linear scalability as data size increases.
+
+\begin{figure}[h!]
+	\centering
+	\includegraphics[width=0.9\textwidth]{./Images/buffer-overhead.png}
+	\caption{Implemented services throughput evolution}
+	\label{fig:performance:buffer-overhead}
+\end{figure}
+
 
 % TODO
 % The results in table~ for the encryption and decryption operations are very similar due to both using the same board services, AES encryption and HMAC, but in a different order. It is also important to note AES encryption and decryption in CTR mode is essentially the same operation due the mode's characteristics.

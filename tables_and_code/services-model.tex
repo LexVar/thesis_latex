@@ -3,25 +3,11 @@
 \def\arraystretch{1.5}
 \begin{tabular}{|c|c|c|c|c|c|c|}
 \hline
-	Time (ms) & Encrypt Data  & Decrypt Data  & Import Keys & ECDSA & ECDH   \\ \hline
-	constant  & 2.1    & 0.847  & 368.994  & 629.932 & 964.535 \\ \hline
-	data (KB) & 14.678 & 14.681 & 18.518 & 0.937 & - \\ \hline
-	MAE	  & 0.10\% & 0.12\%  & 2.86\% & 0.18\% & - \\ \hline
+	Time (ms) & Encrypt Data  & Decrypt Data  & Import Keys & ECDSA & Key Gen. \\ \hline
+	Constant  & 2.556  & 1.557   & 368.994 & 629.932 & 964.535 \\ \hline
+	Data (KB) & 14.73  & 14.729  & 18.518  & - & - \\ \hline
+	MAE	  & 0.18\% & 0.04\%  & 2.86\%  & - & - \\ \hline
 \end{tabular}
 \caption{Implemented services time values according to a linear model}
 \label{tab:services-model}
 \end{table}
-
-% \begin{table}[]
-% \centering
-% \def\arraystretch{1.5}
-% \begin{tabular}{|c|c|c|c|c|c|c|}
-% \hline
-% Time/Service   & Encrypt + MAC	  & Decrypt + MAC  & Import Keys & ECDSA   \\ \hline
-%         constant (ms) & 29.413 & 29.413 & 0.002 & 0.138 \\ \hline
-%         data (ms) & 6.704 & 6.704 & 1.942 & 1.542 \\ \hline
-%         MAE \%	   & 1.032 & 1.006 & 0.127 & 1.760 \\ \hline
-% \end{tabular}
-% \caption{Implemented services throughput model values}
-% \label{tab:services-model}
-% \end{table}
