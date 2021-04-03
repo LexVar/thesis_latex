@@ -34,7 +34,7 @@ This setup allows the board to send and receive messages of 16 block bytes at a 
 \section{HSM Services}\label{chap:implementation:services}
 
 The services were implemented using the security cores: SRAM-PUF, AES, HMAC, SHA, ECC, TRNG and tamper detection.
-All these services are accessed through the developed PKCS\#11 API which with the communication protocol detailed in chapter \ref{chap4}.
+All these services are accessed through the developed PKCS\#11 API which with the communication protocol detailed in section \ref{chap:arch:services}.
 
 % -----------------------------------------------------
 \subsection{Login}\label{chap:implementation:services:authentication}
@@ -97,17 +97,28 @@ This is an extremely limited use case, and less than ideal. Future work should r
 % -----------------
 \subsection{Key Management}\label{chap:implementation:services:key-import}
 
+This section outlines the various key management options, their strengths, weaknesses and the implemented solution. 
+As introduced in section \ref{chap:background:computing:smartfusion}, the smartfusion2 includes a secure key storage service. The PUF has 56 available key slots, each with a maximum of 512 bytes. There is a lifespan problem regarding this service. The eNVM memory, used by the service, has limit of 1000 writes for a predicted lifespan of 20 years. Thus there is a limit on the amount and how often keys are saved in the slots. The service should be used carefully, restraining how often it is written to.
+An alternate solution, in which the keys are stored in a non volatile memory, was developed. The keys are stored encrypted and authenticated with a dedicated key, following the protocol in section \ref{chap:implementation:services:secure}.
+The key which encrypts and authenticates all other keys, is an intrinsic key, randomly generated in the device, and stored in a dedicated PUF slot. The ciphertext and IV is stored in memory, authenticated with HMAC, and the output code is stored in another dedicated slot on the PUF.
+A key can be accessed by generating the MAC of the stored data, comparing it to the one stored in the PUF slot. If it is authenticated, then the data can be decrypted with the IV and PUF key.
+While this solution still uses the PUF service, its usage is more measured. When using only the PUF, for each key, 1 PUF needs to be rewritten. For the other solution, for each change of the key set stored in memory, only the MAC PUF slot needs to be rewritten. If keys are added one at a time, both options are no different. However if keys are updated on a regular time schedule, all can be updated at once, with each update only using 1 slot. Additionally, the amount of available storage is not a problem, since the board allows for external storage devices to be connected, and keys can securely be stored there. Even if attackers get hold of the external storage, the encryption keys are protected in the SRAM-PUF.
+
+To complement this solution, an import operation was implemented, which receives a set of encrypted keys, decrypts them with the secure data exchange service, and overwrites the existing keys. This can be used, in conjunction with a control station, which distributes the keys to users with these devices. The user's can import the key set, which overwrites the existing keys.
+Each key is stored in memory accompanied by its identifier and size.
+
 % -----------------
 \subsection{Key Generation}\label{chap:implementation:services:key-generation}
 
 The supported \ac{ECC} P-384 curve guarantees 192 bit security.
 The implemented new key generation operation protocol is defined in ~\ref{eq:ecdh-kdf}.
-The peer's public key is supplied by the client application, and the device's private key is fetched from a predetermined PUF slot where it is saved.
+The peer's public key is supplied by the client application, and the device's private key is fetched from a predetermined PUF slot, or from memory.
 
 For the ECDH algorithm the ECC scalar multiplication board accelerator is used. It multiplies a scalar value of 48 bytes, the private key, with a point with a x and y coordinate of both 48 bytes (96 bytes total), the public key.
 The result is a 96 byte point, which is effectively the shared secret.
 Then to generate the 256 bit key, the KeyTree service is applied as a key derivation function on the shared secret combined with a salt, which can be public.
-The generated key is enrolled in the first available PUF slot, which is provided by a function in the API, and is returned to the user as the newly generated key ID.
+The generated key can be enrolled in the first available PUF slot, which is provided by a function in the API, and the newly generated key ID is returned to the user.
+The key can be stored encrypted in memory as well.
 
 % -----------------
 \subsection{Tamper Detection}\label{chap:implementation:services:tamper-detection}
