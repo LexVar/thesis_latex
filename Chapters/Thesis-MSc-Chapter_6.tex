@@ -71,7 +71,7 @@ All the security core accelerators of the smartfusion2 SoC were tested. This inc
 As discussed before, all services were tested using the two presented configurations. The results of the second configuration are significantly more stable and will are presented next.
 Twenty different data sizes were used in the test, from 0.5 KB to 36 KB.
 
-The services were tested taking into account three different time components \(T_{total} = T_{call} + T_{transmittion} + T_{service}\), with the first test configuration. The call fraction is the time it takes calling the PKCS\#11 API, before any data is transmitted or the service is executed. From the results, it can be concluded this component's impact on performance is negligible, since it is almost always 0.
+The services were tested taking into account three different time components \(T_{Total} = T_{Call} + T_{Transmittion} + T_{Service}\), with the first test configuration. The call fraction is the time it takes calling the PKCS\#11 API, before any data is transmitted or the service is executed. From the results, it can be concluded this component's impact on performance is negligible, since it is almost always 0.
 Predictably, the transmission time always follow the performance model studied in the previous section.
 Thus, the following security core and implemented services tests focused on solely measuring the performance of the service. To get a complete conclusion of the performance of the overall system, the total service processing time can be added to the serial port time.
 Regarding the time test results, all services followed a near perfect linear evolution in function of the processed data size. Thus, each accelerator's performance can be modeled with a formula composed of two different components \ref{eq:linear-eq}, a factor independent of the data being processed, present in every service call, and a component dependent on the data size.
@@ -101,27 +101,27 @@ This graphic represents the throughput calculated from the processing time resul
 
 % -----------------------------------------------------
 % -----------------------------------------------------
-\subsubsection{Software Comparison}\label{chap:evaluation:services:software}
+\subsubsection{Core/Software Comparison}\label{chap:evaluation:services:software}
 
-% Dois bibliotecas foram usadas, uma para AES e a outra para SHA-256 e HMAC-SHA-256. Esta ultima foi a mesma utilizada para computar hmac continuamente no serviços de secure comms.
-% https://github.com/intel/tinycrypt
-% Mbedtls foi experimentada, retirando todas os algoritmos desnecessários mas ocupada demasiado espaço para incluir na placa limitada a 64 KB de RAM.
-
-% AES
-
-% HMAC
-
-% SHA
-% Os resultados de HMAC e SHA é esperado que seja mt similar devido ao HMAC ser baseado em 2 operações de sha. Olhando para os resultados de cores, são estranhos devido ao desempenho consideralvemente mais lento do HMAC comparado a SHA.
-% Comparado aos resultados com software, no qual HMAC é neglegivelmente mais lento, HMAC e SHA tem performance sobreposta, um pouco mais lento que o core de SHA mas consideravelmente mais rápido do que HMAC.
-% Não encontrei nenhuma explicação razoável para esta imensa descrepancia. Uma das razões que pode contribuir é que a implementalão de HMAC é resistente a ataques diferenciais DPA, embora isso n explica a descrepancia com a performance do core de SHA.
+The SHA and HMAC performance difference results were puzzling. The HMAC data dependent portion of 7.815 ms is nearly 10 times higher than the SHA value. This means HMAC time performance degrades nearly 10 times faster compared to the SHA performance. This is a surprising result since the HMAC algorithm is essentially two SHA computations, so the results were expected to be similar.
+For this reason, a lightweight implementation of HMAC, SHA and AES was included in the board for comparison. The library used for HMAC and SHA is \cite{ogayHMAC}, and for AES \cite{tinycrypt}. 
 
 \begin{figure}[h!]
 	\centering
 	\includegraphics[width=0.9\textwidth]{./Images/software-core-time.png}
-	\caption{Performance comparison of board's services compared to a software implementation}
+	\caption{Performance comparison of board's cores to a software implementation}
 	\label{fig:performance:software-core-time}
 \end{figure}
+
+Analysing the time performance results in figure \ref{fig:performance:software-core-time}, as expected, the SHA and HMAC software results are almost identical, the HMAC is only a slightly worse performer. Compared to the core results, the SHA core is significantly faster, and deteriorates very slowly as data size increases. The opposite happens for the HMAC core. It is convincingly a worst performer compared to the software implementation, both HMAC and SHA. 
+This is a incomprehensible result, as there is no clear reason for the performance degradation results. One could think it could be caused by the \ac{DPA} mitigations in place, but it would still not explain the meaningful discrepancy compared to the SHA performance, which also includes these mitigations.
+The AES software implementation was tested with a 256 bit key in CBC mode. As expected it performs worse than the core service.
+
+% -----------------------------------------------------
+% -----------------------------------------------------
+\subsubsection{Memory Performance}\label{chap:evaluation:services:memory}
+
+\input{tables_and_code/memory-model.tex}
 
 % -----------------------------------------------------
 % -----------------------------------------------------
@@ -149,7 +149,7 @@ The median average percentage error for the encryption/decryption and MAC and \a
 \end{figure}
 
 Figure \ref{fig:performance:services-tput} plots the results for throughput (KB/s) for the implemented services.
-Encrypt/decryption and MAC services' throughput stabilizes at around 52.5 Kb/s, while \ac{ECDSA} and key importation present a somewhat linear scalability as data size increases.
+Encrypt/decryption and MAC services' throughput stabilizes at around 68 Kb/s, while \ac{ECDSA} and key importation present a somewhat linear scalability as data size increases.
 
 \begin{figure}[h!]
 	\centering
