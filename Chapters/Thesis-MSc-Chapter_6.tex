@@ -46,7 +46,7 @@ The performance, in miliseconds, can be modelled by a linear equation with value
 
 \begin{figure}[h!]
 	\centering
-	\includegraphics[width=0.8\textwidth]{./Images/comms-time.png}
+	\includegraphics[width=0.7\textwidth]{./Images/comms-time.png}
 	\caption{Serial Port data transmission times}
 	\label{fig:comms:time}
 \end{figure}
@@ -58,7 +58,7 @@ We can conclude the practical throughput is close to the theoretical, and as exp
 
 \begin{figure}[h!]
 	\centering
-	\includegraphics[width=0.8\textwidth]{./Images/comms-tput.png}
+	\includegraphics[width=0.7\textwidth]{./Images/comms-tput.png}
 	\caption{Serial port data transmission throughput}
 	\label{fig:comms:tput}
 \end{figure}
@@ -93,7 +93,7 @@ The TRNG service was tested by generating 16 bytes up to the maximum allowed by 
 
 \begin{figure}[h!]
 	\centering
-	\includegraphics[width=0.9\textwidth]{./Images/core-tput.png}
+	\includegraphics[width=0.7\textwidth]{./Images/core-tput.png}
 	\caption{Security services throughput evolution}
 	\label{fig:performance:core-tput}
 \end{figure}
@@ -109,7 +109,7 @@ For this reason, a lightweight implementation of HMAC, SHA and AES was included 
 
 \begin{figure}[h!]
 	\centering
-	\includegraphics[width=0.9\textwidth]{./Images/software-core-time.png}
+	\includegraphics[width=0.7\textwidth]{./Images/software-core-time.png}
 	\caption{Performance comparison of board's cores to a software implementation}
 	\label{fig:performance:software-core-time}
 \end{figure}
@@ -136,7 +136,7 @@ The RAM write performance is comparable to the NVM read performance. The RAM rea
 \subsection{Implemented Services}\label{chap:evaluation:services}
 
 All implemented services from chapter \ref{chap:implementation} were tested from a data size of 0.5 KB to 36 KB. Each service performance depends on the used accelerator's, among other factors such as memory access for reads and writes or additional code logic.
-Four implemented services were tested, encryption and authentication, decryption and authentication, the import keys service, all three using the \ac{AES} and \ac{HMAC} accelerators, \ac{ECDSA} and \ac{ECDH}, both using the \ac{ECC} scalar multiplication accelerator. It is worth noting the encryption service also uses the \ac{TRNG} service to generate a random \ac{IV}. The first set of encryption and decryption services tested were the first version version using CTR mode and the board's MAC core. The second set is the continuous encryption and decryption service using CBC and the HMAC software implementation. The second set was tested with data size up to 200 KB.
+Four implemented services were tested, encryption and authentication, decryption and authentication, the import keys service, all three using the \ac{AES} accelerator and \ac{HMAC} library, \ac{ECDSA} and \ac{ECDH}, both using the \ac{ECC} scalar multiplication accelerator. It is worth noting the encryption service also uses the \ac{TRNG} service to generate a random \ac{IV}. The continuous encryption and decryption services, used AES in CBC mode and the HMAC software implementation. It was tested with data size up to 200 KB.
 Similarly to the previous core tests results, the time performance results evolve linearly and the equation components for each service were calculated using the linear regression algorithm. The obtained values are presented in table \ref{tab:services-model}.
 
 \input{tables_and_code/services-model.tex}
@@ -153,22 +153,33 @@ The median average percentage error for the encryption/decryption and MAC and \a
 
 \begin{figure}[h!]
 	\centering
-	\includegraphics[width=0.9\textwidth]{./Images/services-tput.png}
+	\includegraphics[width=0.7\textwidth]{./Images/services-tput.png}
 	\caption{Implemented services throughput evolution}
 	\label{fig:performance:services-tput}
 \end{figure}
 
 Figure \ref{fig:performance:services-tput} plots the results for throughput (KB/s) for the implemented services.
 The throughput for encrypt/decryption with the MAC core stabilizes at around 52.5 Kb/s, while the better performing continuous version stabilizes at around 67 Kb/s.
-
-The continuous encryption/decryption implementation brings another efficiency problem. A buffer size must be chosen. All the previous tests have been performed with a buffer of 36 KB. A higher buffer size must
+The continuous encryption/decryption implementation raises an engineering question. An optimal buffer size must be chosen. All previous tests had a buffer of 36 KB.
+To better answer this topic, the buffer size impact on performance must be analysed.
+This was achieved by performing the same test on the continuous encryption service, with varying buffer sizes, from 0.1 KB up to 35 KB. Picture \ref{fig:performance:buffer-tput} shows the average throughput for each buffer size. The vertical bars display the maximum and minimum throughput for buffer value.
+All tests revealed the same performance behaviour as the previous test with a 36 KB buffer. The worst performance is achieved with low data sizes of 0.5 KB. The time evolution is linear, and the throughput eventually stabilizes around the maximum value with data sizes higher than 20 KB.
 
 \begin{figure}[h!]
 	\centering
-	\includegraphics[width=0.9\textwidth]{./Images/buffer-overhead.png}
-	\caption{Implemented services throughput evolution}
-	\label{fig:performance:buffer-overhead}
+	\includegraphics[width=0.7\textwidth]{./Images/buffer-tput.png}
+	\caption{Continuous encryption throughput evolution with different buffer sizes}
+	\label{fig:performance:buffer-tput}
 \end{figure}
+
+% \begin{figure}[h!]
+%         \centering     %%% not \center
+%         \subfigure[Constant component overhead \% of total performance]{\label{fig:performance:buffer-overhead}\includegraphics[width=79mm]{./Images/buffer-overhead.png}}
+%         \subfigure[Throughput evolution from buffer size]{\label{fig:performance:buffer-tput}\includegraphics[width=79mm]{./Images/buffer-tput.png}}
+%         \caption{Buffer size overhead and throughput evolution}
+% \end{figure}
+
+Analysing the throughput evolution, it significantly increases from 128 B up until 5 KB, after which, the average throughput stabilizes around 66 KB/s, the maximum at 68 KB/s and the minimum around 49.5 KB/s. If the goal is to maximize throughput, there is no advantage in using a buffer bigger than 10 KB. Even a 5 KB buffer has almost identical performance. Additional trade-offs can be implemented if the size of the data which will pass through the system is known. For higher data sizes where the maximum throughput is achieved, the optimal buffer size of 5 KB or 10 KB. However, if the system will mainly receive small amounts, around 0.5 KB, the minimum throughput evolution is relevant. The minimum throughput does not increase from a 0.5 KB buffer up to a  35 KB buffer. For this situation, if memory space is needed, a 0.5 KB buffer is acceptable. The extra saved memory can be used for more implemented functionalities.
 
 
 % TODO
