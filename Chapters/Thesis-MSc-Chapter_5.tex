@@ -97,7 +97,13 @@ This is an extremely limited use case, and less than ideal. Future work should r
 
 This section outlines the various key management options, their strengths, weaknesses and the implemented solution. 
 As introduced in section \ref{chap:background:computing:smartfusion}, the smartfusion2 includes a secure key storage service. The PUF has 56 available key slots, each with a maximum of 512 bytes. There is a lifespan problem regarding this service. The eNVM memory, used by the service, is limited to 1000 writes for a predicted lifespan of 20 years. Thus, there is a limit on the amount and frequency, of keys saved in the slots. The service should be used carefully, restraining how often it is written to.
-An alternate solution, in which the keys are stored in a non volatile memory, was developed. The keys are stored encrypted and authenticated with a dedicated key, following the protocol in section \ref{chap:implementation:services:secure}.
+\begin{figure}[h!]
+	\centering
+	\includegraphics[width=0.7\textwidth]{./Images/key-management.png}
+	\caption{Key management and importation solution using PUF and encrypted keys in storage}
+	\label{fig:implementation:key-management}
+\end{figure}
+An alternate solution, in which the keys are stored in a non volatile memory, was developed, and is pictured in figure \ref{fig:implementation:key-management}. The keys are stored encrypted and authenticated with a dedicated key, following the protocol in section \ref{chap:implementation:services:secure}.
 The key which encrypts and authenticates all other keys, is an intrinsic key, randomly generated in the device, and stored in a dedicated PUF slot. The ciphertext and IV of the keys, is stored in memory, authenticated with HMAC. The output code is stored in a separate slot on the PUF.
 A key can be accessed by generating the MAC of the stored data, comparing it to the one stored in the PUF slot. If authenticated, then the keys can be decrypted with the IV and dedicated PUF key.
 While this solution still uses the PUF service, its usage is more measured. When using only the PUF core, for each key, one PUF slot needs to be rewritten. In the case of the implemented solution, for each change of the key set stored in memory, only the MAC PUF slot needs to be rewritten. If keys are added one at a time, both options are identical, in the amount of PUF slots written. However, if keys are updated on a regular time schedule, all can be updated at once, with each update only using one slot. Additionally, the amount of available key storage is not a problem, since the board allows for external storage devices to be connected, and keys can be securely stored there. Even if attackers get hold of the external storage, the encryption keys are protected in the SRAM-PUF.
