@@ -12,6 +12,13 @@
 % -----------------------------------------------------
 \section{Summary} \label{chap:conclusion:summary}
 
+A prototype system was developed. The device's capabilities were evaluated.
+The system provides a good array of security services, AES, HMAC, SHA, TRNG, KeyTree which can be used as key derivation function and some ECC primitives with the P-384 curve.
+This allows some flexibility to implement a wide array of solutions.
+The developed prototype focused on the implementation of a service which provides authentication and encryption to data. This was achieved using the AES and HMAC cores with adequate 256 bit security. However the system is quite limited in the amount of RAM, and the absence of continuous cryptography services. It has a maximum of 80 KB RAM which only allowed a 36 KB buffer for data, therefore a maximum of 36 KB of data can be secured using the board's services. A continuous solution was developed by using the AES CBC mode, which uses the ciphertext of the last block as IV for the next, and a software HMAC implementation for continuous authentication.
+The system is also limited in its ECC primitives. It provides scalar multiplication which allows the generation of a public key from a private key and generation of secrets with the \ac{ECDH} algorithm. It does not provide a direct way to generate a random private key, or digital signatures without an external library. A big numbers library with multiplication, addition and mod operations is necessary to implement this functions. This is a limitation since this libraries are quite heavy for the available memory space.
+Regarding the PUF service for storing keys, it has 56 slots for a maximum of 512 bytes of key data which is stored securely. This service is limited to ...
+
 % -----------------------------------------------------
 % -----------------------------------------------------
 \section{Future Work} \label{chap:conclusion:future-work}
