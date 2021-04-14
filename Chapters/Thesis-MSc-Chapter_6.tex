@@ -197,32 +197,17 @@ Analysing the plot, the average throughput significantly increases from 0,1 KB u
 % -----------------------------------------------------
 \section{Requirements}\label{chap:evaluation:requirements}
 
-% ------------- Requirements ------------------
-% Devices should be distributable to individuals or entities with one or more individuals;
-% The system must allow communications between individuals representing themselves or an entity;
-% The system must be responsible for securing all communications against any sort of attacks;
-% The device should be independent from user's personal computers;
-% Users should be able to create secure communications with available and new entities;
-% m New secure connections should be created, if existing communications are suspected to be compromised;
-% It should provide an easy-to-use interface by everyone, including non-technical people;
-% It should have a relatively low cost, to allow distribution of several devices among multiple people;
-% Only authorized individuals should be able to use the device.
-% -----------------------------------------------------
-% In order to secure communications, the following services must be guaranteed: confidentiality, integrity and authentication.
-% With asymmetric keys the system can provide non-repudiation to documents or files, by means of qualified digital signatures.
-% ------------------------------------------------------
-
-This section evaluates the fulfilled requirements, defined in chapter \ref{chap:problem:requirements}, by the developed system.
+This section evaluates the fulfilled requirements of the developed system, defined in chapter \ref{chap:problem:requirements}.
 Firstly, the chosen device smartfusion2 SoC is a portable board, with a robust set of security services.
-Compared to the existing HSMs on the market, this device is one of the cheapest. A M2S090TS smartfusion2 evaluation kit is priced at 384\€ \cite{smartfusionPrice}.
+Compared to the existing HSMs on the market, this device is one of the cheapest. A M2S090TS smartfusion2 evaluation kit is priced at 384 € \cite{smartfusionPrice}.
 Regarding its capabilities, it provides encryption and authentication implementations, \ac{AES} and \ac{HMAC}, a secure storage service for keys, SRAM-PUF, and \ac{ECC} primitives which can be used to implement digital signatures or new key generation with \ac{ECDSA} and \ac{ECDH}. Additionally, it provides tamper detection capabilities and data zeroization.
-Thus, it is a relatively low cost board, which can be distributed among several individuals or groups, and has the necessary functionalities to secure communications between them.
-All the developed security services are performed inside the device, using its functionalities.
-The focus of the developed prototype is the secure data service, which provides confidentiality and authentication to user's communications. Data is secured with internal keys which are securely stored in the device.
+Thus, it is a relatively low cost board, which can be distributed among several individuals or groups, and has the necessary functionalities to secure their communications.
+All the developed security services are performed inside the device, with its functionalities.
+The focus of the developed prototype is the secure data service, which provides confidentiality and authentication to communications. Data is secured with internal keys, which are securely stored inside the device.
 The developed key management solution allows the periodic replacement of keys. Therefore, communications with new entities, with similar devices, can be established.
-Users must authenticate themselves to the device, using its authentication PIN. This way entities can manage which users can use the device, in behalf of the entity.
-Whenever a tamper attempt or error is detected the device is blocked, and eventually completely erased using the device's functions. This way any potential attacks and data leaks data are prevented. This can have a denial of service effect against users, but is deemed a necessary compromise.
-A PKCS\#11 API was developed to access the device's features and increase device interoperability.
+Users must authenticate themselves to the device, using its authentication PIN. This way entities can manage which users have access to the device, in behalf of the entity.
+Whenever a tamper attempt or error is detected, the device is blocked and does not allow commands, and eventually is completely erased using its functions. Any potential attacks and data leaks data are prevented. This can have a denial of service effect for users, but is deemed a necessary compromise for production use.
+A PKCS\#11 API was developed to expose the device's features and increase device interoperability.
 For users, an easy-to-use command line interface application, which calls the implemented PKCS\#11 API, was implemented.
 
 % -----------------------------------------------------
