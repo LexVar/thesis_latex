@@ -197,14 +197,6 @@ Analysing the plot, the average throughput significantly increases from 0,1 KB u
 % -----------------------------------------------------
 \section{Requirements}\label{chap:evaluation:requirements}
 
-% The smartfusion2 SoC is a portable HSM which can be assigned to individuals.
-% The secure data exchange allows communications between individuals or groups of individuals.
-% The system handles all operations, the user does not have unnecessary responsibilities.
-% The device has physical anti-tampering measures and the communications are secured with the data exchange service.
-% The system also allows communications with new entities with similar devices.
-% It provides a easy-to-use interface software for the user's computer, using the PKCS\#11 standard to increase device interoperability.
-% Compared to the available HSM's on the market, the device is one of the cheapest, a M2S090TS smartfusion2 evaluation kit is priced at 384 € \cite{smartfusionPrice}.
-
 % ------------- Requirements ------------------
 % Devices should be distributable to individuals or entities with one or more individuals;
 % The system must allow communications between individuals representing themselves or an entity;
@@ -218,26 +210,23 @@ Analysing the plot, the average throughput significantly increases from 0,1 KB u
 % -----------------------------------------------------
 % In order to secure communications, the following services must be guaranteed: confidentiality, integrity and authentication.
 % With asymmetric keys the system can provide non-repudiation to documents or files, by means of qualified digital signatures.
+% ------------------------------------------------------
 
-% -----------------------------------------------------
-% The device must store all keys related to the entity who owns the device.
-% The device must support secure storage in order to store the user's sensitive information, such as the cryptographic keys.
-% These keys must never be exposed to the outside environment of the device to ensure the security of communications and independence of the system.
-% All cryptographic operations must also be performed inside the device.
-% Additionally, the device should have physical tamper-resistant measures and mechanisms in place, in case of an intrusion, such as, permanent erasure of all sensitive data.
-% This means that even if an attacker is in possession of the physical device, it should be extremely difficult or even impossible to extract any information from it.
-% -----------------------------------------------------
-% The solution should work with a plethora of devices, which will increase the adoptability of the solution among clients.
-% The system should provide an application on the user's device, which will communicate with the physical device, and make the operation's available to the user through a simple interface for the regular non-tech savvy user.
-% Another related requirement is the usage of a common connection solution, e.g. \ac{USB} cable, to further increase the pool of supported devices.
-% In addition, the system should perform the operations in a reasonable time to minimize the user's wait, and improve the user experience.
-% ---------------------------------------------
-
-% secure comms - aes and hmac services only have light measures against DPA, so keys should be regularly replaced to avoid attackers getting hold of enough data to break encryption. On the other hand this is only possible if the attacker has physical access to the device or potentially with some type of malware on the user's computer.
-% key generation - needs asymmetric keys to generate new keys with public keys and salt traded beforehand - can be not user friendly
+This section evaluates the fulfilled requirements, defined in chapter \ref{chap:problem:requirements}, by the developed system.
+Firstly, the chosen device smartfusion2 SoC is a portable board, with a robust set of security services.
+Compared to the existing HSMs on the market, this device is one of the cheapest. A M2S090TS smartfusion2 evaluation kit is priced at 384\€ \cite{smartfusionPrice}.
+Regarding its capabilities, it provides encryption and authentication implementations, \ac{AES} and \ac{HMAC}, a secure storage service for keys, SRAM-PUF, and \ac{ECC} primitives which can be used to implement digital signatures or new key generation with \ac{ECDSA} and \ac{ECDH}. Additionally, it provides tamper detection capabilities and data zeroization.
+Thus, it is a relatively low cost board, which can be distributed among several individuals or groups, and has the necessary functionalities to secure communications between them.
+All the developed security services are performed inside the device, using its functionalities.
+The focus of the developed prototype is the secure data service, which provides confidentiality and authentication to user's communications. Data is secured with internal keys which are securely stored in the device.
+The developed key management solution allows the periodic replacement of keys. Therefore, communications with new entities, with similar devices, can be established.
+Users must authenticate themselves to the device, using its authentication PIN. This way entities can manage which users can use the device, in behalf of the entity.
+Whenever a tamper attempt or error is detected the device is blocked, and eventually completely erased using the device's functions. This way any potential attacks and data leaks data are prevented. This can have a denial of service effect against users, but is deemed a necessary compromise.
+A PKCS\#11 API was developed to access the device's features and increase device interoperability.
+For users, an easy-to-use command line interface application, which calls the implemented PKCS\#11 API, was implemented.
 
 % -----------------------------------------------------
 % -----------------------------------------------------
 \section*{Summary}\label{chap:evaluation:summary}
 
-In this chapter the implemented system performance was thoroughly tested. Starting with the communication channel performance, following will all the smartfusion2 security cores and implemented services. All the services' performance tests were isolated from the communications channel performance. Performance models which accurately represent each service performance were calculated and presented. All the models allows anyone using these device to precisely predict a custom service performance, implemented on the board. The different parts can be separately studied and replaced if needed, such as, communications, service processing and initial call time. This chapter therefore provides a robust study of the smartfusion2 board, its services characteristics, performance, as well as possible services to be implemented, potential trade offs and efficiency concerns.
+In this chapter the implemented system performance was thoroughly tested. Starting with the communication channel performance, following will all the smartfusion2 security cores and implemented services. All the services' performance tests were isolated from the communications channel performance. Performance models which accurately represent each service performance were calculated and presented. All the models allows anyone using these device to precisely predict a custom service performance, implemented on the board. The different parts can be separately studied and replaced if needed, such as, communications, service processing and initial call time. This chapter therefore provides a robust study of the smartfusion2 board, its services characteristics, performance, as well as possible services to implement, feature trade offs and efficiency concerns.
