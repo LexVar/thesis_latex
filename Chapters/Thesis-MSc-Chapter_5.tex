@@ -35,6 +35,8 @@ This setup allows the board to send and receive messages of 16 byte blocks at a 
 
 The services were implemented using the smartfusion security cores: SRAM-PUF, AES, HMAC, SHA, ECC, TRNG and tamper detection.
 All these services are accessed through the developed PKCS\#11 API. Its communication protocol is detailed in section \ref{chap:arch:services}.
+% RAM
+The eSRAM 64 KB is reserved for code. For each byte of RAM, there are 2 bits for error detection and correction, a total of 16 KB. This feature mitigates \ac{SEU}. It corrects 1 bit errors and detects up to 2 bit errors. If memory is essential for more application code or buffers, the board can be configured with this setting disabled in Libero. This frees the additional 16 KB of memory for RAM, totaling 80 KB.
 
 % -----------------------------------------------------
 \subsection{Login}\label{chap:implementation:services:authentication}
