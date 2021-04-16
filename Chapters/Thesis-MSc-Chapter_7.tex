@@ -8,9 +8,6 @@
 % The following line allows to ref this chapter
 \label{chap:conclusion}
 
-% -----------------------------------------------------
-% -----------------------------------------------------
-% \section{Summary} \label{chap:conclusion:summary}
 This work focused on evaluating the security features of the Microsemi smartfusion2 board, modeling its performance, and developing a prototype to secure communications between devices.
 The system provides a varied array of security services using symmetric keys, AES with 128 and 256 bit key encryption, SHA-256, HMAC authentication with 256 bit SHA and a SHA based key derivation function. For asymmetric cryptography it offers ECDH for key generation, and additional ECC primitives, with the P-384 NIST defined curve, which can be used to implement digital signatures. Lastly, a true random number generator, a PUF based secure storage solution, tamper detection capabilities with several flags, and a zeroization feature with multiple recoverabity options.
 The prototype focused on the implementation of a service which provides authentication and encryption, using symmetric keys. The system is able to encrypt up to 36 KB of data using the AES and HMAC cores, with adequate 256 bit security. This limitation is imposed, due to the limited 80 KB of RAM, without error correction and detection, and the absence of support for continuous AES encryption and MAC generation. This hurdle was overcome by using an HMAC software implementation, and taking advantage of AES CBC mode, which uses the last ciphertext block as the IV for the next block. With this changes, a continuous authenticated encryption service was developed. The optimal buffer size, maximizing the available RAM space and service speed was studied, and its conclusions presented.
@@ -24,4 +21,5 @@ This work contributes with an extensive characterization of the smartfusion2 dev
 % -----------------------------------------------------
 \section{Future Work} \label{chap:conclusion:future-work}
 
-% Secure the communication channel the information is sent through.
+There are several avenues one could go to improve and build on this work, depending on the objectives. For fully working digital signatures, a lightweight big integer library, with all arithmetic operations in the \ac{ECDSA} algorithm is needed. It should support 48 byte integers, and have a maximum memory footprint of around 50 KB, to fit in the 80 KB of RAM with error detection and correction disabled, while keeping the secure communication and key management services enabled.
+Another avenue is to test, using the secure communications service, an encrypted connection between two similar devices, running the existing prototype. Two users would trade information by communicating with the device, which would act as proxies, establishing an encrypted TCP connection between them. This connection could be improved by replacing the encrypted TCP connection with a TLS implementation, using internal symmetric keys.
