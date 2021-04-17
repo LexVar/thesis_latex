@@ -8,12 +8,12 @@
 % The following line allows to ref this chapter
 \label{chap:intro}
 
-In the modern world, most people have access to a computer, involved in many everyday tasks, such as, web browsing, communications, social networks, news, entertainment, among many others.
+In the modern world, most people have access to a computer, for their everyday tasks such as, web browsing, chatting, social networks, news, entertainment, among many others.
 There is no limit to what you can achieve with the Internet, using just a computer.
 For this reason, computers have a wide range of attacks potentially exploitable by hackers, by taking advantage of software vulnerabilities or user mistakes.
-This is of great concern to people with high responsibilities from their jobs, who deal with sensitive information, such as, government officials, top level company executives and diplomats.
-Suffering an attack to a personal computer can be highly damaging as it can carry severe consequences for companies and countries.
-In addition, high profile officials who deal with sensitive information are more likely to be targeted by attackers.
+This is of great concern to people with high responsibilities, who may deal with sensitive information, such as, government officials, military or top level company executives.
+Suffering an attack on a personal computer can be highly damaging, as it can carry severe consequences for companies and countries.
+These people have a higher profile, and are more likely to be targeted by hackers.
 % Introduce concrete example of hack
 
 % -----------------------------------------------------
@@ -21,28 +21,28 @@ In addition, high profile officials who deal with sensitive information are more
 \section{Problem}\label{chap:intro:problem}
 
 New attacks, targeting computers, are discovered daily.
-They can come from zero-day vulnerabilities, phishing scams and many others, the opportunities are endless. It is impossible to predict and protect against all.
-Communications security, depends on the cryptography keys and passwords used. These are usually stored, along with other sensitive information, in the user's computer.
-Instead of storing the data in the computer, a more optimal solution, meaning, harder to compromise the security of communications, is to separate the platform used by the user for communications (their computer), and the device responsible for managing, securing communications and storing sensitive data.
-The goal is to add another layer of security, to make it difficult to compromise security even if the user's computer is compromised.
-A secure and independent solution is needed to establish secure channels of communication, store keys and perform critical operations, even if the computer might be compromised.
-A possible approach is the utilization of a personal physical device that is responsible for storing digital keys and perform critical operations.
-These devices need to be highly secure and independent from the user's personal computer.
+They can originate from zero-day vulnerabilities, phishing scams and many other sources. Attackers have endless opportunities, so it is extremely difficult to predict and protect against all threats.
+Communications security depends on the cryptography keys and passwords used. These are usually stored, along with other sensitive information, in the user's computer.
+Instead of storing this data in the computer, a more hardened and secure solution is to separate the platform used by the user for communications, their computer, and the device responsible for managing it. This management device would bear the burden of securing communications and storing its sensitive data.
+The goal is to add another layer of security, to make it difficult to compromise security, even if the user's computer is compromised.
+A secure and independent solution is needed to establish secure channels of communication, store keys and perform critical operations.%even if the computer might be compromised.
+A possible approach is the utilization of a personal and physical device, responsible for the storage of digital keys and all security critical operations.
+These devices need to be highly secure, independent and support a robust set of security services. %and independent from the user's personal computer.
 
 % -----------------------------------------------------
 % -----------------------------------------------------
 \section{Requirements}\label{chap:intro:requirements}
 
-In order to address the problem and using the discussed approach, the implemented solution will have several requirements, to allow secure communications between multiple entities.
-It should perform all critical operations to the security of the communications, as well as, store all relevant secrets to the security of the interactions.
-A design requirement of the system is it should be easily usable to the regular user, with no technological expertise. The system must be efficient and low-cost, as so it is more easily accessible and scalable by interested users.
+In order to address the problem, using the discussed approach, the implemented solution has several requirements, to allow secure communications between multiple entities, with these physical devices.
+It should perform all critical operations to the security of communications, as well as, store all relevant data to its security.
+A design requirement of the system is it should be easy-to-use for the average user, with no technological expertise. The system must be efficient and low-cost, as so it is more easily available and distributable among all users.
 
 % -----------------------------------------------------
 % -----------------------------------------------------
 \section{Document Structure}\label{chap:intro:doc}
 
-This first chapter introduces the context, the problem and basic requirements of the system.
+% This first chapter introduces the context, the problem and basic requirements of the system.
 The second chapter will cover the technical background needed to comprehend the solution and state of the art.
-The third chapter goes into detail about the problem, its entities, devices, extensive requirements, and possible use case scenarios.
-The fourth chapter covers the architecture of the solution, including its components, communication protocol and services.
-The fifth chapter presents the implementation details more specific to the hardware device, namely, the used tools, implemented services and system trade offs. The sixth chapter evaluates the system's performance, capabilities and fulfilled requirements. The last summarizes the work and developed system, and provides guidelines for future work.
+The third chapter defines the existing problem, its entities, devices, the necessary requirements for the solution, and possible use case scenarios.
+The fourth chapter covers the developed solution architecture, including its components, communication protocol and services.
+The fifth chapter presents the implementation details more specific to the hardware device. This includes, the tools used, the implemented services, system details and potential feature trade offs. The sixth chapter evaluates the system's performance, capabilities and fulfilled requirements. The last chapter summarizes the developed prototype, evaluation, and provides guidelines for future work.
