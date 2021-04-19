@@ -104,16 +104,16 @@ Upon receiving the secure message from Alice, Bob sends it to the device, and re
 This service must prevent any third party from gaining access to the data, or altering the message. The receiver can be confident of the data's origin. It could not have been sent by any malicious entity.
 
 %% INITIAL STATE, FABRIC CONFIGURATION %%
-%% COMMUNICATION CHANNELS LIMIT %%
 Each entity, upon ordering the device, should be able to specify which entities it wants to communicate with.
 For example, Alice can request a device which enables two separate communication channels with Bob and Charlie, separately. Alice can also request a single channel with all three entities. In this case, only one shared key is required for all.
 Before devices are delivered, the keys will be generated and stored in the necessary device. When all involved entities receive their device, they can begin secure communications immediately.
+%% COMMUNICATION CHANNELS LIMIT %%
 The device should not have a practical limit on the amount communication channels it can establish. This means it should have a reasonable amount of key storage space, for communications with enough different entities.
 If the device's secure storage is limited, then a solution using symmetric or asymmetric keys to secure all other keys on a higher capacity non-volatile memory.
 This gives entities the flexibility needed to communicate with the number of entities they choose.
 
 %% QUALIFIED DIGITAL SIGNATURES %%
-Another possible use case scenario is the inclusion of a pair of asymmetric keys, generated inside each device, and never exposed to the outside. This allows the generation of qualified \textbf{digital signatures}, which can legally represent the entity.
+Another possible use case scenario is the inclusion of a pair of asymmetric keys, generated inside each device, and never exposed to the outside. This allows the generation of qualified digital signatures, which can legally represent the entity.
 Then, when a user wishes to generate a signature for a piece of data, he must send the data to the device, which computes and returns the qualified signature.
 % Each device has a pair of asymmetric keys stored in secure storage, generated inside the device from fabric. These keys allow the storage of a practically unlimited number of symmetric keys in non-volatile memory.
 % This feature is useful in other situations. There are cases where existing symmetric keys might need to be revoked, due to suspicion of being compromised, with new ones generated and shared.
@@ -125,9 +125,9 @@ Then, when a user wishes to generate a signature for a piece of data, he must se
 \subsection{New Communications}\label{chap:problem:scenarios:keys}
 
 %% REASONING FOR SERVICE %%
-%% SERVICE PRESENTATION %%
 The operations described so far provide a usable and functional system to organizations and users, but it is not very flexible. It does not allow users to communicate with new entities, without returning the device to manufacturing, to be equipped with the necessary information.
 To avoid this, a service should be available to users with production devices in their possession, to securely trade data with another entity with an identical device, which the device previously could not. It should be easy to provide the functionality without burdening the user with additional responsibility.
+%% SERVICE PRESENTATION %%
 A possible solution is the inclusion of a control station, where entities originally collect their devices. Each device is delivered with its own communication channel with the control station. This station is effectively treated as a special entity.
 Whenever users wish to communicate with another user, they can send a list of entities they intend to communicate with to the station, secured with the data exchange service. The control station subsequently supplies the user with the necessary information, to be imported in their device.
 
@@ -139,10 +139,10 @@ Whenever users wish to communicate with another user, they can send a list of en
 \end{figure}
 
 %% USAGE EXAMPLE %%
-%% ADVANTAGES / POSSIBILITIES %%
 A use case scenario of this service is depicted in figure \ref{fig:user:import-service}.
 Alice forwards the list with the names of entities to the control station, which returns the key list to Alice. The list can be forwarded to the device, where the new keys are stored.
 Alice can then start communications with Bob and Charlie, using the secure data exchange service, as soon as everyone imports the list into their respective devices.
+%% ADVANTAGES / POSSIBILITIES %%
 The service offers the possibility of setting up a regular communication update schedule. It grants the flexibility of key revocation when needed, data exchange with new entities, as well as updating communication keys, which have reached their expiration date, with no additional complexity to the user.
 A regular update schedule, adds longevity to the system. It avoids overuse, and reduces the possibility of compromised connections. When keys reach the expiration date, new ones can be distributed.
 A less cumbersome possibility for the user, is whenever an entity is added to system and receives their device, the station delivers a message to each entity, with the updated key list. The list can be imported by each user if needed.
