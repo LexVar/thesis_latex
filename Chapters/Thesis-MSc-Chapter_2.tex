@@ -196,9 +196,9 @@ Smart Cards are a type of \ac{HSM}, credit card-sized with an embedded microchip
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \subsection*{Smartfusion2 SoC}\label{chap:background:computing:smartfusion}
-% The SmartFusion2 \ac{SoC} from Microsemi delivers more resources in low-density devices with the lowest power, proven security, and exceptional reliability~\cite{smartfusion2soc}.
-The Smartfusion2 \ac{SoC} integrates a non-volatile \ac{FPGA} with a \ac{SoC} and an internal \ac{NVM} of 512 KB for storing Phase 0 boot code.
-Since they are non-volatile, the bitstream is at a lower risk of being probed during boot~\cite{parrinha2017flexible}. It has a \ac{SRAM} with 64 KB protected against \ac{SEU} or 80 KB unprotected. Smartfusion2 has an embedded ARM Cortex-M3 processor and a \ac{TRNG}, which provides a quality source of entropy, a critical part of most cryptographic algorithms. It supports multiple cryptographic functions: \ac{AES}, \ac{SHA}-256, \ac{HMAC} and \ac{ECC}, among others.
+
+The SmartFusion2 \ac{SoC} integrates a non-volatile \ac{FPGA} with a \ac{SoC} and an internal \ac{NVM} of 512 KB, for storing boot code.
+It has a \ac{SRAM} with 64 KB protected against \ac{SEU} or 80 KB unprotected. SmartFusion2 has an embedded ARM Cortex-M3 processor and a \ac{TRNG}, which provides a quality source of entropy, a critical part of most cryptographic algorithms. It supports multiple cryptographic functions: \ac{AES}, \ac{SHA}-256, \ac{HMAC} and \ac{ECC}, among others.
 The \ac{AES} system service supports encryption with 128 bit and 256 bit keys, and ECB, CBC, OFB and CTR modes.
 It provides a \ac{SHA}-256 hashing service, and a \ac{HMAC} service using the same \ac{SHA}-256 function.
 The KeyTree service provides access to a SHA-256 based key-tree cryptography algorithm. Notably it can be used to generate a message authentication code from a hash input and key, as a key derivation function from a root key and a salt or in challenge-response protocols.
@@ -216,7 +216,7 @@ The eNVM is a tamper-resistant nonvolatile memory. It has a size of 512KB, with 
 It has a limited number of write cycles. For a predicted life span of 20 years, there is a limit of 1000 writes per page of 128 bytes \cite{smartfusionDatasheet}. For a smaller life span of 10 years it has a limit of 10000 cycles per page.
 
 The side-channel \ac{DPA} is an advanced power analysis technique, to compute values from statistical analysis of multiple cryptographic operations \cite{kocher1999differential}.
-Not all services in the smartfusion2 board are \ac{DPA}-resistant. ECC point multiplication, \ac{NRBG}, SRAM-PUF and KeyTree have strong resistance measures.
+Not all services in the SmartFusion2 board are \ac{DPA}-resistant. ECC point multiplication, \ac{NRBG}, SRAM-PUF and KeyTree have strong resistance measures.
 On the other hand, AES, SHA-256 and HMAC accelerators have very light countermeasures, and are not considered safe to use repeatedly with the same keys, or in situations where the adversary may be able to choose the ciphertext.
 For the non \ac{DPA}-resistant services, there is a danger of key extraction if the same key is used repeatedly.
 Although to setup this type of attack, physical access to the device is needed with an oscilloscope to measure the voltage \cite{dpaKocher2011}. Even then, the device has tamper detection mechanisms so its services can be blocked, or the device is completely reset and all sensitive information is deleted.
@@ -226,36 +226,37 @@ This service is called zeroization, and can be called from the implemented appli
 % Tamper detection mechanisms are available so the user can block operations or completely reset the device with zeroization.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\subsubsection*{Secure boot}
-Not validating code before its execution leads to potentially executing untrusted code. This causes problems such as hackers inserting malware to hijack systems, download intellectual property, spy on users or perform any number of attacks.
-Most embedded processors do not validate code before it is executed. The SmartFusion2 \ac{SoC} solves this problem by using a non-volatile memory (eNVM) to store boot code which can be write protected. Another reason is it authenticates each stage of the boot process to create a chain-of-trust.
-Other systems also implement solutions to secure boot code. Infineon secures the boot process for ARM platforms by incorporating a \ac{TPM}, compliant with version 1.2, into the processor. The \ac{TPM} operates as a root of trust to certify the platform's integrity and correct system state. This prevents tampered kernels and fault attacks.
-Texas Instruments Sitara processors allows the customer to specify a public key as a root of trust to be fused into the device. This key is used to authenticate other keys that can be used to authenticate software components.
+\subsection*{Secure boot}
+
+Boot code should be validated before its execution leads to potentially executing untrusted code. This can cause problems such as malware insertion, download of intellectual property or user spying.
+Most embedded processors do not validate code before it is executed. The SmartFusion2 \ac{SoC} solves this problem by using a non-volatile memory (eNVM) to store boot code, which is write protected. It authenticates each stage of the boot process, to create a chain-of-trust.
+Other systems also implement solutions to secure boot code. Infineon secures the boot process for ARM platforms by incorporating a \ac{TPM} into the processor. The \ac{TPM} operates as a root of trust, to certify the platform's integrity and correct system state. This prevents tampered kernels and fault attacks.
+Texas Instruments Sitara processors allows the customer to specify a public key as a root of trust, into the device. This key is used to authenticate other keys, used to authenticate software components.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{State of the Art}\label{chap:background:art}
 
-In general, HSMs have been used for specific applications exploiting their cryptographic services, key storage and physical tampering protections.
+In general, \ac{HSM} have been used in specific context, exploiting their cryptographic services, secure storage and physical tamper protections.
 Lesjak et al. \cite{iothardware} developed a system to secure remote snapshot acquisition, between the vendor and customers, by attaching a hardware security module to the customer product. 
 The messages are protected with the authenticated-encryption scheme \ac{AES}-\ac{GCM} and a TLS connection.
-The Infineon security controller stores the TLS keys, and protects the data with the authenticated-encryption scheme using its TRNG, the diffie-hellman based ECMQV algorithm for key establishment using ECC keys. This controller also contains protections against side-channel attacks such as \ac{DPA} and physical manipulation.
-Seol et al. \cite{trustediaashsm} proposed a system to isolate critical operations and sensitive data from cloud administrators by implementing a \ac{HSM} next to a virtual machine.
-Wolf et al. \cite{wolf2011design} implemented a HSM on a 663€ Xilinx Virtex-5 FPGA to secure network communications in vehicles. The cryptographic algorithms were implemented on the FPGA by the authors, namely AES-128 bit and ECC point-multiplication with a 256 bit curve. The board was connected to a microcontroller running linux with some additional algorithms available from a cryptographic library.
-Secure coprocessors have also been used to store and manage symmetric keys for data encryption in systems which manage biomedical data \cite{canim2011biomedical}.
-% ----
-Existing HSMs capabilities and functionalities have been studied by some studies.
-Kehret et al. \cite{tlsintegration} studied two specific boards.
-VaultIC460 is a secure microcontroller manufactured by Inside Secure with a RISC CPU, it includes a varied offering of cryptographic algorithms such as: AES encryption, public-key cryptography with RSA and ECC, MAC, SHA, SSL support, as well as a random number generator. Additionally it includes several authentication mechanisms for users, to secure the connection between the application and device.
-It includes 112 KB of tamper resistant secure memory for key storage and a USB connection.
-ATECC508A from microsemi is a tiny security controller with asymmetric key cryptography algorithms: ECDSA and ECDH, along with SHA, a TRNG and storage of up to sixteen 256 bit keys.
-These type of controllers are not suitable for this work, it is very small and limited with only a single GPIO, and no symmetric key algorithms, preventing encryption of large amounts of data. They are designed to be added to IoT devices.
+The Infineon security controller stores the TLS keys, and protects the data with the authenticated-encryption scheme using its TRNG and the diffie-hellman based ECMQV algorithm, for key establishment using ECC keys. The controller has protections against side-channel attacks such as \ac{DPA} and physical manipulation.
+Seol et al. \cite{trustediaashsm} proposed a system to isolate critical operations and sensitive data from cloud administrators, by implementing a \ac{HSM} next to a virtual machine.
+Wolf et al. \cite{wolf2011design} implemented a HSM on a 663€ Xilinx Virtex-5 FPGA to secure network communications in vehicles. The cryptographic algorithms were implemented on the FPGA by the authors, namely, AES-128 bit and ECC point-multiplication with a 256 bit curve. The board was connected to a microcontroller running linux with some additional algorithms available from a cryptographic library.
+Secure coprocessors have also been used to store and manage symmetric keys for data encryption, in systems which manage biomedical data \cite{canim2011biomedical}.
+% -------------------------
+Existing \ac{HSM} have been studied by some authors.
+Kehret et al. \cite{tlsintegration} studied two devices. VaultIC460 is a secure microcontroller manufactured by Inside Secure with a RISC CPU. It includes a varied offering of cryptographic algorithms, such as, AES encryption, public-key cryptography with RSA and ECC, MAC, SHA, SSL support, as well as a random number generator. Additionally it includes several authentication mechanisms for users, to secure the connection between the application and device.
+It includes 112 KB of tamper resistant secure memory for key storage.
+ATECC508A from microsemi is a small security controller with the asymmetric key cryptography algorithms: ECDSA and ECDH, along with SHA, a TRNG and storage of up to sixteen 256 bit keys.
+These type of controllers are not suitable for this work. They are very limited, with no symmetric key algorithms, preventing encryption of large amounts of data. They are designed to be added to IoT devices.
 
 The survey \cite{ivarsson2010review} studies the features of four \ac{HSM} on the market, Keyper v2 by AEP, nShield Connect 6000 by Thales, Safenet Luna and Utimaco CryptoServer.
-All devices support smartcard authentication beyond the more common options of a password or PIN. The AEP and Utimaco \ac{HSM}s also have additional smartcard integration for backing up the device's internal keys.
+All devices support smartcard authentication beyond the more common options of a password or PIN. The AEP and Utimaco also have additional smartcard integration, for backing up the device's internal keys.
 All devices have tamper resistant storage, a \ac{TRNG}, as well as a varied range of supported cryptography services. Several AES encryption modes for both 128 and 256 bit keys, SHA, HMAC and public-key cryptography with RSA.
-ECC based algorithms, ECDSA and ECDH are supported by the devices from Safenet and Utimaco.
-All devices provide a PKCS\#11 interface implementation for all cryptography services. No device provides a ready-to-use application for end users. The provided API can be used to build an application adapted to their needs. The PKCS\#11 implementation does not output any unencrypted sensitive information such as keys.
+ECDSA and ECDH are supported by the devices from Safenet and Utimaco.
+All devices provide a PKCS\#11 interface implementation for all cryptography services. The provided API can be used to build an application adapted to each user's requirements. The PKCS\#11 implementation does not output any unencrypted sensitive information, such as keys.
 
-Market \ac{HSM}s go from 650€ up to \$39,000 \cite{HSMpriceArticles}, \cite{HSMPresentationPrices}.
-One of the smallest and cheapest devices, the YubiHSM 2 by Yubico \cite{YubiHSM2}, is a USB sized device for 650€. It supports the several SHA hashing algorithms, RSA, ECC algorithms: ECDSA and ECDH with several curves, a \ac{TRNG} and the \ac{AES}-\ac{CCM} authenticated encryption algorithm.
-It provides a PKCS\#11 implementation, 128KB of tamper resistant storage for keys and a protected connection between the PKCS\#11 calls and device with authentication, integrity and confidentiality.
+Market \ac{HSM} go from 650€ up to \$39,000 \cite{HSMpriceArticles}, \cite{HSMPresentationPrices}.
+One of the smallest and cheapest devices, the YubiHSM 2 by Yubico \cite{YubiHSM2}, is a USB sized device for 650€. It supports several SHA algorithms, RSA, the ECC algorithms:ECDSA and ECDH with multiple curves, a \ac{TRNG} and the \ac{AES}-\ac{CCM} authenticated encryption algorithm.
+It provides a PKCS\#11 implementation, 128KB of tamper resistant storage for keys, and an authenticated and encrypted connection between the PKCS\#11 API calls and the device.
+A M2S090TS SmartFusion2 evaluation kit is priced at 384 € \cite{smartfusionPrice}.

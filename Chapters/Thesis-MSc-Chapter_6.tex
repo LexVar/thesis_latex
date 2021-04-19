@@ -14,14 +14,14 @@ This chapter concerns the system and board's services evaluation. The system and
 \section{Performance Tests}\label{chap:evaluation:performance}
 
 The test objectives, configuration, results and conclusions are detailed for every tested component.
-The communication channel, smartfusion2 board's security services and implemented services were tested.
+The communication channel, SmartFusion2 board's security services and implemented services were tested.
 Two performance metrics were utilized, the test processing time, and the tested component's throughput.
 
 % -----------------------------------------------------
 \subsection{Testing configuration}\label{chap:evaluation:performance:config}
 
-The tests were all performed on a Windows 10 computer, connected to the smartfusion2 device through a \ac{UART} serial port. The implemented PKCS\#11 program interface was used to run the tests.
-Two programs were running on the computer while performing the tests, the PKCS\#11 application and the SoftConsole \ac{IDE} to run the code on the smartfusion board.
+The tests were all performed on a Windows 10 computer, connected to the SmartFusion2 device through a \ac{UART} serial port. The implemented PKCS\#11 program interface was used to run the tests.
+Two programs were running on the computer while performing the tests, the PKCS\#11 application and the SoftConsole \ac{IDE} to run the code on the board.
 For all tests, the serial port UART connection was configured with a 115200 bit/s baud rate.%, 8 data bits, no parity bits and one stop bit.
 Since the board does not provide a clock and \ac{API} to measure elapsed time, the time has to be measured on the computer's side.
 The elapsed time was measured using the function \texttt{gettimeofday()} available in the C library \texttt{sys/time.h}.
@@ -74,9 +74,9 @@ We can conclude the practical throughput is close to the theoretical, and as exp
 
 % -----------------------------------------------------
 % -----------------------------------------------------
-\subsection{Smartfusion2 Services}\label{chap:evaluation:board}
+\subsection{SmartFusion2 Services}\label{chap:evaluation:board}
 
-All the security core accelerators of the smartfusion2 SoC were tested. This includes the \ac{TRNG}, \ac{AES}, \ac{SHA}, \ac{HMAC}, KeyTree based \ac{SHA} and \ac{ECC} scalar multiplication and point addition.
+All the security core accelerators of the SmartFusion2 SoC were tested. This includes the \ac{TRNG}, \ac{AES}, \ac{SHA}, \ac{HMAC}, KeyTree based \ac{SHA} and \ac{ECC} scalar multiplication and point addition.
 As discussed before, all services were tested using the two presented configurations. The results of the second configuration are significantly more stable and will are presented next.
 The services were tested taking into account three different time components \(T_{Total} = T_{Call} + T_{Transmittion} + T_{Service}\), with the first test configuration. The call fraction is the time it takes calling the PKCS\#11 API, before any data is transmitted or the service is executed. From the results, we concluded this component's impact on performance is negligible, since it is almost always 0.
 Predictably, the transmission time always follow the performance model studied in the previous section.
@@ -156,7 +156,7 @@ The median average percentage error for the encryption/decryption plus MAC model
 \begin{figure}[h!]
 	\centering
 	\includegraphics[width=0.7\textwidth]{./Images/services-tput.png}
-	\caption{Implemented services throughput evolution}
+	\caption{Continous encryption and decryption throughput evolution for increasing data sizes}
 	\label{fig:performance:services-tput}
 \end{figure}
 
@@ -198,8 +198,8 @@ Analysing the plot, the average throughput significantly increases from 0,1 KB u
 \section{Requirements}\label{chap:evaluation:requirements}
 
 This section evaluates the fulfilled requirements of the developed system, defined in chapter \ref{chap:problem:requirements}.
-Firstly, the chosen device smartfusion2 SoC is a portable board, with a robust set of security services.
-Compared to the existing HSMs on the market, this device is one of the cheapest. Market \ac{HSM}s go from 650€ up to \$39,000 \cite{HSMpriceArticles}, \cite{HSMPresentationPrices}. A M2S090TS smartfusion2 evaluation kit is priced at 384 € \cite{smartfusionPrice}.
+Firstly, the chosen device SmartFusion2 SoC is a portable board, with a robust set of security services.
+Compared to the existing HSMs on the market, this device is one of the cheapest. Market \ac{HSM}s go from 650€ up to \$39,000 \cite{HSMpriceArticles}, \cite{HSMPresentationPrices}. A M2S090TS SmartFusion2 evaluation kit is priced at 384 € \cite{smartfusionPrice}.
 Regarding its services, it provides encryption and authentication with \ac{AES} and \ac{HMAC}, a secure storage service for keys, SRAM-PUF, and \ac{ECC} primitives for new key generation with \ac{ECDH} and digital signature implementation with \ac{ECDSA}. It provides tamper detection capabilities and data zeroization.
 Thus, it is a relatively low cost board, which can be distributed among several individuals or groups, and has the necessary functionalities to provide authentication and confidentiality to communications.
 All implemented operations use the board's services, and keys stoed internally.
@@ -213,4 +213,4 @@ A PKCS\#11 API was developed to expose the device's features and increase device
 % -----------------------------------------------------
 \section*{Summary}\label{chap:evaluation:summary}
 
-In this chapter the implemented system performance was thoroughly tested. Starting with the communication channel performance, following will all the smartfusion2 security cores and implemented services. All the services' performance tests were isolated from the communications channel performance. Performance models which accurately represent each service performance were calculated and presented. All the models allows anyone using these device to precisely predict a custom service performance, implemented on the board. The different parts can be separately studied and replaced if needed, such as, communications, service processing and initial call time. This chapter therefore provides a robust study of the smartfusion2 board, its services characteristics, performance, as well as possible services to implement, feature trade offs and efficiency concerns.
+In this chapter the implemented system performance was thoroughly tested. Starting with the communication channel performance, following will all the SmartFusion2 security cores and implemented services. All the services' performance tests were isolated from the communications channel performance. Performance models which accurately represent each service performance were calculated and presented. All the models allows anyone using these device to precisely predict a custom service performance, implemented on the board. The different parts can be separately studied and replaced if needed, such as, communications, service processing and initial call time. This chapter therefore provides a robust study of the SmartFusion2 board, its services characteristics, performance, as well as possible services to implement, feature trade offs and efficiency concerns.

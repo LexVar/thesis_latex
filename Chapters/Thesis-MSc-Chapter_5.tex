@@ -33,7 +33,7 @@ This setup allows the board to send and receive messages of 16 byte blocks at a 
 % -----------------------------------------------------
 \section{HSM Services}\label{chap:implementation:services}
 
-The services were implemented using the smartfusion security cores: SRAM-PUF, AES, HMAC, SHA, ECC, TRNG and tamper detection.
+The services were implemented using the SmartFusion2 security cores: SRAM-PUF, AES, HMAC, SHA, ECC, TRNG and tamper detection.
 All these services are accessed through the developed PKCS\#11 API. Its communication protocol is detailed in section \ref{chap:arch:services}.
 % RAM
 The eSRAM 64 KB is reserved for code. For each byte of RAM, there are 2 bits for error detection and correction, a total of 16 KB. This feature mitigates \ac{SEU}. It corrects 1 bit errors and detects up to 2 bit errors. If memory is essential for more application code or buffers, the board can be configured with this setting disabled in Libero. This frees the additional 16 KB of memory for RAM, totaling 80 KB.
@@ -98,7 +98,7 @@ This is an extremely limited use case, and less than ideal. Future work should r
 \subsection{Key Management}\label{chap:implementation:services:key-import}
 
 This section outlines the various key management options, their strengths, weaknesses and the implemented solution. 
-As introduced in section \ref{chap:background:computing:smartfusion}, the smartfusion2 includes a secure key storage service. The PUF has 56 available key slots, each with a maximum of 512 bytes. There is a lifespan problem regarding this service. The eNVM memory, used by the service, is limited to 1000 writes for a predicted lifespan of 20 years. Thus, there is a limit on the amount and frequency, of keys saved in the slots. The service should be used carefully, restraining how often it is written to.
+As introduced in section \ref{chap:background:computing:smartfusion}, the SmartFusion2 includes a secure key storage service. The PUF has 56 available key slots, each with a maximum of 512 bytes. There is a lifespan problem regarding this service. The eNVM memory, used by the service, is limited to 1000 writes for a predicted lifespan of 20 years. Thus, there is a limit on the amount and frequency, of keys saved in the slots. The service should be used carefully, restraining how often it is written to.
 \begin{figure}[h!]
 	\centering
 	\includegraphics[width=0.7\textwidth]{./Images/key-management.png}
@@ -149,7 +149,7 @@ The full list of the implemented PKCS\#11 functions, is listed in table \ref{tab
 % -----------------------------------------------------
 \section*{Summary}\label{chap:implementation:summary}
 
-This chapter presented the implementation details, of the prototype, developed on the smartfusion2 board. It specified the libraries and tools used, all implemented services details and rationale, as well as the developed PKCS\#11 API to access these services. It focused on secure communications with authentication and confidentiality. It provided improvements on the baseline set in chapter 4, trade offs and benefits of including some software implementations. It also provided flexibility with a key management solution, using the board's services efficiently, new key generation and digital signatures using the board's public-key cryptography features. Lastly, it presented the available tamper detection options and zeroization features, providing an implementation example for both.
+This chapter presented the implementation details, of the prototype, developed on the SmartFusion2 board. It specified the libraries and tools used, all implemented services details and rationale, as well as the developed PKCS\#11 API to access these services. It focused on secure communications with authentication and confidentiality. It provided improvements on the baseline set in chapter 4, trade offs and benefits of including some software implementations. It also provided flexibility with a key management solution, using the board's services efficiently, new key generation and digital signatures using the board's public-key cryptography features. Lastly, it presented the available tamper detection options and zeroization features, providing an implementation example for both.
 
 % The user software initializes, the cryptoki application and opens the session with the device through the \texttt{C\_Initialize} and \texttt{C\_OpenSession} functions.
 % The opposite \texttt{C\_CloseSession} and \texttt{C\_Finalize} functions close the session, and terminate the application.
