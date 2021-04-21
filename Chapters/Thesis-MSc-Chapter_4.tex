@@ -9,7 +9,7 @@
 \label{chap:arch}
 
 The fundamental objective of this work is to develop a portable device,  which enables entities to establish secure channels of communication.
-A solution was developed on a portable \ac{HSM}, which secures communications between users, stores the owner's sensitive data, such as keys and documents, and performs all services critical to its security. This is an easy process for the owner, who does not need to concern himself with any setup or management, the system is accessible and ready to use when received.
+A solution was developed on a portable HSM, which secures communications between users, stores the owner's sensitive data, such as keys and documents, and performs all services critical to its security. This is an easy process for the owner, who does not need to concern himself with any setup or management, the system is accessible and ready to use when received.
 This chapter presents an overview of the developed system, its services, the communications protocol and use cases, unconstrained by a specific physical device.
 
 % -----------------------------------------------------
@@ -58,11 +58,11 @@ Additionally, the device is delivered with the necessary functionality and keys,
 % -----------------------------------------------------
 \subsection{Authentication}\label{chap:arch:services:auth}
 
-All users needs to be authenticated through a \ac{PIN} number, in order to access the system operations. This way, each entity with multiple users can organically handle which users are authorized to access the device, by handing out the corresponding \ac{PIN} number.
-The device comes from fabric with a default authentication \ac{PIN}, which is supplied to the owner. It can be changed at any time by an authenticated user.
-To authenticate himself to the device, the user sends the operation code, and \ac{PIN} through the software, the device then compares it to the authentication number securely stored inside it, and receives an appropriate failure or success status. Once authenticated, the session will be unlocked, and the user gains access to all services.
+All users needs to be authenticated through a PIN number, in order to access the system operations. This way, each entity with multiple users can organically handle which users are authorized to access the device, by handing out the corresponding PIN number.
+The device comes from fabric with a default authentication PIN, which is supplied to the owner. It can be changed at any time by an authenticated user.
+To authenticate himself to the device, the user sends the operation code, and PIN through the software, the device then compares it to the authentication number securely stored inside it, and receives an appropriate failure or success status. Once authenticated, the session will be unlocked, and the user gains access to all services.
 Figure~\ref{fig:protocol:login} depicts the login protocol.
-The protocol to change the authentication \ac{PIN} is exactly the same as the login, with the exception that the supplied \ac{PIN} is the new \ac{PIN}, which will overwrite the current. The user will receive an error status if it is not logged in.
+The protocol to change the authentication PIN is exactly the same as the login, with the exception that the supplied PIN is the new PIN, which will overwrite the current. The user will receive an error status if it is not logged in.
 
 \begin{figure}[h!]
 	\centering
@@ -86,13 +86,13 @@ The communication protocol, between the device and computer application, is illu
 The first transmission is started by the user, by sending the operation code and key ID, which identifies the internal symmetric key used to encrypt and authenticate.
 The device returns a status message. If the key ID was invalid or the user is not authenticated, it is an error.
 In the second transmission, the user application sends the data length, followed by the data to be encrypted and authenticated internally.
-Afterwards, the device starts the encryption process and \ac{MAC} generation. When finished, the devices outputs the result length and result data. If there is a processing error, the result length is 0.
-The protocol for decryption and encryption is identical. The only difference is in the transmitted data. For the encryption service, the device receives the plaintext data and returns a message with the generated \ac{MAC}, \ac{IV} and encrypted data. For decryption, the device receives the \ac{MAC}, \ac{IV}, ciphertext, and returns the original plaintext.
+Afterwards, the device starts the encryption process and MAC generation. When finished, the devices outputs the result length and result data. If there is a processing error, the result length is 0.
+The protocol for decryption and encryption is identical. The only difference is in the transmitted data. For the encryption service, the device receives the plaintext data and returns a message with the generated MAC, IV and encrypted data. For decryption, the device receives the MAC, IV, ciphertext, and returns the original plaintext.
 
 The encryption service protocol is pictured in \ref{eq:encrypt-mac}.
-First, the plaintext data is encrypted with symmetric encryption and a randomly generated \ac{IV}. Next a \ac{MAC} is generated from the concatenated \ac{IV} and ciphertext.
+First, the plaintext data is encrypted with symmetric encryption and a randomly generated IV. Next a MAC is generated from the concatenated IV and ciphertext.
 The decryption service is depicted in \ref{eq:decrypt-mac}.
-A new \ac{MAC} is generated from the received \ac{IV} and ciphertext. Then the received and computed MACs are compared. If identical, the data is authenticated, and the ciphertext is decrypted with the same internal symmetric key used for encryption and the received \ac{IV}, to obtain the plaintext.
+A new MAC is generated from the received IV and ciphertext. Then the received and computed MACs are compared. If identical, the data is authenticated, and the ciphertext is decrypted with the same internal symmetric key used for encryption and the received IV, to obtain the plaintext.
 
 \begin{equation}
 	\label{eq:encrypt-mac}
@@ -106,35 +106,35 @@ A new \ac{MAC} is generated from the received \ac{IV} and ciphertext. Then the r
 
 
 % ----------------------------------
-% \subsection{Qualified Digital Signatures}\label{chap:arch:services:signatures}
+\subsection{Qualified Digital Signatures}\label{chap:arch:services:signatures}
 
-% The system offers qualified digital signatures, which provide non-repudiation to a piece of data, using an internal private key, imported in the device from fabric.
-% The communication protocol for signature generation and verification are presented in figures~\ref{fig:protocol:signature-generate} and \ref{fig:protocol:signature-verify}.
+The system offers qualified digital signatures, which provide non-repudiation to a piece of data, using an internal private key, imported in the device from fabric.
+The communication protocol for signature generation and verification are presented in figures~\ref{fig:protocol:signature-generate} and \ref{fig:protocol:signature-verify}.
 
-% \begin{figure}[h!]
-%         \centering     %%% not \center
-%         \subfigure[Generation]{\label{fig:protocol:signature-generate}\includegraphics[width=79mm]{Images/signature-generate.png}}
-%         \subfigure[Verification]{\label{fig:protocol:signature-verify}\includegraphics[width=79mm]{Images/signature-verify.png}}
-%         \caption{Communication protocol for generating digital signatures and verifying the signatures using the internal HSM asymmetric key pair}
-% \end{figure}
+\begin{figure}[h!]
+	\centering     %%% not \center
+	\subfigure[Generation]{\label{fig:protocol:signature-generate}\includegraphics[width=79mm]{Images/signature-generate.png}}
+	\subfigure[Verification]{\label{fig:protocol:signature-verify}\includegraphics[width=79mm]{Images/signature-verify.png}}
+	\caption{Communication protocol for generating digital signatures and verifying the signatures using the internal HSM asymmetric key pair}
+\end{figure}
 
-% The user application sends the operation code, data length and data to be signed.
-% The qualified digital signature will be generated using the internal private key and data. Afterwards the device responds with the signature length and generated signature.
-% The device generates the signature with the device's private \ac{ECC} key, an implementation of the \ac{ECDSA} algorithm and the \ac{SHA}-256 hash function according to the equation \ref{eq:signature-generate}.
+The user application sends the operation code, data length and data to be signed.
+The qualified digital signature will be generated using the internal private key and data. Afterwards the device responds with the signature length and generated signature.
+The device generates the signature with the device's private ECC key, an implementation of the \ac{ECDSA} algorithm and the SHA-256 hash function according to the equation \ref{eq:signature-generate}.
 
-% \begin{equation}
-%         \label{eq:signature-generate}
-%         Sign_{K}\{Hash\{Data\}\}
-% \end{equation}
+\begin{equation}
+	\label{eq:signature-generate}
+	Sign_{K}\{Hash\{Data\}\}
+\end{equation}
 
-% To verify a signatures, the user sends the operation code, signature length and generated signature, as well as the data length and data from which the signature was generated. The last piece of information sent is the public key of the device, where the signature was generated.
-% After verifying the signature, the device responds with the operation status.
-% The data is verified using the same hash function, \ac{ECDSA} algorithm, and the signers' public key, as detailed in \ref{eq:signature-verify}.
+To verify a signatures, the user sends the operation code, signature length and generated signature, as well as the data length and data from which the signature was generated. The last piece of information sent is the public key of the device, where the signature was generated.
+After verifying the signature, the device responds with the operation status.
+The data is verified using the same hash function, ECDSA algorithm, and the signers' public key, as detailed in \ref{eq:signature-verify}.
 
-% \begin{equation}
-%         \label{eq:signature-verify}
-%         \{Signature\} == Verify_{K_{-1}}\{Hash\{Data\}\}
-% \end{equation}
+\begin{equation}
+	\label{eq:signature-verify}
+	\{Signature\} == Verify_{K_{-1}}\{Hash\{Data\}\}
+\end{equation}
 
 % -----------------------------------------------------
 \subsection{New Communications}\label{chap:arch:services:new-comms}
@@ -144,7 +144,7 @@ The device can also import a new set of keys, provided by the control station.
 This way, already established channels of communication can be updated on a regular time schedule.
 When a user wants to communicate with a new entity, the system provides two convenient solutions.
 Both options allows establishing connections with new entities when needed, by way of trusted third party: a control station. 
-The user can securely contact the control station at any time to request the public key of the other entity, through the secure data exchange service, equivalent to communicating with any other entity. The control station effectively acts as a \ac{PKI}.
+The user can securely contact the control station at any time to request the public key of the other entity, through the secure data exchange service, equivalent to communicating with any other entity. The control station effectively acts as a PKI.
 Then, the user sends the information through the computer application to the device. The new key is generated in the device and made available right away. Then data can be exchanged with the new entity, which must also request the control station for the analogous entity's public key.
 
 The system can also be setup with a regular communication update schedule. It grants the flexibility of key revocation when needed, data exchange with new entities, as well as updating symmetric keys, with no additional complexity to the user, to always safeguard the security of communications.
@@ -166,7 +166,7 @@ The protocol to generate a shared symmetric key with another entity, using asymm
 
 % The user forwards the operation code, public key and salt value to the device.
 The user forwards to the device, the operation code and the public information from the central station: the foreign entity's public key and an additional public salt component.
-The generation process in \ref{eq:ecdh-kdf} is thus: first, a secret is computed with the \ac{ECDH} algorithm, using the device's private key and the received public key. The secret is run through a key derivation function with the salt value, to obtain a new symmetric key.
+The generation process in \ref{eq:ecdh-kdf} is thus: first, a secret is computed with the ECDH algorithm, using the device's private key and the received public key. The secret is run through a key derivation function with the salt value, to obtain a new symmetric key.
 
 \begin{equation}
 	\label{eq:ecdh-kdf}
@@ -193,8 +193,8 @@ The protocol for the service is pictured in figure \ref{fig:protocol:import-keys
 
 The only transmission consists of sending the operation code, key set length and key data. Then, the device decrypts and authenticates the keys using a predefined symmetric key, stored in the device. The protocol used is the same for secure data exchange, described in an earlier section.
 Each key data section consists of 1 byte for its ID, 1 byte for its size and remaining bytes for the actual key data.
-The decrypted list of keys is encrypted and authenticated again, with a dedicated symmetric key for memory storage. The ciphertext, randomly generated IV and ciphertext length are stored in memory. To provide authentication and thus protection against tampering, a \ac{MAC} is generated from the three pieces of data and stored in secure storage, separate from the keys and IV.
-In order to fetch a stored symmetric key, the \ac{MAC} is generated from the key data in memory, and compared to the original. If identical, the keys can be decrypted and a specific key identified through its ID.
+The decrypted list of keys is encrypted and authenticated again, with a dedicated symmetric key for memory storage. The ciphertext, randomly generated IV and ciphertext length are stored in memory. To provide authentication and thus protection against tampering, a MAC is generated from the three pieces of data and stored in secure storage, separate from the keys and IV.
+In order to fetch a stored symmetric key, the MAC is generated from the key data in memory, and compared to the original. If identical, the keys can be decrypted and a specific key identified through its ID.
 
 % When a symmetric key is revocated, due to reaching its expiration date, or from being compromised, entities can generate a new one, using the aforementioned procedure, with an additional parameter for the key derivation function, to generate a completely new and unique key.
 % Import
