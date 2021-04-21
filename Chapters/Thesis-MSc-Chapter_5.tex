@@ -14,15 +14,15 @@ It covers the implementation details, namely the standards and libraries, the de
 % -----------------------------------------------------
 \section{Libraries and Tools}\label{chap:implementation:tools}
 
-The device's implementation is running on the \ac{SoC} of a SmartFusion2 board, version M2S090TS from Microsemi, with the features presented in section~\ref{chap:background:computing:smartfusion}.
-The application was implemented using the C programming language, with the SoftConsole version 3.4 \ac{IDE} and the drivers to access the board's functionalities, provided by Microsemi. The board was configured using Libero version 12.2.
-The device functions as a \ac{HSM}, connected through a \ac{USB} connection to a computer. It was programmed using the external FlashPro4 programmer, required to develop and debug embedded applications with the SoftConsole IDE \cite{smartfusionSecurityPractices}.
-An API, to access the device's services, was implemented using the \ac{PKCS}\#11 standard, in order to standardize the accessibility of its services to other systems. The developed user application has a simple \ac{CLI} interface, which invokes the PKCS\#11 functions. Both this software and the API were implemented in C++, for the open source MinGW compiler for Windows 10.
-The computer running the user software, and the smartfusion board running the HSM code, are connected through a \ac{USB} connection.
+The device's implementation is running on the SoC of a SmartFusion2 board, version M2S090TS from Microsemi, with the features presented in section~\ref{chap:background:computing:smartfusion}.
+The application was implemented using the C programming language, with the SoftConsole version 3.4 IDE and the drivers to access the board's functionalities, provided by Microsemi. The board was configured using Libero version 12.2.
+The device functions as a HSM, connected through a USB connection to a computer. It was programmed using the external FlashPro4 programmer, required to develop and debug embedded applications with the SoftConsole IDE \cite{smartfusionSecurityPractices}.
+An API, to access the device's services, was implemented using the PKCS\#11 standard, in order to standardize the accessibility of its services to other systems. The developed user application has a simple \ac{CLI} interface, which invokes the PKCS\#11 functions. Both this software and the API were implemented in C++, for the open source MinGW compiler for Windows 10.
+The computer running the user software, and the smartfusion board running the HSM code, are connected through a USB connection.
 The device implementation uses the available \ac{UART} communication controller and corresponding drivers for communications, while the user application uses the windows drivers to communicate with serial ports.
 This setup allows the board to send and receive messages of 16 byte blocks at a time.
 % Mbedtls consideration
-% It is an adequate device due to several components such as the required cryptographic functions in its system controller, a \ac{TRNG} essential for cryptography, secure storage for keys and anti-tampering protections.
+% It is an adequate device due to several components such as the required cryptographic functions in its system controller, a TRNG essential for cryptography, secure storage for keys and anti-tampering protections.
 % The inclusion of a cryptography library, such as Mbedtls, designed for embedded systems was considered. The library provides algorithm implementations: ECDH, ECDSA, AES encryption and HMAC. The library can be integrated with the boards functionalities and have unnecessary features disabled to lower the used memory.
 % Ultimately, the security services offered by the device provide the necessary functionality to fulfill the requirements defined previously, with the exception of generating the device's certificate, but this was done by exporting the public key, generating the certificate and loading the certificate on the device.
 % Beyond increasing the memory footprint, the library does not offer significant performance benefits, or security measures against side-channel attacks similar to the one's offered by the device's services.
@@ -36,7 +36,7 @@ This setup allows the board to send and receive messages of 16 byte blocks at a 
 The services were implemented using the SmartFusion2 cores: SRAM-PUF, AES, HMAC, SHA, ECC, TRNG and tamper detection.
 All the implemented services are accessed through the developed PKCS\#11 API. Its communication protocol is detailed in section \ref{chap:arch:services}.
 % RAM
-By default, the eSRAM is 64 KB for running code. For each byte of RAM, there are 2 bits for error detection and correction, a total of 16 KB. This feature mitigates \ac{SEU}. It corrects 1 bit errors and detects up to 2 bit errors. If memory is essential for more application code, the board can be configured with this setting disabled in Libero. This frees the additional 16 KB of memory for RAM, for a total of 80 KB.
+By default, the eSRAM is 64 KB for running code. For each byte of \ac{RAM}, there are 2 bits for error detection and correction, a total of 16 KB. This feature mitigates SEU. It corrects 1 bit errors and detects up to 2 bit errors. If memory is essential for more application code, the board can be configured with this setting disabled in Libero. This frees the additional 16 KB of memory for RAM, for a total of 80 KB.
 
 % -----------------------------------------------------
 \subsection{Login}\label{chap:implementation:services:authentication}
@@ -48,17 +48,17 @@ If the user is authenticated, the PIN can be changed by overwriting the existing
 \subsection{Secure Communications}\label{chap:implementation:services:secure}
 
 The goal of this service is to provide authentication and confidentiality to data.
-As previously mentioned, the security of \ac{AES}-\ac{GCM} in hardware is considered to be unsurpassed by any other \ac{AES} authenticated-encryption scheme~\cite{aesmodes}.
+As previously mentioned, the security of AES-GCM in hardware is considered to be unsurpassed by any other AES authenticated-encryption scheme~\cite{aesmodes}.
 Unfortunately, the SmartFusion2 board does not support this encryption algorithm, or any authenticated-encryption scheme. The board provides separate encryption and authentication algorithms.
-Therefore, the devised solution combines an \ac{AES} encryption mode with the authentication algorithm \ac{HMAC}. Among the supported \ac{AES} modes, as concluded in chapter~\ref{chap:background}, CTR mode is the most favourable option because of its efficiency and security, without the additional complexity of implementing a padding solution to \ac{CBC}.
-For authentication, the board supports \ac{HMAC} with the \ac{SHA}-256 hash function, which uses a 256 bit symmetric key, to generate a 256 bit code. As concluded in section \ref{chap:background:crypto:mac}, it is a well-designed construction, even though it is not the most efficient.
-For combining these algorithms, studies recommend combining a secure encryption and secure \ac{MAC}, with the encrypt-then-MAC method~\cite{encryptmacorder}.
+Therefore, the devised solution combines an AES encryption mode with the authentication algorithm HMAC. Among the supported AES modes, as concluded in chapter~\ref{chap:background}, CTR mode is the most favourable option because of its efficiency and security, without the additional complexity of implementing a padding solution to CBC.
+For authentication, the board supports HMAC with the SHA-256 hash function, which uses a 256 bit symmetric key, to generate a 256 bit code. As concluded in section \ref{chap:background:crypto:mac}, it is a well-designed construction, even though it is not the most efficient.
+For combining these algorithms, studies recommend combining a secure encryption and secure MAC, with the encrypt-then-MAC method~\cite{encryptmacorder}.
 The key used for HMAC should be different from the one used in encryption, to ensure the best security practices, by not reusing the same key in different algorithms. So in practice, a key used for securing communications is split in two keys, one for encryption and one for authentication.
-When choosing key sizes, taking into account the limited storage capacity of the board, a smaller, but still secure, key size is preferred. The \ac{AES} 128 bit and 256 bit services guarantee 128 and 256 bit security respectively. HMAC with SHA-256 provides 256 bit security, with 256 bit keys. According to the \ac{NIST} recommendations~\cite{nistRecommendations}, algorithms which guarantee both 128 and 256 bit security, are expected to be secure from 2031 and beyond. If storage is extremely limited, AES with 128 bit keys is a secure and adequate option. However, with 256 bit security, the system will have a longer life expectancy, which can be convenient for not easily updatable systems.
+When choosing key sizes, taking into account the limited storage capacity of the board, a smaller, but still secure, key size is preferred. The AES 128 bit and 256 bit services guarantee 128 and 256 bit security respectively. HMAC with SHA-256 provides 256 bit security, with 256 bit keys. According to the NIST recommendations~\cite{nistRecommendations}, algorithms which guarantee both 128 and 256 bit security, are expected to be secure from 2031 and beyond. If storage is extremely limited, AES with 128 bit keys is a secure and adequate option. However, with 256 bit security, the system will have a longer life expectancy, which can be convenient for not easily updatable systems.
 With AES 128 bit, the secure data service provides 128 bit security, since it has the lowest security level compared to HMAC, which provides 256 bit. Choosing AES with 256 bit keys, provides 256 bit security to the service.
 In the developed implementation, for every communication, two 256 bit keys are used.
 
-For every new encryption operation, a unique 16 byte \ac{IV} is generated, with the \ac{TRNG} service.
+For every new encryption operation, a unique 16 byte IV is generated, with the TRNG service.
 Then, the plaintext sent by the user software is encrypted, and the MAC is generated from the ciphertext and IV. The final output of IV, ciphertext and MAC is returned to the user.
 The board was configured with its maximum of RAM, 80 KB. With all the code and drivers needed for this implementation, only around 36 KB of space for data buffers is available. Initially, two buffers of 18 KB each were used, one for the input data and one for the result. With some tests and improvements, this was improved to a single 36 KB buffer, where the initial input is stored, as well as the result while it is computed. With this implementation, the system is limited to securing 36 KB of data. The next logical upgrade, was to implement continuous cipher and authentication, where chunks of the total data are received from the user, one after the other. However, the board is not capable of continuous operations using its security cores.
 \begin{figure}[h!]
@@ -67,20 +67,20 @@ The board was configured with its maximum of RAM, 80 KB. With all the code and d
 	\caption{Communication protocol for continuous data ciphering and authentication in the HSM with internal keys}
 	\label{fig:protocol:data-exchange-chunks}
 \end{figure}
-To overcome this limitation, a solution was designed which takes advantage of the AES \ac{CBC} mode's characteristics and a lightweight implementation of continuous \ac{HMAC}. The \ac{AES} mode starts encryption with a random IV for the first block. The IV for all the subsequent blocks, is the ciphertext of the previous block. Therefore, chunks can be encrypted with this mode, using the last ciphertext block of the last chunk, as the IV for the current chunk. The continuous communications protocol is depicted in figure \ref{fig:protocol:data-exchange-chunks}. The user software sends the chunks one at a time, the HMAC calculation is updated for each block, and the result ciphertext is returned each time. When there are no more plaintext chunks to receive, the board returns the remaining ciphertext and final MAC value. The total output is composed of the initial IV, ciphertext and MAC.
+To overcome this limitation, a solution was designed which takes advantage of the AES CBC mode's characteristics and a lightweight implementation of continuous HMAC. The AES mode starts encryption with a random IV for the first block. The IV for all the subsequent blocks, is the ciphertext of the previous block. Therefore, chunks can be encrypted with this mode, using the last ciphertext block of the last chunk, as the IV for the current chunk. The continuous communications protocol is depicted in figure \ref{fig:protocol:data-exchange-chunks}. The user software sends the chunks one at a time, the HMAC calculation is updated for each block, and the result ciphertext is returned each time. When there are no more plaintext chunks to receive, the board returns the remaining ciphertext and final MAC value. The total output is composed of the initial IV, ciphertext and MAC.
 This communication approach is more flexible, compared to knowing the total data size, before receiving the chunks. It does not limit the system, if used for example in a network setting. Data can be sent to the device as it is received, and if the transmission is congested or broken, the system is not stuck waiting for the rest. The downside of this approach is the internal buffer on the HSM must be managed, which adds implementation complexity.
 As concluded previously, CBC is a secure mode, assuming a secure padding scheme is used to prevent padding oracle attacks. To avoid padding and guarantee the mode's security, ciphertext stealing was implemented.
 
-% Thus \ac{AES} with 128 bit keys is preferred, since it guarantees adequate security for the foreseeable future, and is the more conservative option.
+% Thus AES with 128 bit keys is preferred, since it guarantees adequate security for the foreseeable future, and is the more conservative option.
 % Even though the HMAC service needs a 256 bit key, a 128 bit key can be used with the upper 128 bits padded with zeros \cite{smartfusionSecurityPractices}.
 % Therefore for every communication a 256 bit key is used, the lower 128 bits for encryption and upper 128 bits for authentication.
 
 % The encryption and authentication keys, both 128 bit, are fetched from the SRAM-PUF service, using the slot (key ID) requested by the client application.
-% The returned string is either the original plaintext, or the \ac{MAC}, \ac{IV} and ciphertext, concatenated in that order.
+% The returned string is either the original plaintext, or the MAC, IV and ciphertext, concatenated in that order.
 
 % --------
 
-% The system provides a single hash algorithm, \ac{SHA}-256, which has a security strength of 128 bits.
+% The system provides a single hash algorithm, SHA-256, which has a security strength of 128 bits.
 % The \ac{HMAC}-\ac{SHA}-256 algorithm needs a 256 bit key, different from the one used with encryption, to ensure the best security practices. A 128 bit key can be used, if padded with zeros. Thus, for every communication, a 128 bit key for encryption and a 128 bit key for authentication is used. In total, a 256 bit shared secret.
 
 % The qualified digital signatures operation combines \ac{ECC} and the \ac{SHA}-256 hash algorithm, and provides 128 bit security, calculated by taking the smallest security strength value of both algorithms. For the encryption and authentication operation combining \ac{AES}-128 and \ac{HMAC}-\ac{SHA}-256, 128 bit security is provided.
@@ -88,7 +88,7 @@ As concluded previously, CBC is a secure mode, assuming a secure padding scheme 
 % -----------------
 \subsection{Digital Signatures}\label{chap:implementation:services:signatures}
 
-The board supports asymmetric cryptography using the \ac{ECC} P-384 curve, which guarantees 192 bit security. The board has three \ac{ECC} core functions, multiplication of a point with a scalar value, addition of two points on the curve and another for obtaining the curve's base point. The scalar multiplication allows the generation a public key, which is a point of 96 bytes, from the multiplication of the corresponding private key, a 48 byte scalar value, and the curve's base point. Scalar multiplication can also be used to multiply another entity's public key, with the personal private key, to generate a shared secret. This is the logic behind the \ac{ECDH} algorithm.
+The board supports asymmetric cryptography using the ECC P-384 curve, which guarantees 192 bit security. The board has three ECC core functions, multiplication of a point with a scalar value, addition of two points on the curve and another for obtaining the curve's base point. The scalar multiplication allows the generation a public key, which is a point of 96 bytes, from the multiplication of the corresponding private key, a 48 byte scalar value, and the curve's base point. Scalar multiplication can also be used to multiply another entity's public key, with the personal private key, to generate a shared secret. This is the logic behind the ECDH algorithm.
 The board is not equipped with a \ac{ECDSA} API. The algorithm can be implemented, by combining the provided ECC security cores, the SHA core, and a big numbers library, which allows operations between numbers of at least 48 bytes.
 A big numbers library was included in the implementation for this purpose. The implementation was tested, with some notable drawbacks.
 The library takes up around 54 KB of RAM space, striped of every unnecessary function and code. Thus, this functionality only works if all other implemented features are disabled, with a limited buffer for data. A continuous SHA implementation could be used, to help mitigate this limitation.
@@ -99,7 +99,7 @@ This is an extremely limited use case, and less than ideal. Future work should r
 
 The key generation service follows the protocol and guidelines defined in the previous chapter \ref{chap:arch:services:new-comms:ecdh}.
 The peer's public key is supplied by the user application, and the device's private key is fetched from a predetermined PUF slot, or from another key storage.
-For the \ac{ECDH} algorithm, the ECC scalar multiplication board accelerator is used. It multiplies a scalar value of 48 bytes, the private key, with a point of 96 bytes, the peer's public key. The result is a 96 byte point, which is effectively the shared secret.The same shared secret can be computed by the peer in their device, using their private key, and this user's public key.
+For the ECDH algorithm, the ECC scalar multiplication board accelerator is used. It multiplies a scalar value of 48 bytes, the private key, with a point of 96 bytes, the peer's public key. The result is a 96 byte point, which is effectively the shared secret.The same shared secret can be computed by the peer in their device, using their private key, and this user's public key.
 The shared secret can be used directly as the new key, or can be inputted in a key derivation function.
 The implementation derives two 256 bit keys, with the KeyTree service. It is used as a key derivation function on the shared secret, combined with a salt, which can be public.
 By applying a key derivation function with a public salt, multiple new keys can be generated from the same public key pairs, by supplying different salts. 
@@ -124,7 +124,7 @@ While this solution still uses the PUF service, its usage is more measured. When
 To complement this solution, an import operation was implemented, which receives a set of encrypted keys, decrypts them with the secure data exchange service, and overwrites the existing keys. This can be used in conjunction with a control station, which distributes the keys to users with devices. The user's can import the key set using this service.
 Each key is stored in memory accompanied by its identifier and size.
 
-As introduced in section \ref{chap:background:computing:smartfusion}, the AES, HMAC and SHA cores only have light measures against \ac{DPA}. Thus, keys should be regularly replaced, using the import keys service, to avoid attackers getting hold of enough data to break encryption keys. On the other hand, this is only possible if the attacker has physical access to the device, and does not trigger the tamper detection flags. 
+As introduced in section \ref{chap:background:computing:smartfusion}, the AES, HMAC and SHA cores only have light measures against DPA. Thus, keys should be regularly replaced, using the import keys service, to avoid attackers getting hold of enough data to break encryption keys. On the other hand, this is only possible if the attacker has physical access to the device, and does not trigger the tamper detection flags. 
 % This type of threats can be mitigated using the import keys service, to regularly replace encryption keys.
 
 % -----------------
