@@ -236,27 +236,28 @@ Texas Instruments Sitara processors allows the customer to specify a public key 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{State of the Art}\label{chap:background:art}
 
-In general, \ac{HSM} have been used in specific context, exploiting their cryptographic services, secure storage and physical tamper protections.
-Lesjak et al. \cite{iothardware} developed a system to secure remote snapshot acquisition, between the vendor and customers, by attaching a hardware security module to the customer product. 
+In general, \ac{HSM} have been used in several, specific contexts, exploiting their cryptographic services, secure storage and physical tamper protections.
+Lesjak et al. \cite{iothardware} developed a system to secure remote snapshot acquisition, between the vendor and customers, by attaching a HSM to the products distributed among customers. 
 The messages are protected with the authenticated-encryption scheme \ac{AES}-\ac{GCM} and a TLS connection.
-The Infineon security controller stores the TLS keys, and protects the data with the authenticated-encryption scheme using its TRNG and the diffie-hellman based ECMQV algorithm, for key establishment using ECC keys. The controller has protections against side-channel attacks such as \ac{DPA} and physical manipulation.
+The Infineon security controller stores the TLS keys, and protects the data with the authenticated-encryption scheme, using its TRNG and the diffie-hellman based ECMQV algorithm, for key establishment using ECC keys. The controller has protections against side-channel attacks such as \ac{DPA} and physical manipulation.
 Seol et al. \cite{trustediaashsm} proposed a system to isolate critical operations and sensitive data from cloud administrators, by implementing a \ac{HSM} next to a virtual machine.
-Wolf et al. \cite{wolf2011design} implemented a HSM on a 663€ Xilinx Virtex-5 FPGA to secure network communications in vehicles. The cryptographic algorithms were implemented on the FPGA by the authors, namely, AES-128 bit and ECC point-multiplication with a 256 bit curve. The board was connected to a microcontroller running linux with some additional algorithms available from a cryptographic library.
+Wolf et al. \cite{wolf2011design} implemented a HSM on a 663€ Xilinx Virtex-5 FPGA to secure network communications in vehicles. Cryptographic algorithms were implemented on the FPGA by the authors, namely, AES-128 bit and ECC point-multiplication with a 256 bit curve. The board was connected to a microcontroller running linux, with additional algorithms available from a cryptographic library.
 Secure coprocessors have also been used to store and manage symmetric keys for data encryption, in systems which manage biomedical data \cite{canim2011biomedical}.
+
 % -------------------------
-Existing \ac{HSM} have been studied by some authors.
+Existing \ac{HSM}s have been studied by some authors.
 Kehret et al. \cite{tlsintegration} studied two devices. VaultIC460 is a secure microcontroller manufactured by Inside Secure with a RISC CPU. It includes a varied offering of cryptographic algorithms, such as, AES encryption, public-key cryptography with RSA and ECC, MAC, SHA, SSL support, as well as a random number generator. Additionally it includes several authentication mechanisms for users, to secure the connection between the application and device.
 It includes 112 KB of tamper resistant secure memory for key storage.
-ATECC508A from microsemi is a small security controller with the asymmetric key cryptography algorithms: ECDSA and ECDH, along with SHA, a TRNG and storage of up to sixteen 256 bit keys.
-These type of controllers are not suitable for this work. They are very limited, with no symmetric key algorithms, preventing encryption of large amounts of data. They are designed to be added to IoT devices.
+ATECC508A from microsemi is a small security controller with the asymmetric key algorithms: ECDSA and ECDH, along with SHA, a TRNG and storage of up to sixteen 256 bit keys.
+These type of controllers, in general, are not suitable for this work. They are very limited, with no symmetric key algorithms, preventing encryption of large amounts of data. They are designed to be added to Internet of Things devices.
 
 The survey \cite{ivarsson2010review} studies the features of four \ac{HSM} on the market, Keyper v2 by AEP, nShield Connect 6000 by Thales, Safenet Luna and Utimaco CryptoServer.
-All devices support smartcard authentication beyond the more common options of a password or PIN. The AEP and Utimaco also have additional smartcard integration, for backing up the device's internal keys.
+All devices support authentication using smartcards, password or a PIN. The AEP and Utimaco also have additional smartcard integration, for backing up the device's internal keys.
 All devices have tamper resistant storage, a \ac{TRNG}, as well as a varied range of supported cryptography services. Several AES encryption modes for both 128 and 256 bit keys, SHA, HMAC and public-key cryptography with RSA.
 ECDSA and ECDH are supported by the devices from Safenet and Utimaco.
 All devices provide a PKCS\#11 interface implementation for all cryptography services. The provided API can be used to build an application adapted to each user's requirements. The PKCS\#11 implementation does not output any unencrypted sensitive information, such as keys.
 
 Market \ac{HSM} go from 650€ up to \$39,000 \cite{HSMpriceArticles}, \cite{HSMPresentationPrices}.
-One of the smallest and cheapest devices, the YubiHSM 2 by Yubico \cite{YubiHSM2}, is a \ac{USB} sized device for 650€. It supports several SHA algorithms, RSA, the ECC algorithms:ECDSA and ECDH with multiple curves, a \ac{TRNG} and the \ac{AES}-\ac{CCM} authenticated encryption algorithm.
-It provides a PKCS\#11 implementation, 128KB of tamper resistant storage for keys, and an authenticated and encrypted connection between the PKCS\#11 API calls and the device.
+One of the smallest and cheapest devices, the YubiHSM 2 by Yubico \cite{YubiHSM2}, is a \ac{USB} sized device for 650€. It supports several SHA algorithms, RSA, the asymmetric key ECC algorithms: ECDSA and ECDH, with multiple curves, a \ac{TRNG} and the \ac{AES}-\ac{CCM} authenticated encryption algorithm.
+It provides a PKCS\#11 implementation, 128KB of tamper resistant storage for keys, and an authenticated and encrypted connection, between the PKCS\#11 API calls and the device.
 A M2S090TS SmartFusion2 evaluation kit is priced at 384 € \cite{smartfusionPrice}.

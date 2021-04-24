@@ -54,24 +54,30 @@ The average transmission times for each value are displayed in figure \ref{fig:c
 The values range from 0.048 seconds for 0.5 KB, to 3.2 s for 36 KB.
 The performance, in milliseconds, can be modelled by a linear equation \ref{eq:linear-eq}, with values \(T_{total} = 7.281 + 88.638 * KB\), and a median average percentage error of 0.92 \%.
 
+% \begin{figure}[h!]
+%         \centering
+%         \includegraphics[width=0.7\textwidth]{./Images/comms-time.png}
+%         \caption{Serial Port data transmission times}
+%         \label{fig:comms:time}
+% \end{figure}
+%
+% \begin{figure}[h!]
+%         \centering
+%         \includegraphics[width=0.7\textwidth]{./Images/comms-tput.png}
+%         \caption{Serial port data transmission throughput}
+%         \label{fig:comms:tput}
+% \end{figure}
 \begin{figure}[h!]
-	\centering
-	\includegraphics[width=0.7\textwidth]{./Images/comms-time.png}
-	\caption{Serial Port data transmission times}
-	\label{fig:comms:time}
+	\centering     %%% not \center
+	\subfigure[Serial Port data transmission times]{\label{fig:comms:time}\includegraphics[width=79mm]{Images/comms-time.png}}
+	\subfigure[Serial port data transmission throughput]{\label{fig:comms:tput}\includegraphics[width=79mm]{Images/comms-tput.png}}
+	\caption{}
 \end{figure}
 
 For the subsequent graphic, the throughput was calculated from the transmission tests, for every test repetition.
 Figure~\ref{fig:comms:tput} plots the experimental throughput and theoretical throughput. The theoretical throughput was calculated from the baud rate \(115200/8 = 14.06 KB/s\).
 We can observe the experimental throughput starts at around 10 KB/s for smaller data sizes, and stabilizes around 11 KB/s, as size increases.
 We can conclude the practical throughput is close to the theoretical, and as expected, stabilizes as the data size increases.
-
-\begin{figure}[h!]
-	\centering
-	\includegraphics[width=0.7\textwidth]{./Images/comms-tput.png}
-	\caption{Serial port data transmission throughput}
-	\label{fig:comms:tput}
-\end{figure}
 
 % -----------------------------------------------------
 % -----------------------------------------------------
@@ -92,7 +98,7 @@ The AES service was tested with all possible variations. Namely, with 128 bit an
 Regarding the results, higher values of the time dependent factor, indicates the service time increases faster, as data sizes increase. Overall, the AES and HMAC total service time increases faster, compared to SHA, which increases significantly slower. The constant time is similar among the three services, HMAC is slightly higher.
 The error percentages are all bellow 1\%, except for the TRNG service, proving the calculated models accurately represent all services' performance.
 The TRNG service was tested by generating 16 random bytes, up to the maximum allowed by the API of 128 bytes. As expected the performance barely increases with the data size, and the constant factor is the most relevant for its performance.
-The ECC services are the slowest performers, particularly the scalar multiplication, with each run taking more than half a second.
+The ECC services are the slowest performers, particularly the scalar multiplication (ECDH), with each run taking more than half a second.
 
 \begin{figure}[h!]
 	\centering
@@ -120,7 +126,7 @@ For this reason, a lightweight implementation of HMAC, SHA and AES was included 
 The HMAC, SHA and AES software implementations were tested using the second test configuration.
 Analyzing the time performance results in figure \ref{fig:performance:software-core-time}, the SHA and HMAC software results are almost identical, the HMAC is a slightly worse performer. Compared to the software results, the SHA core is significantly faster, and deteriorates very slowly as data size increases. The opposite happens for the HMAC core. It is convincingly a worst performer, compared to both HMAC and SHA software implementations. 
 This is an ambiguous result, as there is no clear reason for the HMAC core performance degradation, compared to the SHA core and the software implementations. One could assume it could be caused by the DPA mitigations, but it would still not explain the meaningful discrepancy compared to the SHA core, which also includes these mitigations.
-The AES software implementation was tested with a 256 bit key in CBC mode, as expected, it performs worse than the core service.
+The AES software implementation was tested with encryption in CBC mode and a 256 bit key, as expected, it performs worse than the core service. CTR mode with the same configuration was also tested, and has very similar performance to CBC.
 
 % -----------------------------------------------------
 % -----------------------------------------------------
@@ -148,10 +154,11 @@ Similarly to the previous tests, the time performance results evolve linearly, s
 
 Analyzing the results, both encryption/decryption and authentication services have very similar values, due to being based on the same service's and AES encryption and decryption having no discernible performance difference.
 There is however a detectable difference in the constant component, due to the random IV generation with the board's TRNG on the encryption service.
-The import keys service was tested to a maximum of 5 KB and using a portion of the RAM memory as storage instead of the eNVM, to preserve its write cycles.
-Key generation with ECDH and the SHA-based KeyTree derivation function performs at a constant 964.535 ms.
+The import keys service was tested up to 1 KB of key data, stored in RAM memory instead of eNVM. The generated MAC is stored in the PUF slot. The service was tested with 10 repetitions, instead of 100, to preserve eNVM write cycles.
+The service performance barely varied, due to the small data interval. Its performance is pictured figure \ref{fig:performance:nvm-puf-time}, compared to the PUF and eNVM read and write performance. This figure is a good comparison for both key management options.
+Key generation with ECDH and the SHA-based KeyTree derivation function performs at a constant 578.092 ms.
 Scalar multiplication has a big impact on the performance for both ECDH and ECDSA.
-The median average percentage error for the continuous encryption/decryption models is below 0.19\%, so the models almost perfectly represent the performance. The import keys service model has the highest error with 2.86\%.
+The median average percentage error for the continuous encryption/decryption models is below 0.19\%, so the models almost perfectly represent its performance.% The import keys service model has the highest error with 2.86\%.
 % The data dependent value, of both services, is extremely close to the sum of the previously calculated values of AES and HMAC, \(11.124+7.815=18.939\approx18.953\approx18.946\).
 % The continuous operations are better performers due to using the faster HMAC software implementation, compared to the board's core.
 % because of the HSM's 'RAM limitations, more demanding than other operations due to keys being storage in the same memory as the code. With 5 KB of key storage available, the system can store up to 20 symmetric keys of 32 bits, used to secure communications. However this can be bypassed by storing the keys in a high capacity external storage connected to the device. The keys are stored encrypted with internal keys, so they are secure.

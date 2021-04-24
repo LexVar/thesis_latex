@@ -3,7 +3,7 @@
 \def\arraystretch{1.5}
 	\begin{tabular}{|c|c|l|}
 	\hline
-	\textbf{PKCS\#11 Function} & \textbf{Attributes} & \textbf{Description} \\ \hline
+	\textbf{PKCS\#11 Function} & \textbf{Arguments} & \textbf{Description} \\ \hline
 	% \texttt{C\_Initialize}	& Initializes the cryptoki application\\ \hline
 	% \texttt{C\_Finalize}		& Closes the cryptoki application\\ \hline
 	% \texttt{C\_OpenSession}	& Opens the session and communication port\\ \hline
@@ -11,8 +11,8 @@
 	% \texttt{C\_Login}		& Authenticates users with a PIN\\ \hline
 	% \texttt{C\_Logout}		& Logout the user\\ \hline
 	% \texttt{C\_SetPIN}		& Change authentication PIN\\ \hline
-	\texttt{C\_CreateObject}	& & Creates local objects referencing remote keys by ID \\ \hline
-	\texttt{C\_DestroyObject}	& & Deletes remote object (keys)\\ \hline
+	\texttt{C\_CreateObject}	& Key ID & Creates local objects referencing remote keys by ID \\ \hline
+	\texttt{C\_DestroyObject}	& Key ID & Deletes remote object (keys)\\ \hline
 	\texttt{C\_EncryptInit}		& Key Object handle & Initializes continuous AES encryption and HMAC generation \\ \hline
 	\texttt{C\_EncryptUpdate}	& \makecell{Plaintext Chunk\\Chunk Length\\Ciphertext Buffer\\Output Chunk Length} & Encrypts and generates MAC from data block \\ \hline
 	\texttt{C\_EncryptFinal}	& \makecell{Buffer\\Output Chunk Length} & Finishes encryption operation, returns the generated MAC\\ \hline
@@ -22,6 +22,6 @@
 	\texttt{C\_DeriveKey}		& \makecell{Peer's Public key\\Salt value} & Generate and derive new symmetric key, store it in device \\ \hline
 	\texttt{C\_UnwrapKey}		& \makecell{Key Set\\Set Size} & Import set of symmetric keys into device\\ \hline
 \end{tabular}
-\caption{PKCS\#11 Implemented Interface API}
+\caption{PKCS\#11 API to access the SmartFusion2 implemented services}
 \label{tab:pkcs11-api}
 \end{table}
