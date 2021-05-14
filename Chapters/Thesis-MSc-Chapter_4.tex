@@ -44,7 +44,7 @@ The protocols are organized in transmissions. One transmission is two messages, 
 
 %% INTRODUCTION %%
 This section describes the services and their communication protocol, between the computer application and the hardware device. Each service's goal, exchanged information and algorithms are also detailed.
-Firstly it presents the authentication, then main services, divided in their objective, secure data exchange and new communications. %% ADD DIGITAL SIGNATURES REFERENCE
+Firstly it presents the authentication, then main services, divided in their objective, secure data exchange, digital signatures and new communications.
 In the diagrams representing the protocols, consecutive pieces of data flowing in the same direction are separated in distinct messages for visual purposes only. In practice, the data is sent in one message, each in its own field with a defined number of bytes.
 
 % -----------------------------------------------------
@@ -109,15 +109,20 @@ A new MAC is generated from the received IV and ciphertext. Then the received an
 \subsection{Qualified Digital Signatures}\label{chap:arch:services:signatures}
 
 The system offers qualified digital signatures, which provide non-repudiation to a piece of data, using an internal private key, imported in the device from fabric.
-The communication protocol for signature generation and verification are presented in figures~\ref{fig:protocol:signature-generate} and \ref{fig:protocol:signature-verify}.
-
+The communication protocol for signature generation is presented in figure~\ref{fig:protocol:signature-generate}.
+% The communication protocol for signature generation and verification are presented in figures~\ref{fig:protocol:signature-generate} and \ref{fig:protocol:signature-verify}.
+% \begin{figure}[h!]
+%         \centering     %%% not \center
+%         \subfigure[Generation]{\label{fig:protocol:signature-generate}\includegraphics[width=79mm]{Images/signature-generate.png}}
+%         \subfigure[Verification]{\label{fig:protocol:signature-verify}\includegraphics[width=79mm]{Images/signature-verify.png}}
+%         \caption{Communication protocol for generating digital signatures and verifying the signatures using the internal HSM asymmetric key pair}
+% \end{figure}
 \begin{figure}[h!]
-	\centering     %%% not \center
-	\subfigure[Generation]{\label{fig:protocol:signature-generate}\includegraphics[width=79mm]{Images/signature-generate.png}}
-	\subfigure[Verification]{\label{fig:protocol:signature-verify}\includegraphics[width=79mm]{Images/signature-verify.png}}
-	\caption{Communication protocol for generating digital signatures and verifying the signatures using the internal HSM asymmetric key pair}
+	\centering
+	\includegraphics[width=0.55\textwidth]{./Images/signature-generate.png}
+	\caption{Communication protocol for generating digital signatures using internal HSM asymmetric key pair}
+	\label{fig:protocol:signature-generate}
 \end{figure}
-
 The user application sends the operation code, data length and data to be signed.
 The qualified digital signature will be generated using the internal private key and data. Afterwards the device responds with the signature length and generated signature.
 The device generates the signature with the device's private ECC key, an implementation of the \ac{ECDSA} algorithm and the SHA-256 hash function according to the equation \ref{eq:signature-generate}.
@@ -127,14 +132,14 @@ The device generates the signature with the device's private ECC key, an impleme
 	Sign_{K}\{Hash\{Data\}\}
 \end{equation}
 
-To verify a signatures, the user sends the operation code, signature length and generated signature, as well as the data length and data from which the signature was generated. The last piece of information sent is the public key of the device, where the signature was generated.
-After verifying the signature, the device responds with the operation status.
-The data is verified using the same hash function, ECDSA algorithm, and the signers' public key, as detailed in \ref{eq:signature-verify}.
+% To verify a signatures, the user sends the operation code, signature length and generated signature, as well as the data length and data from which the signature was generated. The last piece of information sent is the public key of the device, where the signature was generated.
+% After verifying the signature, the device responds with the operation status.
+% The data is verified using the same hash function, ECDSA algorithm, and the signers' public key, as detailed in \ref{eq:signature-verify}.
 
-\begin{equation}
-	\label{eq:signature-verify}
-	\{Signature\} == Verify_{K_{-1}}\{Hash\{Data\}\}
-\end{equation}
+% \begin{equation}
+%         \label{eq:signature-verify}
+%         \{Signature\} == Verify_{K_{-1}}\{Hash\{Data\}\}
+% \end{equation}
 
 % -----------------------------------------------------
 \subsection{New Communications}\label{chap:arch:services:new-comms}
