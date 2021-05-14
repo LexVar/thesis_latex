@@ -83,6 +83,8 @@ We can conclude the practical throughput is close to the theoretical, and as exp
 % -----------------------------------------------------
 \subsection{SmartFusion2 Services}\label{chap:evaluation:board}
 
+TODO - AES FPGA core test results!!!!
+
 All the security accelerators of the SmartFusion2 SoC were tested. This includes the TRNG, AES, SHA, HMAC, KeyTree based SHA and ECC scalar multiplication and point addition services.
 As discussed before, all services were tested using the two presented configurations. The services were tested taking into account three different time components \(T_{Total} = T_{Call} + T_{Transmittion} + T_{Service}\), with the first test configuration. The \(T_{Call}\) component is the elapsed for invoking the PKCS\#11 API, before any data is transmitted or the service is executed. From the results, we concluded this component's impact on performance is negligible, since it is practically always 0.
 Predictably, the transmission time always follow the performance model studied in the previous section.

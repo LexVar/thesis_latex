@@ -190,18 +190,18 @@ In this section we discuss some computing systems that may be pertinent to this 
 Secure cryptoprocessors are dedicated physical computational devices for performing cryptographic operations. Among them, Smart Cards and Hardware Security Modules will be discussed next. Then, the SmartFusion2 \ac{SoC} board is presented.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\subsection*{Hardware Security Modules}\label{chap:background:computing:hsm}
+\subsection{Hardware Security Modules}\label{chap:background:computing:hsm}
 
 A \ac{HSM} is a high grade computational device, responsible for storage, management and generation of cryptographic keys, as well as cryptographic operations. Keys never leave the device and all operations are performed inside the \ac{HSM}. These devices have physical security mechanisms to achieve tamper-resistance, random number generators, support several cryptographic algorithms and have fail-safe mechanisms in place, in case of an attack, e.g., deletion of keys. Some devices have accelerated \ac{CPU} and optimizations to improve operations' performance.
 These modules are usually costlier than other computational systems but are more advanced in processing power and available services.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\subsection*{Smart Cards}\label{chap:background:computing:smartcards}
+\subsection{Smart Cards}\label{chap:background:computing:smartcards}
 Smart Cards are a type of \ac{HSM}, credit card-sized with an embedded microchip and provide secure, tamper-resistant storage. These devices have a low price for manufacturing, which allows for bulk production and easy replacement if needed. However, this makes it easy for attackers to acquire many devices to try to tamper with. They have a low processing power, and small memory which allows storage of a small amount of data. To be authenticated, the cards need either contact or contactless readers. These characteristics make them extremely popular, used in many industries, such as, retail, healthcare, communication and government.
 
 % descrever smartfusion, caracteristicas, o que suporta, etc.
-% \subsection{Field-Programmable Gate Array System-on-Chip}\label{chap:background:computing:smartfusion}
-% A \ac{FPGA} is an integrated circuit designed to be programmed and configured after manufacturing. \ac{FPGA}s are often used to prototype and for high specialized systems produced at low scale. One of the major advantages is their agility and flexibility to be customized for special use cases~\cite{cyberphysicalsystems}. However, the reconfigurability may introduce certain weaknesses to the system. \ac{FPGA}s are generic and its bitstream is vulnerable to cloning if no additional protection is applied. Cloning is simple and is considered the worst security vulnerability of volatile \ac{FPGA}s~\cite{fpgasurvey}. The configuration data of these devices is stored in non-volatile memory and may be directly copied if no authentication mechanism is implemented~\cite{drimer2007authentication}.
+\subsection{Field-Programmable Gate Array System-on-Chip}\label{chap:background:computing:smartfusion}
+A \ac{FPGA} is an integrated circuit designed to be programmed and configured after manufacturing. \ac{FPGA}s are often used to prototype and for high specialized systems produced at low scale. One of the major advantages is their agility and flexibility to be customized for special use cases~\cite{cyberphysicalsystems}. However, the reconfigurability may introduce certain weaknesses to the system. Its bitstream is vulnerable to cloning, if no additional protection is applied. The configuration data of these devices is stored in non-volatile memory and may be directly copied if no authentication mechanism is implemented~\cite{drimer2007authentication}.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \subsection*{Smartfusion2 SoC}\label{chap:background:computing:smartfusion}
