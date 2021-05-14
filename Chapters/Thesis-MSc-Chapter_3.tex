@@ -9,7 +9,7 @@
 
 This chapter defines the problem, the client requirements and lists the necessary services of a potential solution, which successfully addresses the problem.
 First, some context surrounding the problem is given. Next, the profile of the target users is described. The following section lists the client requirements the solution must provide.
-Then, it will shed the light on some essential concepts, to understand the services that need to be implemented. Lastly, it details some possible use case scenarios.
+Then, it will shed light on some essential concepts, to understand the services that need to be implemented. Lastly, it details some possible use case scenarios.
 
 % -----------------------------------------------------
 \section{Context}\label{chap:problem:context}
@@ -20,16 +20,16 @@ This work focuses on an interesting approach to improve security, by adding anot
 % -----------------------------------------------------
 \subsection{Entities}\label{chap:problem:entities}
 
-These type of devices are especially relevant to people with high responsibility jobs, that handle very sensitive information, which have dire consequences if they are lost, corrupted or leaked.
+These types of devices are especially relevant to people with high responsibility jobs, that handle very sensitive information, which have dire consequences if they are lost, corrupted or leaked.
 Some examples are government officials who handle confidential information pertaining a country, company executives, such as the CEO with access to company secrets, diplomats who manage confidential treaties, and military officers who have access to information critical to national security.
-Not just individuals could have an interest in these systems. A device can be assigned to a group of people representing an entity. For example, in the military, a device can be assigned to the navy, one to the infantry and so on. Any ranked officer, or person with a certain level of authority, could use the navy's device, to communicate with other entities, in behalf of the navy.
+Not just individuals could have an interest in these systems. A device can be assigned to a group of people representing an entity. For example, in the military, a device can be assigned to the navy, one to the infantry and so on. Any ranked officer, or person with a certain level of authority, could use the navy's device, to communicate with other entities, on behalf of the navy.
 
 \subsection{Devices}\label{chap:problem:devices}
 
 There are dedicated devices currently on the market, designed to secure communications and store private data.
-These type of devices have physical tamper-resistant measures against attackers, who wish to read the device's information. They also provide fail-safe mechanisms in case of an attack.
+These types of devices have physical tamper-resistant measures against attackers, who wish to read the device's information. They also provide fail-safe mechanisms in case of an attack.
 HSM is a high grade device, with more computational power and larger storage capacity for secrets.
-Smart Cards, provide secure and portable tamper-resistant storage. They have lower processing power, and a smaller memory. They have a lower cost, so can be produced in bulk and easily replaced.
+Smart Cards provide secure and portable tamper-resistant storage. They have lower processing power, and a smaller memory. They have a lower cost, so can be produced in bulk and easily replaced.
 Because of these features, they are widely used in the retail, healthcare, communication and government industries.
 
 % -----------------------------------------------------
@@ -55,7 +55,7 @@ The device must securely store all keys, and perform all cryptographic operation
 Additionally, the device should have physical tamper-resistant measures and mechanisms in place, in case of an intrusion, such as, permanent erasure of all sensitive data. 
 This means that even if an attacker is in possession of the physical device, it should be extremely difficult to extract any information from it.
 The solution should work with a plethora of devices, in order to increase the adoptability of the solution among clients, or to be easily adapted in other projects.
-The system should provide an application on the user's computer, which communicates with the physical device, and offers a simple interface to the its services, for the average non-technical user.
+The system should provide an application on the user's computer, which communicates with the physical device, and offers a simple interface to its services, for the average non-technical user.
 The system should use a common connection solution, e.g. USB cable, between the computer and device, to further increase adoptability.
 In addition, the system should perform the services in a reasonable time, to minimize the wait, and improve the user experience.
 
@@ -77,10 +77,10 @@ Every user must authenticate himself before using the device. This can be done b
 The device will come from fabric with a default authentication PIN. The users should be allowed to change this number.
 For personal devices there is only one user, the owner, as illustrated by Bob in figure~\ref{fig:user:data-service}. There is only a single authentication PIN, which when sent to the device, unlocks the session, and the user can access its services.
 For groups and entities there can be multiple users, illustrated by Alice. In this case, there are different scenarios for authentication.
-The simplest is when the individual user does not need to authenticate himself, only the entity. There is only a single authentication PIN for the entity. All the user's with permission to communicate in behalf of the entity, must know the PIN.
-The second scenario, is when an entity wishes to authenticate each individual user, with access to the device. 
+The simplest is when the individual user does not need to authenticate himself, only the entity. There is only a single authentication PIN for the entity. All the user's with permission to communicate on behalf of the entity, must know the PIN.
+The second scenario is when an entity wishes to authenticate each individual user, with access to the device. 
 This entails a more complex process. A specific user is assigned the role of administrator. For example in the military, this could be assigned to the top ranking general. The administrator, using the administrator PIN, is able to register new users with their own private PIN, access the logs of which user logged in and when, as well as, which messages they sent and received.
-The registration of a new user can be done physically with both administrator and user present. Afterwards, the registered user can use their credentials to authenticate himself, and use the device to communicate, in behalf of the entity.
+The registration of a new user can be done physically with both administrator and user present. Afterwards, the registered user can use their credentials to authenticate himself, and use the device to communicate, on behalf of the entity.
 It is important to note that in all scenarios, only the users or the entity is authenticated, the device does not authenticate itself to the user.
 % The administrator authenticates himself to the device, begins the registration process and allows the user to insert their name and PIN.
 
@@ -88,7 +88,7 @@ It is important to note that in all scenarios, only the users or the entity is a
 \subsection{Secure Communications}\label{chap:problem:scenarios:comms}
 
 %% SECURE COMMUNICATIONS %%
-The main goal of the system is to enable secure communications. Communications can be setup between two or more entities. For each configured communication, the same symmetric key is securely stored in each device. One key per communication.
+The main goal of the system is to enable secure communications. Communications can be set up between two or more entities. For each configured communication, the same symmetric key is securely stored in each device. One key per communication.
 For a user to send secure data, first he authenticates himself to the device, then sends the data to it. The device will return it secured. The user can then send it through a convenient offline service such as email, or an online chat service. Only a recipient with a similar device and the same key can read the original contents.
 
 \begin{figure}[h!]
@@ -108,7 +108,7 @@ Each entity, upon ordering the device, should be able to specify which entities 
 For example, Alice can request a device which enables two separate communication channels with Bob and Charlie, separately. Alice can also request a single channel with all three entities. In this case, only one shared key is required for all.
 Before devices are delivered, the keys will be generated and stored in the necessary device. When all involved entities receive their device, they can begin secure communications immediately.
 %% COMMUNICATION CHANNELS LIMIT %%
-The device should not have a practical limit on the amount communication channels it can establish. This means it should have a reasonable amount of key storage space, for communications with enough different entities.
+The device should not have a practical limit on the amount of communication channels it can establish. This means it should have a reasonable amount of key storage space, for communications with enough different entities.
 If the device's secure storage is limited, then a solution using symmetric or asymmetric keys to secure all other keys on a higher capacity non-volatile memory.
 This gives entities the flexibility needed to communicate with the number of entities they choose.
 
@@ -144,8 +144,8 @@ Alice forwards the list with the names of entities to the control station, which
 Alice can then start communications with Bob and Charlie, using the secure data exchange service, as soon as everyone imports the list into their respective devices.
 %% ADVANTAGES / POSSIBILITIES %%
 The service offers the possibility of setting up a regular communication update schedule. It grants the flexibility of key revocation when needed, data exchange with new entities, as well as updating communication keys, which have reached their expiration date, with no additional complexity to the user.
-A regular update schedule, adds longevity to the system. It avoids overuse, and reduces the possibility of compromised connections. When keys reach the expiration date, new ones can be distributed.
-A less cumbersome possibility for the user, is whenever an entity is added to system and receives their device, the station delivers a message to each entity, with the updated key list. The list can be imported by each user if needed.
+A regular update schedule adds longevity to the system. It avoids overuse, and reduces the possibility of compromised connections. When keys reach the expiration date, new ones can be distributed.
+A less cumbersome possibility for the user is, whenever an entity is added to the system and receives their device, the station delivers a message to each entity, with the updated key list. The list can be imported by each user if needed.
 
 % The list can be sent using an offline service such as email. Every time a new entity is added to the list, the station sends a new email with the updated list. Each entity can get access these updates when they need it.
 
