@@ -23,19 +23,17 @@ These people have a higher profile, and are more likely to be targeted by hacker
 New attacks, targeting computers, are discovered daily.
 They can originate from zero-day vulnerabilities, phishing scams and many other sources. Attackers have endless opportunities, so it is extremely difficult to predict and protect against all threats.
 Communications security depends on the cryptography keys and passwords used. These are usually stored, along with other sensitive information, in the user's computer.
-Instead of storing this data in the computer, a more hardened and secure solution is to separate the computer used by the user for communications, and the device responsible for managing the data. This device would bear the burden of securing communications and storing its sensitive data.
+Instead of storing the data in the computer, a more hardened and secure solution is to separate the computer used by the user for communications, and the device responsible for managing the data. This device would bear the burden of securing communications and storing its sensitive data.
 The goal is to add another layer of security, to make it difficult to compromise communications, even if the user's computer is attacked.
 A secure and independent solution is needed to establish secure channels of communication, store keys and perform critical operations.%even if the computer might be compromised.
-A possible approach is the utilization of a personal and physical device, responsible for the storage of digital keys and all security critical operations.
-These devices need to be highly secure, independent and support a robust set of security services. %and independent from the user's personal computer.
+A possible approach is the utilization of a personal and physical device, responsible for the storage of digital keys and all security critical operations. These devices need to be highly secure, independent and support a robust set of security services. %and independent from the user's personal computer.
 
 % -----------------------------------------------------
 % -----------------------------------------------------
 \section{Requirements}\label{chap:intro:requirements}
 
 In order to address the problem using the discussed approach, the implemented solution has several requirements to allow secure communications between multiple entities, with these physical devices.
-The solution should perform all critical operations to the security of communications, as well as, store all relevant data to its security.
-The system should be efficient and easy-to-use for the average person with no technological expertise. The system must have a low-cost, so it is easily distributable among users.
+It should perform all critical operations to the security of communications, as well as, store all relevant data to its security. A requirement for this system is to be easy-to-use for the average user, with no technological expertise. The system must be efficient and relatively low cost.
 
 % -----------------------------------------------------
 % -----------------------------------------------------
@@ -43,6 +41,6 @@ The system should be efficient and easy-to-use for the average person with no te
 
 % This first chapter introduces the context, the problem and basic requirements of the system.
 The second chapter will cover the technical background needed to comprehend the solution and state of the art.
-The third chapter defines the existing problem, its entities, devices, the necessary requirements for the solution, and possible use case scenarios.
-The fourth chapter covers the developed solution architecture, including its components, communication protocol and services.
-The fifth chapter presents the implementation details more specific to the hardware device. This includes, the tools used, the implemented services, system details and potential feature trade offs. The sixth chapter evaluates the system's performance, capabilities and fulfilled requirements. The last chapter summarizes the developed prototype, evaluation, and provides guidelines for future work.
+Chapter \ref{chap:problem} defines the existing problem, its devices, the necessary requirements for the solution, and possible use case scenarios.
+Chapter \ref{chap:arch} covers the developed solution architecture, including its components, communication protocol and services.
+Chapter \ref{chap:implementation} presents the implementation details more specific to the hardware device. This includes, the tools used, the implemented services, system details and potential feature trade offs. Chapter \ref{chap:evaluation} evaluates the system's performance, capabilities and fulfilled requirements. The last chapter summarizes the developed prototype, its evaluation, and provides guidelines for future work.

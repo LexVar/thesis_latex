@@ -75,7 +75,7 @@ This section details use case examples the solution must cater to. Figure~\ref{f
 
 Every user must authenticate himself before using the device. This can be done by providing a PIN, which the device will verify, before unlocking the user's session.
 The device will come from fabric with a default authentication PIN. The users should be allowed to change this number.
-For personal devices there is only one user, the owner, as illustrated by Bob in figure~\ref{fig:user:data-service}. There is only a single authentication PIN, which when sent to the device, unlocks the session, and the user can access its services.
+For personal devices there is only one user, the owner, as illustrated by Bob in Figure~\ref{fig:user:data-service}. There is only a single authentication PIN, which when sent to the device, unlocks the session, and the user can access its services.
 For groups and entities there can be multiple users, illustrated by Alice. In this case, there are different scenarios for authentication.
 The simplest is when the individual user does not need to authenticate himself, only the entity. There is only a single authentication PIN for the entity. All the user's with permission to communicate on behalf of the entity, must know the PIN.
 The second scenario is when an entity wishes to authenticate each individual user, with access to the device. 
@@ -99,7 +99,7 @@ For a user to send secure data, first he authenticates himself to the device, th
 \end{figure}
 
 %% USAGE EXAMPLE %%
-A possible usage example of secure data exchange between two users, Alice and Bob, is depicted in figure \ref{fig:user:data-service}. Firstly, Alice forwards the data, to be sent securely to Bob, to the device and the device returns the data secured with an internal key. Then, Alice can forward the result to any entity with the same internal key in their device, through a chat application, e-mail or other convenient service.
+A possible usage example of secure data exchange between two users, Alice and Bob, is depicted in Figure \ref{fig:user:data-service}. Firstly, Alice forwards the data, to be sent securely to Bob, to the device and the device returns the data secured with an internal key. Then, Alice can forward the result to any entity with the same internal key in their device, through a chat application, e-mail or other convenient service.
 Upon receiving the secure message from Alice, Bob sends it to the device, and receives the original message back.
 This service must prevent any third party from gaining access to the data, or altering the message. The receiver can be confident of the data's origin. It could not have been sent by any malicious entity.
 
@@ -139,7 +139,7 @@ Whenever users wish to communicate with another user, they can send a list of en
 \end{figure}
 
 %% USAGE EXAMPLE %%
-A use case scenario of this service is depicted in figure \ref{fig:user:import-service}.
+A use case scenario of this service is depicted in Figure \ref{fig:user:import-service}.
 Alice forwards the list with the names of entities to the control station, which returns the key list to Alice. The list can be forwarded to the device, where the new keys are stored.
 Alice can then start communications with Bob and Charlie, using the secure data exchange service, as soon as everyone imports the list into their respective devices.
 %% ADVANTAGES / POSSIBILITIES %%

@@ -69,9 +69,9 @@ The performance, in milliseconds, can be modelled by a linear equation \ref{eq:l
 % \end{figure}
 \begin{figure}[h!]
 	\centering     %%% not \center
-	\subfigure[Serial Port data transmission times]{\label{fig:comms:time}\includegraphics[width=79mm]{Images/comms-time.png}}
-	\subfigure[Serial port data transmission throughput]{\label{fig:comms:tput}\includegraphics[width=79mm]{Images/comms-tput.png}}
-	\caption{}
+	\subfigure[Data Transmission Time]{\label{fig:comms:time}\includegraphics[width=79mm]{Images/comms-time.png}}
+	\subfigure[Channel Throughput]{\label{fig:comms:tput}\includegraphics[width=79mm]{Images/comms-tput.png}}
+	\caption{Serial port data transmission evaluation}
 \end{figure}
 
 For the subsequent graphic, the throughput was calculated from the transmission tests, for every test repetition.
@@ -83,7 +83,7 @@ We can conclude the practical throughput is close to the theoretical, and as exp
 % -----------------------------------------------------
 \subsection{SmartFusion2 Services}\label{chap:evaluation:board}
 
-TODO - AES FPGA core test results!!!!
+% TODO - AES FPGA core test results!!!!
 
 All the security accelerators of the SmartFusion2 SoC were tested. This includes the TRNG, AES, SHA, HMAC, KeyTree based SHA and ECC scalar multiplication and point addition services.
 As discussed before, all services were tested using the two presented configurations. The services were tested taking into account three different time components \(T_{Total} = T_{Call} + T_{Transmittion} + T_{Service}\), with the first test configuration. The \(T_{Call}\) component is the elapsed for invoking the PKCS\#11 API, before any data is transmitted or the service is executed. From the results, we concluded this component's impact on performance is negligible, since it is practically always 0.
@@ -113,7 +113,7 @@ The graphic \ref{fig:performance:core-tput} represents the throughput calculated
 
 % -----------------------------------------------------
 % -----------------------------------------------------
-\subsubsection{Core/Software Comparison}\label{chap:evaluation:services:software}
+\subsubsection*{Core/Software Comparison}\label{chap:evaluation:services:software}
 
 The SHA and HMAC performance difference results were enigmatic. The HMAC data dependent portion, 7.815 ms, is nearly 10 times higher than the SHA value, 0.807 ms. This means HMAC's time performance degrades nearly 10 times faster than the SHA performance. This is a surprising result, since the HMAC algorithm is composed of two hash computations and uses SHA-256, so the results are expected to be closer.
 For this reason, a lightweight implementation of HMAC, SHA and AES was included in the board for comparison. The library used for HMAC and SHA was \cite{ogayHMAC}, and for AES \cite{tinycrypt}. 
@@ -132,7 +132,7 @@ The AES software implementation was tested with encryption in CBC mode and a 256
 
 % -----------------------------------------------------
 % -----------------------------------------------------
-\subsubsection{Memory Performance}\label{chap:evaluation:services:memory}
+\subsubsection*{Memory Performance}\label{chap:evaluation:services:memory}
 
 The read and write performance of the different device's memories, along with the PUF service were tested. Both eSRAM and eNVM memories were tested from 0.5 KB to 36 KB. The PUF performance was tested from 16 bytes, up to its limit of 512 bytes. For the PUF and eNVM performance, due to the write cycle limitations, each test was performed with only 10 repetitions, compared to the usual 100 with the second configuration. Precautions were also taken, by changing the eNVM page being written for every repetition, to avoid exhausting any particular page.
 The performance results in table \ref{tab:memory-model} were calculated according to a linear model.
