@@ -44,35 +44,34 @@ Popular and recommended hash functions include \ac{SHA}-2 and the newer \ac{SHA}
 \subsection{Symmetric Encryption}\label{chap:background:crypto:symmetric}
 
 Symmetric ciphers are frequently used to provide authentication and confidentiality, using symmetric keys.
-\ac{AES} is one of the most popular symmetric-key algorithms. It has multiple block and stream cipher modes, which offer confidentiality. It uses 128-bit blocks and keys can be 128, 192 or 256 bits.
+\ac{AES} is one of the most popular symmetric-key algorithms. It has multiple block and stream cipher modes, which offer confidentiality. It uses 128-bit blocks and keys can be 128, 192 or 256 bits. Block cipher modes encrypt data one block at a time, while stream ciphers treat data like a continuous stream. Some relevant AES encryption modes are presented next.
 
 \textbf{\ac{ECB}} is the simplest mode. It is a block cipher and works by encrypting each block with the symmetric key. If the same key is used for equal plaintext blocks, the result will always be the same. For this reason, patterns are easily seen and the mode is considered insecure.
 
-\textbf{\ac{CBC}} is another block cipher mode. It combines the first block of plaintext and an \ac{IV} with the XOR operator and encrypts the result. For the subsequent blocks, the previous ciphertext is used instead of the IV. The message needs to be padded to a multiple of the block size. If not done correctly, the mode is vulnerable to padding oracle attacks \cite{paddingoracle}. Implementing ciphertext stealing, which avoids padding, is recommended for the security of \ac{CBC} \cite{ciphertextstealing}.
-Encryption is not parallelizable, since a ciphertext block depends on all the blocks before it. Another disadvantage of \ac{CBC} is it cannot precompute data to improve encryption performance. Decryption can be parallelized and supports random read access.
-When a bit is flipped in the ciphertext, the corresponding plaintext block is completely corrupted, and the same bit of the next block is inverted.
+\textbf{\ac{CBC}} is another block cipher mode. It combines the first block of plaintext and an \ac{IV} with the XOR operator and encrypts the result. For the subsequent blocks, the previous ciphertext is used instead of the IV. The message needs to be padded to a multiple of the block size. If done incorrectly, the mode is vulnerable to padding oracle attacks \cite{paddingoracle}. Implementing ciphertext stealing, which avoids padding, is recommended for the security of \ac{CBC} \cite{ciphertextstealing}.
+% Encryption is not parallelizable, since a ciphertext block depends on all the blocks before it. Another disadvantage of \ac{CBC} is it cannot precompute data to improve encryption performance. Decryption can be parallelized and supports random read access.
+% When a bit is flipped in the ciphertext, the corresponding plaintext block is completely corrupted, and the same bit of the next block is inverted.
 
 \textbf{\ac{OFB}} mode repeatedly encrypts the IV for each block, xoring the result with the plaintext block. The encryption and decryption processes are exactly the same.
 The block cipher is only used in the encryption direction, which means the message does not need to be padded. It is effectively a stream cipher.
-The downside of needing to encrypt the IV multiple times, is the encryption and decryption are not parallelizable and random read access is not possible. However, the multiple encryptions of the IV can be precomputed in order to increase performance.
-Changes to a ciphertext block, only affect the corresponding bits.
+% The downside of needing to encrypt the IV multiple times, is the encryption and decryption are not parallelizable and random read access is not possible. However, the multiple encryptions of the IV can be precomputed in order to increase performance.
+% Changes to a ciphertext block, only affect the corresponding bits.
 
 % \textbf{\ac{CFB}} is a combination of \ac{OFB} and \ac{CBC}. The xor operation is applied on the encrypted \ac{IV} with the plaintext block. The result is then used for the next block.
 % Similarly to \ac{OFB}, \ac{CFB} is effectively a stream cipher. Yet, akin to \ac{CBC}, and for the same reasons, encryption is not parallelizable, opposed to decryption which is. Random read access is possible, contrary to preprocessing which is not.
 % A specific condition of \ac{CFB} is it can become self-synchronous, meaning it will recover if s bits are lost. If s=1, it can recover from slips of any number of bits, if s=8 it can recover from slips of any number of bytes. However for every blockcipher call, \ac{CFB} only processes s bits, compared to 128 bits (block size), which is a major performance cost.
 %
 \textbf{\ac{CTR}} mode concatenates an IV with a counter beginning at 0. This sequence is encrypted and applied to the xor operation with the plaintext block. For each block the sequence is incremented by 1.
-This mode is comparable to \ac{OFB}, as it is also a stream cipher, the encryption operation is exactly the same as the decryption and an error affects only the respective bits.
-However it does not have the performance disadvantages of \ac{OFB}. Encryption and decryption are parallelizable, random read access and preprocessing are both possible.
-It is worth noting that due to existing no need to implement decryption, it can save code space and complexity.
+This mode is comparable to \ac{OFB}, as it is also a stream cipher and the encryption operation is exactly the same as the decryption. %and an error affects only the respective bits.
+% However it does not have the performance disadvantages of \ac{OFB}. Encryption and decryption are parallelizable, random read access and preprocessing are both possible.
+% It is worth noting that due to existing no need to implement decryption, it can save code space and complexity.
 
 % \ac{CBC}, \ac{OFB} and \ac{CFB} modes are proved secure, assuming the \ac{IV} is random, and is unique, meaning it is only used once for each key and message. For \ac{CTR} mode, the IV does not need to be random, but it cannot be reused with the same key.
-The \ac{IV} needs to be sent along with the ciphertext to the receiver, or the receiver will not be able to retrieve the entire message.
-\ac{CBC} and \ac{OFB} modes are proved secure, assuming the \ac{IV} is random and unique, meaning it is only used once for each key and message.
-After the \ac{IV} is used, there is no need for the value to be kept secret. It can be sent alongside the ciphertext.
+The \ac{IV} needs to be sent along with the ciphertext to the receiver, or the receiver will not be able to retrieve the entire message. There is no need for the IV to be kept secret.
+\ac{CBC}, \ac{OFB} and \ac{CTR} modes are proved secure, assuming the \ac{IV} is random and unique, meaning it is only used once for each key and message.
 Regarding performance, the paper~\cite{aesmodes} states \ac{CBC} is slower than \ac{CTR} mode, and \ac{OFB} is even slower.
-When efficiency characteristics matter, nothing comes close to \ac{CTR}: it has better performance characteristics in multiple dimensions, compared to \ac{CBC} and \ac{OFB}.
-All these cipher modes are malleable, meaning an attacker can modify a ciphertext C, the result of encrypting plaintext P, to create ciphertext C' which will decrypt to plaintext P' that is similar to P. Malleability is connected to message integrity. This is not considered a relevant weakness since these modes are only designed to offer confidentiality. If integrity is needed, one of these modes should be paired with a \ac{MAC}, or instead use a dedicated authenticated-encryption mode like \ac{CCM} or \ac{GCM} (discussed in Section~\ref{chap:background:crypto:aead}), which guarantee both confidentiality and integrity.
+When efficiency characteristics matter, nothing comes close to \ac{CTR}: it has better performance characteristics, compared to \ac{CBC} and \ac{OFB}.
+All these cipher modes are malleable, meaning an attacker can modify a ciphertext C, to create ciphertext C' which will decrypt to plaintext P' that is similar to the original plaintext. Malleability is connected to message integrity. This is not considered a relevant weakness since these modes are only designed to offer confidentiality. If integrity is needed, one of these modes should be paired with a \ac{MAC}, or instead use a dedicated authenticated-encryption mode like \ac{CCM} or \ac{GCM} (discussed in Section~\ref{chap:background:crypto:aead}), which guarantee both confidentiality and integrity.
 
 %For \ac{CTR} mode, the IV does not need to be random, but it cannot be reused with the same key.
 % Regarding performance, the paper~\cite{aesmodes} states \ac{CBC} is slower than \ac{CTR} mode. \ac{CFB} (even with s = 128) and \ac{OFB} are slower still.
@@ -97,10 +96,10 @@ Several techniques exist to construct a \ac{MAC}. One is \textbf{\ac{CBC-MAC}}, 
 \subsection{Authenticated Encryption}\label{chap:background:crypto:aead}
 
 \ac{AEAD} schemes assure confidentiality and authenticity using symmetric keys. They may be more efficient than combining separate encryption and authentication techniques, such as the ones discussed in earlier sections, and are less likely to be used incorrectly. \ac{AEAD} schemes also allow associated data to be included in the message, which is authenticated but not encrypted. This feature is useful for network packets. The header is visible but is authenticated, while the payload is encrypted and authenticated. 
-\ac{AES} has several of these schemes. \textbf{\ac{CCM}} is an \ac{AEAD} mode that combines \ac{CBC-MAC} for authentication and \ac{CTR} for encryption.
+\ac{AES} has several of these schemes. \textbf{\ac{CCM}} is an \ac{AEAD} mode that combines \ac{CBC-MAC} for authentication with \ac{CTR} for confidentiality.
 \ac{CCM} uses a MAC-then-Encrypt approach. First, the \ac{MAC} is computed from the message. Then the message and the tag are encrypted with \ac{CTR} mode.
 Due to performing two encryption operations, \ac{CBC-MAC} and then \ac{CTR}, the mode is not as efficient compared to others such as \ac{GCM}, which only performs one encryption operation.
-It is not an online mode, meaning it needs to know the message and \ac{AD} length beforehand. Therefore, \ac{AD} cannot be preprocessed. It is only considered secure for fixed-length messages.
+It is not an online mode, meaning it needs to know the message and \ac{AD} length beforehand. Therefore, \ac{AD} cannot be preprocessed. %It is only considered secure for fixed-length messages.
 Despite being a slower mode, it is secure and widely supported. It is included in \ac{IPsec}, \ac{TLS} and Bluetooth low energy.
 \textbf{\ac{GCM}} utilizes an encrypt-then-MAC approach. It first encrypts with \ac{CTR} mode, then uses Galois mode of authentication to generate the tag. The Galois field multiplication supports parallel computation, making this mode faster than \ac{CCM}.
 Beyond being parallelizable, it is online and the \ac{AD} can be preprocessed.
@@ -207,6 +206,10 @@ Smart Cards are a type of \ac{HSM}, credit card-sized with an embedded microchip
 % descrever smartfusion, caracteristicas, o que suporta, etc.
 \subsection{Field-Programmable Gate Array System-on-Chip}\label{chap:background:computing:smartfusion}
 A \ac{FPGA} is an integrated circuit designed to be programmed and configured after manufacturing. \ac{FPGA}s are often used to prototype and for highly specialized systems produced at low scale. One of the major advantages is their agility and flexibility to be customized for special use cases~\cite{cyberphysicalsystems}. However, the reconfigurability may introduce certain weaknesses to the system. Its bitstream is vulnerable to cloning, if no additional protection is applied. The configuration data of these devices is stored in non-volatile memory and may be directly copied if no authentication mechanism is implemented~\cite{drimer2007authentication}.
+
+FPGA is composed of an array of electrically programmable logic blocks. FPGAs can provide a cheaper and faster solution compared to other circuits \cite{farooq2012fpga}. These devices can be partially reconfigured while the rest is still running, which is great for production systems. On the other hand, they can be larger and slower than other circuits. 
+Despite this, FPGAs are a good option due to less time-to-market and lower cost. They have been used in systems targeting different areas: multimedia, networking, control and bioinformatics \cite{dorta2009overview}.
+%Despite this, FPGAs are a good options due to their less time to market and low volume cost.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \subsection*{Smartfusion2 SoC}\label{chap:background:computing:smartfusion}

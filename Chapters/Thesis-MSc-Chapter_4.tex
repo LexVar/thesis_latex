@@ -198,11 +198,11 @@ The protocol for the service is depicted in Figure \ref{fig:protocol:import-keys
 
 The only transmission consists of sending the operation code, key set length and key data. Then, the device decrypts and authenticates the keys using a predefined symmetric key, stored in the device. The protocol used is the same for secure data exchange, as described previously.
 Each key data section consists of 1 byte for its ID, 1 byte for its size and remaining bytes for the actual key data.
-The decrypted list of keys is encrypted and authenticated again, with a dedicated symmetric key for memory storage. 
-The ciphertext, randomly generated IV and ciphertext length are stored in memory. 
+The decrypted list of keys is encrypted again, with a dedicated symmetric key for memory storage. 
 
-To provide authentication and thus protection against tampering, a MAC is generated from the three pieces of data and stored in secure storage, separate from the keys and IV.
-In order to fetch a stored symmetric key, the MAC is generated from the key data in memory, and compared to the original. If identical, the keys can be decrypted and a specific key identified through its ID.
+The ciphertext and randomly generated IV are stored in memory. Both are authenticated by generating a MAC and storing it in secure storage.
+In order to fetch a stored key, a MAC is generated from the ciphertex and IV in memory, and compared to the MAC in secure storage. If identical, the keys can be decrypted and a specific key identified through its ID.
+% To provide authentication and thus protection against tampering, a MAC is generated from the three pieces of data and stored in secure storage, separate from the keys and IV.
 
 % When a symmetric key is revocated, due to reaching its expiration date, or from being compromised, entities can generate a new one, using the aforementioned procedure, with an additional parameter for the key derivation function, to generate a completely new and unique key.
 % Import
