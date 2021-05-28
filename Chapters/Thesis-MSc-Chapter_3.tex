@@ -52,6 +52,7 @@ To effectively address the problem, there are several high-level requirements th
 These client requirements need to be translated into slightly more technical and tangible requirements. In order to secure communications, the solution should guarantee confidentiality, integrity and authentication.
 Additionally with asymmetric keys, the system can provide non-repudiation to documents or files, by means of qualified digital signatures.
 The device must securely store all keys, and perform all cryptographic operations pertaining the security of communications. Keys must never be exposed unencrypted to the outside.
+
 Additionally, the device should have physical tamper-resistant measures and mechanisms in place, in case of an intrusion, such as, permanent erasure of all sensitive data. 
 This means that even if an attacker is in possession of the physical device, it should be extremely difficult to extract any information from it.
 The solution should work with a plethora of devices, in order to increase the adoptability of the solution among clients, or to be easily adapted in other projects.
@@ -73,15 +74,16 @@ This section details use case examples the solution must cater to. Figure~\ref{f
 % -----------------------------------------------------
 \subsection{User Authentication}\label{chap:problem:scenarios:auth}
 
-Every user must authenticate himself before using the device. This can be done by providing a PIN, which the device will verify, before unlocking the user's session.
-The device will come from fabric with a default authentication PIN. The users should be allowed to change this number.
-For personal devices there is only one user, the owner, as illustrated by Bob in Figure~\ref{fig:user:data-service}. There is only a single authentication PIN, which when sent to the device, unlocks the session, and the user can access its services.
-For groups and entities there can be multiple users, illustrated by Alice. In this case, there are different scenarios for authentication.
-The simplest is when the individual user does not need to authenticate himself, only the entity. There is only a single authentication PIN for the entity. All the user's with permission to communicate on behalf of the entity, must know the PIN.
-The second scenario is when an entity wishes to authenticate each individual user, with access to the device. 
-This entails a more complex process. A specific user is assigned the role of administrator. For example in the military, this could be assigned to the top ranking general. The administrator, using the administrator PIN, is able to register new users with their own private PIN, access the logs of which user logged in and when, as well as, which messages they sent and received.
-The registration of a new user can be done physically with both administrator and user present. Afterwards, the registered user can use their credentials to authenticate himself, and use the device to communicate, on behalf of the entity.
-It is important to note that in all scenarios, only the users or the entity is authenticated, the device does not authenticate itself to the user.
+Every user must authenticate himself before using the device. This can be done by providing a PIN, which the device will verify by comparing it with the one stored in its storage, before unlocking its services.
+The system will be configured with a default PIN, before it is delivered to entities. The users should be allowed to change this number.
+
+For personal devices there is only one user, the owner, as illustrated by Bob in Figure~\ref{fig:user:data-service}. For groups and entities there can be multiple users, illustrated by Alice. In this case, there is only a single authentication PIN for the entity. All the user's with permission to communicate on behalf of the entity, must know the PIN.
+Only the entity is authenticated, the device does not authenticate itself to the user.
+
+% The second scenario is when an entity wishes to authenticate each individual user, with access to the device.
+% This entails a more complex process. A specific user is assigned the role of administrator. For example in the military, this could be assigned to the top ranking general. The administrator, using the administrator PIN, is able to register new users with their own private PIN, access the logs of which user logged in and when, as well as, which messages they sent and received.
+% The registration of a new user can be done physically with both administrator and user present. Afterwards, the registered user can use their credentials to authenticate himself, and use the device to communicate, on behalf of the entity.
+% It is important to note that in all scenarios, only the users or the entity is authenticated, the device does not authenticate itself to the user.
 % The administrator authenticates himself to the device, begins the registration process and allows the user to insert their name and PIN.
 
 % -----------------------------------------------------
@@ -107,6 +109,7 @@ This service must prevent any third party from gaining access to the data, or al
 Each entity, upon ordering the device, should be able to specify which entities it wants to communicate with.
 For example, Alice can request a device which enables two separate communication channels with Bob and Charlie, separately. Alice can also request a single channel with all three entities. In this case, only one shared key is required for all.
 Before devices are delivered, the keys will be generated and stored in the necessary device. When all involved entities receive their device, they can begin secure communications immediately.
+
 %% COMMUNICATION CHANNELS LIMIT %%
 The device should not have a practical limit on the amount of communication channels it can establish. This means it should have a reasonable amount of key storage space, for communications with enough different entities.
 If the device's secure storage is limited, then a solution using symmetric or asymmetric keys to secure all other keys on a higher capacity non-volatile memory.
@@ -127,6 +130,7 @@ Then, when a user wishes to generate a signature for a piece of data, he must se
 %% REASONING FOR SERVICE %%
 The operations described so far provide a usable and functional system to organizations and users, but it is not very flexible. It does not allow users to communicate with new entities, without returning the device to manufacturing, to be equipped with the necessary information.
 To avoid this, a service should be available to users with production devices in their possession, to securely trade data with another entity with an identical device, which the device previously could not. It should be easy to provide the functionality without burdening the user with additional responsibility.
+
 %% SERVICE PRESENTATION %%
 A possible solution is the inclusion of a control station, where entities originally collect their devices. Each device is delivered with its own communication channel with the control station. This station is effectively treated as a special entity.
 Whenever users wish to communicate with another user, they can send a list of entities they intend to communicate with to the station, secured with the data exchange service. The control station subsequently supplies the user with the necessary information, to be imported in their device.
@@ -142,6 +146,7 @@ Whenever users wish to communicate with another user, they can send a list of en
 A use case scenario of this service is depicted in Figure \ref{fig:user:import-service}.
 Alice forwards the list with the names of entities to the control station, which returns the key list to Alice. The list can be forwarded to the device, where the new keys are stored.
 Alice can then start communications with Bob and Charlie, using the secure data exchange service, as soon as everyone imports the list into their respective devices.
+
 %% ADVANTAGES / POSSIBILITIES %%
 The service offers the possibility of setting up a regular communication update schedule. It grants the flexibility of key revocation when needed, data exchange with new entities, as well as updating communication keys, which have reached their expiration date, with no additional complexity to the user.
 A regular update schedule adds longevity to the system. It avoids overuse, and reduces the possibility of compromised connections. When keys reach the expiration date, new ones can be distributed.

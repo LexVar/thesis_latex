@@ -72,7 +72,7 @@ This communication approach is more flexible, compared to knowing the total data
 As concluded previously, CBC is a secure mode, assuming a secure padding scheme is used to prevent padding oracle attacks. To avoid padding and guarantee the mode's security, ciphertext stealing was implemented.
 As previously introduced, the board's AES implementation is not resistant to side-channel attacks, such as DPA. A AES core running on the board's FPGA, resistant to these attacks, was tested. This implementation is using 128 bit keys, with CBC mode.
 
-\subsubsection*{TCP Channel}\label{chap:implementation:services:secure:tcp}
+\subsection{TCP Channel}\label{chap:implementation:services:secure:tcp}
 
 In order to truly establish a secure communications channel, the secure data service was used to secure a TCP connection. A TCP implementation using Windows sockets is used to exchange data through a channel, between a client and server, running on the same computer. The library was altered, to call the PKCS\#11 API of the SmartFusion2 device, to encrypt the plaintext data in each TCP packet, before it is sent. Likewise, when a packet is received, the decryption API is called, in order to retrieve the plaintext.
 Before a secure TCP connection is established, the symmetric session key is agreed, using the board's ECDH core. First, each side generates a random public and private ECC key pair, on the NIST defined P-384 curve. Next, they trade the generated public keys, and compute the same symmetric key. In order to emulate two communicating entities, using a similar board, one side is running an implementation of the same cryptographic services, with the mbedTLS 2.26.0 library.

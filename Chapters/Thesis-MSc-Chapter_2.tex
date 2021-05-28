@@ -254,15 +254,37 @@ Texas Instruments Sitara processors allows the customer to specify a public key 
 \section{State of the Art}\label{chap:background:art}
 
 In general, \ac{HSM} have applied in several contexts, to exploit their cryptographic services, secure storage and physical tamper protections.
+
 Lesjak et al. \cite{iothardware} developed a system to secure remote snapshot acquisition, between the vendor and customers, by attaching a HSM to the products distributed among customers. 
 The messages are protected with the authenticated-encryption scheme \ac{AES}-\ac{GCM} and a TLS connection.
 The Infineon security controller stores the TLS keys, and protects the data with the authenticated-encryption scheme, using its TRNG and a \ac{DH} based algorithm, for key establishment with ECC keys. The controller has protections against side-channel attacks such as \ac{DPA} and physical manipulation.
+
 Seol et al. \cite{trustediaashsm} proposed a system to isolate critical operations and sensitive data from cloud administrators, by implementing a \ac{HSM} next to a virtual machine.
+
 Wolf et al. \cite{wolf2011design} implemented a HSM on a 663€ Xilinx Virtex-5 FPGA, to secure network communications in vehicles. The authors implemented several cryptographic algorithms on the FPGA, e.g., AES-128 bit and ECC point-multiplication with a 256 bit curve. The board was connected to a microcontroller running linux, with additional algorithms available from a cryptographic library.
+
 An IBM 4764 PCI-X cryptographic coprocessor has been used to store and manage symmetric keys, which encrypt biomedical data \cite{canim2011biomedical}. The symmetric keys, which encrypt the database, are transferred to the device using public-key cryptography. All database queries are performed by the coprocessor, since only it has the keys. The system uses AES with 128 bit encryption. Notably, the device has physical measures which ensure the keys are not leaked and the data is erased upon any attack.
 
+Wherry \cite{wherry2003secure} recognizes the need for a HSM PKIs to protect the cryptographic keys.
+Lorch et al. \cite{lorch2004hardware} uses an IBM 4758 cryptographic coprocessor to protect keys in a secure online repository for PKIs. The author's were able to store more than 800 2048-bit RSA key pairs on the device's secure storage. The PKI system interfaces with the HSM using a PKCS\#11 interface. Keys are generated in the coprocessor and the private key is never extracted. The RSA implementation is used to sign certificates, while the public key can be extracted to the application. A PIN is necessary to access the coprocessor.
+
+Beyond actual systems, several protocols and HSM applications have been proposed.
+Rössler et al. \cite{rossler2005voting} applied a HSM to an e-voting electronic ballot box. The HSM is used for decrypting and verifying the signature of cast votes.
+The votes decryption is done solely inside the electronic ballot box during the counting process.
+Voters sign their ballot using a smart card, e.g., their citizen card.
+Only the HSM is capable of counting votes, using its private key.
+The author recommends 1024 bit RSA or 160 bit ECC keys for an actual implementation.
+
+Additionally, authors have proposed using a HSM to secure web services by providing secure storage for keys and cryptography algorithms in the TLS protocol, but also for providing a complete security service, not just an algorithm implementation \cite{baldwin2003hardware}, \cite{mont2003secure}.
+
+% include openHSM?
+Martina et al. \cite{openhsm} presents OpenHSM, an open cryptographic protocol to manage private keys in an application embedded in a HSM.
+The protocol was implemented with a customized FreeBSD system. The authors introduced administrator and operator groups to manage
+private keys inside the HSM. The hardware was projected to be tamper proof using a Security Unit to manage all sensors and protection mechanisms.
+The OpenSSL library and SQLite database were used to provide smart card support, data storage, secret sharing and X509v3 certificates.
+
 % -------------------------
-Existing \ac{HSM}s have been studied by some authors.
+Apart from developed systems, several market HSMs have been studied.
 Kehret et al. \cite{tlsintegration} studied two devices. VaultIC460, a secure microcontroller manufactured by Inside Secure with a RISC CPU. It includes a varied offering of cryptographic algorithms, such as, AES encryption, public-key cryptography with RSA and ECC, MAC, SHA, SSL support, as well as a random number generator. Additionally it includes several authentication mechanisms for users, to secure the connection between the application and device.
 It includes 112 KB of tamper resistant memory for key storage.
 ATECC508A from microsemi is a small security controller with the asymmetric key algorithms: ECDSA and ECDH, along with SHA, a TRNG and storage of up to sixteen 256 bit keys.
