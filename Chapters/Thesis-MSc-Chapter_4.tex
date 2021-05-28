@@ -9,7 +9,7 @@
 \label{chap:arch}
 
 The fundamental objective of this work is to develop a portable device,  which enables entities to establish secure channels of communication.
-A solution was developed on a portable HSM, which secures communications between users, stores the owner's sensitive data, such as keys and documents, and performs all services critical to its security. This is an easy process for the owner, who does not need to concern himself with any setup or management, the system is accessible and ready to use when received.
+A solution was developed on a portable HSM, which secures communications between users, stores the owner's sensitive data, such as keys, and performs all services critical to its security. This is an easy process for the owner, who does not need to concern himself with any setup or management, the system is accessible and ready to use when received.
 This chapter presents an overview of the developed system, its services, the communications protocol and use cases, unconstrained by a specific physical device.
 
 % -----------------------------------------------------
@@ -21,7 +21,7 @@ The system, pictured in Figure~\ref{fig:overview}, is composed of two main compo
 
 \begin{figure}[h]
     \centering
-    \includegraphics[width=0.7\textwidth]{./Images/overview.png}
+    \includegraphics[width=0.75\textwidth]{./Images/overview2.png}
     \caption{System Overview}
     \label{fig:overview}
 \end{figure}
@@ -31,101 +31,94 @@ The user's computer running the software is connected to the device, through a p
 Using these tools, the user can signal the device to perform the desired services.
 These services are implemented inside the device, which stores and manages keys, as well as other data.
 If the device is misplaced or stolen, the stored keys and documents are not at risk of being extracted. The developed software and physical tamper measures ensure it.
-Upon receiving their device, each user is only required to plugin it into a power socket, and to their computer using the appropriate cable. The system is ready to use, through the provided interface software.
-%% SERIAL PORT COMMUNICATIONS INTRODUCTION %%
-All data and commands will flow through a serial connection, between the interface software in the individual's computer and the physical box. A communication protocol which defines the communication rules is defined in the next section.
-% Data is organized in fields, each field has a fixed number of bytes to hold a specific piece of data.
-% The protocols are organized in transmissions. One transmission is two messages, one message from the computer to the device, and another in the reverse direction.
-% The serial port connection transmits data one block at a time, each block contains a maximum of 16 bytes.
+Upon receiving their device, each user is only required to connect it to their computer using the appropriate cable. The system is ready to use, through the provided interface software.
 
 % -----------------------------------------------------
 % -----------------------------------------------------
-\section{Services Protocols}\label{chap:arch:services}
+\section{Services}\label{chap:arch:services}
 
 %% INTRODUCTION %%
-This section describes the services and their communication protocol, between the computer application and the hardware device. Each service's goal, exchanged information and algorithms are also detailed.
-Firstly it presents the authentication, then main services, divided in their objective, secure data exchange, digital signatures and new communications.
-In the diagrams representing the protocols, consecutive pieces of data flowing in the same direction are separated in distinct messages for visual purposes only. In practice, the data is sent in one message, each in its own field with a defined number of bytes.
-
-% -----------------------------------------------------
-% \subsection{Initial State}\label{chap:arch:services:initial-state}
-
-%% DEVICE STATE FROM FABRIC %%
-The device will come from fabric configured and prepared with the necessary keys to secure communications.
-Before acquiring the device, each entity can provide a list of entities with whom they wish to securely communicate. The device will then be delivered to each entity with the necessary keys. This allows owners to begin to communicate immediately, with no setup necessary.
-Additionally, the device is delivered with the necessary functionality and keys, so all devices can establish secure communications with new entities. This provides the flexibility of secure data exchange with a new entity, without having to send the device back to the distributor, to be loaded with the necessary keys.
+This section describes each system service and all its relevant information. 
+Firstly it presents the authentication, then the secure data exchange service, qualified digital signatures and services to establish new communication endpoints.
 
 % -----------------------------------------------------
 \subsection{Authentication}\label{chap:arch:services:auth}
 
-All users need to be authenticated through a PIN number, in order to access the system operations. This way, each entity with multiple users can organically handle which users are authorized to access the device, by handing out the corresponding PIN number.
-The device is delivered with a default PIN to the owner. It can be changed at any time by an authenticated user.
-To authenticate himself to the device, the user sends the operation code, and PIN through the software, the device then compares it to the authentication number securely stored inside it, and receives an appropriate failure or success status. Once authenticated, the session will be unlocked, and the user gains access to all services.
-The protocol to change the authentication PIN is exactly the same as the login, with the exception that the supplied PIN is the new PIN, which will overwrite the current. The user will receive an error status if it is not logged in.
-% Figure~\ref{fig:protocol:login} depicts the login protocol.
-
-% \begin{figure}[h!]
-%         \centering
-%         \includegraphics[width=0.50\textwidth]{./Images/authentication.png}
-%         \caption{Login and PIN change communication protocol}
-%         \label{fig:protocol:login}
-% \end{figure}
+Each entity will have its own device, which can be connected to a computer. To access the device's services, all users need to be authenticated to the device, through a PIN number. There is only a single PIN number, to authenticate the user's belonging to an entity to their device. This PIN number is securely stored in the device.
+Each entity can supply this number to users which will use the device, in behalf of the entity.
+After the user sends the correct PIN and is authenticated, the PIN can be changed.
 
 % -----------------------------------------------------
 \subsection{Secure Data Exchange}\label{chap:arch:services:data-exchange}
 
-The secure data exchange service is responsible for securing communications between users. It grants confidentiality, integrity and authentication to communications.
-The communication protocol, between the device and computer application, is illustrated in Figure~\ref{fig:protocol:data-exchange}, and consists of two transmissions.
+As previously introduced, the main goal of this solution is to secure communications between multiple entities, with identical devices.
+Herein defined is the secure data exchange service, responsible for securing communications between entities. 
+Communications are secured by providing three services: confidentiality, integrity and authentication. This allows communicating entities to ascertain the origin of messages and prevent unauthorized entities from reading and modifying them.
+To grant these services, communicating entities must agree on a symmetric key. This key will be stored in the devices of both entities, and is never exposed outside to the outside.
+This system provides services to agree on keys, which are discussed further ahead. For the purpose of this section, we will assume a symmetric key has already been agreed between both entities.
+
+As discussed in the previous chapter, and depicted in Figure \ref{fig:overview}, Alice's computer will communicate with her HSM, in order to secure data, to be sent to Bob. For this, there needs to be a communications protocol between the computer and HSM, to define what data is sent, in what order and by who. To secure a piece of data sent by Alice, the device needs to receive the data, and return the data encrypted and authenticated with an internal key, previously agreed by Bob and Alice.
+Thus, the communication protocol, between the device and computer application, is illustrated in Figure~\ref{fig:protocol:data-exchange}.
 \begin{figure}[h!]
 	\centering
 	\includegraphics[width=0.60\textwidth]{./Images/data-exchange.png}
 	\caption{Communication protocol for data ciphering and authentication in the HSM with internal keys}
 	\label{fig:protocol:data-exchange}
 \end{figure}
+Since the system is designed to have multiple services, and be able to store multiple keys, there needs to be a mechanism to identify the different services and keys.
+Services will be identified through a operation code, with a unique value for every service. Similarly, keys will be identified through an ID with a unique value for every key. Alice must know the ID for every key, which is stored in the device along with the corresponding key.
 
-The first transmission is started by the user, by sending the operation code and key ID, which identifies the internal symmetric key used to encrypt and authenticate.
-The device returns a status message. If the key ID was invalid or the user is not authenticated, it is an error.
-In the second transmission, the user application sends the data length, followed by the data to be encrypted and authenticated internally.
-Afterwards, the device starts the encryption process and MAC generation. When finished, the device outputs the result length and result data. If there is a processing error, the result length is 0.
-The protocol for decryption and encryption is identical. The only difference is in the transmitted data. For the encryption service, the device receives the plaintext data and returns a message with the generated MAC, IV and encrypted data. For decryption, the device receives the MAC, IV, ciphertext, and returns the original plaintext.
+Thus, if Alice wants to secure data, the computer must first send a message composed of a 1 byte code, identifying the secure data exchange service, and a 1 byte key ID, to identify the symmetric key which will be used to secure data.
+Upon receiving the message, the device will check internally if the user is authenticated and if both the operation code corresponds with an existing service and if the key with the corresponding ID exists.
+Subsequently the corresponding success or failure status is returned by the device.
 
-The encryption service protocol is pictured in Figure \ref{eq:encrypt-mac}.
-First, the plaintext data is encrypted with symmetric encryption and a randomly generated IV. Next a MAC is generated from the concatenated IV and ciphertext.
-The decryption service is depicted in Figure \ref{eq:decrypt-mac}.
-A new MAC is generated from the received IV and ciphertext. Then the received and computed MACs are compared. If identical, the data is authenticated, and the ciphertext is decrypted with the same internal symmetric key used for encryption and the received IV, to obtain the plaintext.
+After a successful exchange, the data can be sent to the device. Before the data is received, the device must know the size of the data which it will receive from the computer. Thus, 2 bytes containing the data size are sent first.
+After the data is processed in the device, its output is sent back to Alice, which can be securely sent to another entity, with the same symmetric key in their device.
+If Bob wants to obtain the plaintext of the data sent by Alice, the same communication process is used. Bob sends the correct operation code and key ID, receives a success status response, then sends the secured data from Alice, and waits for the plaintext response. 
 
+To produce the secure data, the plaintext must be encrypted and authenticated to provide the three necessary cryptography services: confidentiality, authentication and integrity.
+On the other hand, there must also be a process to authenticate and decrypt the data, in order to retrieve the plaintext. Therefore, a protocol for encryption and encryption with authentication is needed.
+
+As presented in Section \ref{chap:background:crypto}, symmetric encryption schemes provide confidentiality to data, while MAC algorithms provide authentication. AEAD schemes, which authenticate and encrypt messages, such as AES-GCM, may be more efficient and are less likely to be misused, than combining separate encryption and authentication schemes.
+Unfortunately, devices such as the SmartFusion2 SoC, do not provide AEAD schemes. These boards usually provide separate encryption and authentication algorithms.
+Thus, the proposed solution combines an encryption and authentication scheme, in order to provide the necessary cryptography services.
+Both algorithms can be combined in different orders. Studies recommend combining a secure encryption and secure MAC, with the encrypt-then-MAC method~\cite{encryptmacorder}. This method encrypts the plaintext first, then generates the MAC from the generated ciphertext.
+
+From this information, the proposed encryption protocol is pictured in Figure \ref{eq:encrypt-mac}. First, the plaintext data is encrypted with an internal symmetric key and a randomly generated IV. Next, a MAC is generated from the concatenated IV and ciphertext.
+If the IV can be modified by an attacker, the original plaintext cannot be fully recoverable. Therefore, it is important that the MAC is generated from both the ciphertext and IV, this way the receiver can detect if either information was altered.
+The output data is the concatenation of the IV, ciphertext and MAC.
 \begin{equation}
 	\label{eq:encrypt-mac}
 	E_{key}\{Data, IV\}, MAC_{key}\{IV+E_{key}\{Data, IV\}\}
 \end{equation}
+
+The decryption protocol is pictured in Figure \ref{eq:decrypt-mac}. The protocol follows the same process as the previous but in reverse order. A new MAC is generated from the received IV and ciphertext. Then, the computed and received MACs are compared. If identical, the receiver can be sure of the data's origin and integrity. The ciphertext is decrypted with the same internal symmetric key used for encryption and the received IV, to obtain the plaintext.
 
 \begin{equation}
 	\label{eq:decrypt-mac}
 	(MAC_{key}\{IV+Ciphertext\} == MAC) => E_{key}\{Ciphertext, IV\} => Data
 \end{equation}
 
-
 % ----------------------------------
 \subsection{Qualified Digital Signatures}\label{chap:arch:services:signatures}
 
-The system offers qualified digital signatures, which provide non-repudiation to a piece of data, using an internal private key, imported in the device from fabric.
-The communication protocol for signature generation is presented in Figure~\ref{fig:protocol:signature-generate}.
-% The communication protocol for signature generation and verification are presented in figures~\ref{fig:protocol:signature-generate} and \ref{fig:protocol:signature-verify}.
-% \begin{figure}[h!]
-%         \centering     %%% not \center
-%         \subfigure[Generation]{\label{fig:protocol:signature-generate}\includegraphics[width=79mm]{Images/signature-generate.png}}
-%         \subfigure[Verification]{\label{fig:protocol:signature-verify}\includegraphics[width=79mm]{Images/signature-verify.png}}
-%         \caption{Communication protocol for generating digital signatures and verifying the signatures using the internal HSM asymmetric key pair}
-% \end{figure}
+Digital signatures provide non-repudiation to a piece of data. This prevents an entity from denying the authorship of message. Qualified signatures are a special type of signatures where the private keys, which generated them, are stored inside a device, such as a HSM, and are never exposed to the outside.
+Therefore, the signature must be generated inside the HSM. The device should support an algorithm for the generation of signature, such as ECDSA.
+The device will store a unique private key, which will identify the entity. This key is randomly generated in the device and subsequently stored. Afterwards, the system is delivered to entities, with the already generated key.
+
+As with the previous service, a communications protocol between the user and device must be defined. The device must receive the data, from which it will generate the signature, while the user will receive the generated signature.
+The devised communication protocol is presented in Figure~\ref{fig:protocol:signature-generate}.
 \begin{figure}[h!]
 	\centering
 	\includegraphics[width=0.55\textwidth]{./Images/signature-generate.png}
 	\caption{Communication protocol for generating digital signatures using internal HSM asymmetric key pair}
 	\label{fig:protocol:signature-generate}
 \end{figure}
-The user application sends the operation code, data length and data to be signed.
-The qualified digital signature will be generated using the internal private key and data. Afterwards the device responds with the signature length and generated signature.
-The device generates the signature with the device's private ECC key, an implementation of the \ac{ECDSA} algorithm and the SHA-256 hash function according to the equation \ref{eq:signature-generate}.
+In order to identify the service, the user will send the corresponding operation code, along with the data to be signed.
+Upon reception of the data, the device checks if the user is authenticated and subsequently generates the qualified signature, using its internal private key.
+Afterwards, the device responds with the generated signature.
+
+As discussed previously, public key cryptography is slow. Therefore, a digital signature is generated by first computing a hash of the message, then signing the hash with the private key, as shown in Figure \ref{eq:signature-generate}. In general, generating a signature from a hash is faster, since it has small fixed size, while the data can be of any size.
 
 \begin{equation}
 	\label{eq:signature-generate}
@@ -144,22 +137,13 @@ The device generates the signature with the device's private ECC key, an impleme
 % -----------------------------------------------------
 \subsection{Establishing New Communication Endpoints}\label{chap:arch:services:new-comms}
 
-As introduced before, the device provides the flexibility to establish communications with other entities, even new ones, not previously requested by the user.
-The device can also import a new set of keys, provided by the control station.
-This way, already established channels of communication can be updated on a regular time schedule.
-When a user wants to communicate with a new entity, the system provides two convenient solutions.
-Both options allow establishing connections with new entities when needed, by way of a trusted third party: a control station. 
-The user can securely contact the control station at any time to request the public key of the other entity, through the secure data exchange service, equivalent to communicating with any other entity. The control station effectively acts as a PKI.
-Then, the user sends the information through the computer application to the device. The new key is generated in the device and made available right away. Then data can be exchanged with the new entity, which must also request the control station for the analogous entity's public key.
-
-The system can also be setup with a regular communication update schedule. It grants the flexibility of key revocation when needed, data exchange with new entities, as well as updating symmetric keys, with no additional complexity to the user, to always safeguard the security of communications.
-Each month an entity can hand over a list of the entities it wishes to communicate with to the control station, which will accordingly yield the corresponding key set.
-Each entity only needs to forward the list to the device, and the new keys are immediately stored and ready to be used.
-Users can resume communications, the same way as before with minimal interruption, with the requested entities.
-The protocols for both services are detailed next: symmetric key generation and importation of keys.
+The system provides the flexibility to establish secure communications with new entities, with identical devices.
+To achieve this, entities must agree on a new symmetric key, which can be subsequently used with the secure data exchange service, presented in Section \ref{chap:arch:services:data-exchange}, to secure communications between them.
+All new keys are stored in the device's secure storage, along with its unique ID.
+Two different mechanisms to generate and agree on new symmetric keys are presented next. The first uses public key cryptography and the second uses symmetric key cryptography.
 
 % -----------------------------------------------------
-\subsubsection*{Key Generation}\label{chap:arch:services:new-comms:ecdh}
+\subsubsection{Key Generation}\label{chap:arch:services:new-comms:ecdh}
 
 The protocol to generate a shared symmetric key with another entity, using asymmetric cryptography is detailed in Figure~\ref{fig:protocol:ecdh}.
 \begin{figure}[h!]
@@ -183,7 +167,7 @@ A new unique ID is generated for the key, which is stored in the device, alongsi
 The salt value is used, in order to generate several symmetric keys from the same asymmetric key pairs.
 
 % -----------------------------------------------------
-\subsubsection*{Import Keys}\label{chap:arch:services:new-comms:import}
+\subsubsection{Import Keys}\label{chap:arch:services:new-comms:import}
 
 This section details the protocol to import a list of encrypted symmetric keys into the device.
 The imported keys must be encrypted with a preset symmetric key, stored inside the device from fabric, using the secure data exchange service. Thus, a central management section with a similar device can distribute keys to the enrolled entities, on a regular schedule.
@@ -201,19 +185,20 @@ Each key data section consists of 1 byte for its ID, 1 byte for its size and rem
 The decrypted list of keys is encrypted again, with a dedicated symmetric key for memory storage. 
 
 The ciphertext and randomly generated IV are stored in memory. Both are authenticated by generating a MAC and storing it in secure storage.
-In order to fetch a stored key, a MAC is generated from the ciphertex and IV in memory, and compared to the MAC in secure storage. If identical, the keys can be decrypted and a specific key identified through its ID.
-% To provide authentication and thus protection against tampering, a MAC is generated from the three pieces of data and stored in secure storage, separate from the keys and IV.
+In order to fetch a stored key, a MAC is generated from the ciphertext and IV in memory, and compared to the MAC in secure storage. If identical, the keys can be decrypted and a specific key identified through its ID.
 
-% When a symmetric key is revocated, due to reaching its expiration date, or from being compromised, entities can generate a new one, using the aforementioned procedure, with an additional parameter for the key derivation function, to generate a completely new and unique key.
-% Import
-% Generate
+% The device can also import a new set of keys, provided by the control station.
+% This way, already established channels of communication can be updated on a regular time schedule.
+% When a user wants to communicate with a new entity, the system provides two convenient solutions.
+% Both options allow establishing connections with new entities when needed, by way of a trusted third party: a control station.
+% The user can securely contact the control station at any time to request the public key of the other entity, through the secure data exchange service, equivalent to communicating with any other entity. The control station effectively acts as a PKI.
+% Then, the user sends the information through the computer application to the device. The new key is generated in the device and made available right away. Then data can be exchanged with the new entity, which must also request the control station for the analogous entity's public key.
 
-% Supported management operations include generation of new symmetric keys for communication and revocation of existing keys saved in the device, if communications are suspected to be compromised.
-% These operations are only available in the scenario where each device has a pair of asymmetric keys, and there is a protocol in place to distribute public keys.
-
-% An entity receives their device, prepared to communicate with other entities, and a list of information of other entities, available to create communications. This information, namely the entities public key, can be imported into the device to generate new keys.
-% After the key is imported, a secure connection with a new entity can be established, by sharing symmetric keys.
-% In order for an entity to communicate with a another entity, with no previously established communications, their device will generate a new symmetric key and store it in secure storage, or in non-volatile memory, encrypted with the device's public key.
+% The system can also be setup with a regular communication update schedule. It grants the flexibility of key revocation when needed, data exchange with new entities, as well as updating symmetric keys, with no additional complexity to the user, to always safeguard the security of communications.
+% Each month an entity can hand over a list of the entities it wishes to communicate with to the control station, which will accordingly yield the corresponding key set.
+% Each entity only needs to forward the list to the device, and the new keys are immediately stored and ready to be used.
+% Users can resume communications, the same way as before with minimal interruption, with the requested entities.
+% The protocols for both services are detailed next: symmetric key generation and importation of keys.
 
 % -----------------------------------------------------
 \section{Summary}\label{chap:arch:summary}

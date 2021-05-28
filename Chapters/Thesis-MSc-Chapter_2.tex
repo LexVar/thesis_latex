@@ -216,18 +216,22 @@ Despite this, FPGAs are a good option due to less time-to-market and lower cost.
 
 The SmartFusion2 \ac{SoC} integrates a non-volatile \ac{FPGA} with a \ac{SoC} and an internal \ac{NVM} of 512 KB, for storing boot code.
 It has a \ac{SRAM} with 64 KB protected against \ac{SEU} or 80 KB unprotected. The board has an embedded ARM Cortex-M3 processor and a \ac{TRNG}, which provides a quality source of entropy, a critical part of most cryptographic algorithms. It supports multiple cryptographic functions: \ac{AES}, \ac{SHA}-256, \ac{HMAC} and \ac{ECC}, among others.
+
 The \ac{AES} system service supports encryption with 128 bit and 256 bit keys, with the following modes: ECB, CBC, OFB and CTR.
 It provides a \ac{SHA}-256 hashing service, and a \ac{HMAC} service using the same hashing function.
 The KeyTree service provides access to a SHA-256 based key-tree cryptography algorithm. Notably, it can be used to generate a message authentication code from a hash input and key, as a key derivation function with a key and salt as input or in challenge-response protocols.
 The \ac{TRNG} service provides a raw entropy source based upon a noisy ring oscillator, measured against a system clock.
+
 The device includes several relevant \ac{ECC} accelerators, with the \ac{NIST} defined P-384 elliptic curve.
 It can generate public keys from the corresponding private key, using its scalar point multiplication service, by multiplying the scalar (private key) with the curve's base point. This service also allows the generation of a shared secret with \ac{ECDH}, by multiplying the device's private key, with another user's public key.
 The device also includes a point addition service, which allows the implementation of the \ac{ECDSA} algorithm for generating digital signatures.
+
 The board provides a SRAM-PUF service to store user supplied or randomly generated keys.  It holds up to 56 key slots with a maximum of 4096 bits each.
 It uses the random start-up behaviour of a 2KB \ac{SRAM} block to determine a static secret, unique to each device. There is enough repeatability in the SRAM turn-on behaviour to reconstruct the same secret each time. This secret is used to derive cryptographic keys with 256 bit security strength.
 When power is removed, the secret disappears. At present, there is no technology able to detect the start-up behaviour of an SRAM \cite{smartfusionSecurityPractices}. It is determined by atomic-scale manufacturing differences in SRAM transistors.
 Each enrolled key generates a key code, required along with the secret to generate the specific key.
 The key codes are protected by \ac{AES} encryption and stored in a private section of the eNVM.
+
 The eNVM is a tamper-resistant nonvolatile memory. It has a size of 512KB, with the top 64 pages reserved for keys and passcodes, inaccessible by the user.
 It has a limited number of write cycles. For a predicted life span of 20 years, there is a limit of 1000 writes per page of 128 bytes \cite{smartfusionDatasheet}. For a smaller life span of 10 years, it has a limit of 10000 cycles per page.
 
