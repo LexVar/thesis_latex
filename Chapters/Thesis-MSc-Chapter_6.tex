@@ -21,62 +21,49 @@ Two performance metrics are used, the average test processing time, and the test
 % -----------------------------------------------------
 \subsection{Testing configuration}\label{chap:evaluation:performance:config}
 
-The tests were all performed on a Windows 10 computer, running the user software which calls the implemented PKCS\#11 API. The software communicates with the SmartFusion2 device through a UART serial port. The user software was used to run the tests. % Two applications were running on the computer while performing the tests, the PKCS\#11 application and the SoftConsole IDE, to run the code on the device.
-For all tests, the serial port UART connection was configured with a 115200 bit/s baud rate, with 8 data bits, no parity bits and one stop bit.
-Since the board does not provide a clock and API to measure elapsed time, the time had to be measured on the computer's side.
+The tests were all performed on a Windows 10 computer, running the user software which calls the implemented PKCS\#11 API. The software communicates with the SmartFusion2 device through a serial port. For all tests, the connection was configured with a 115200 bit/s baud rate, with 8 data bits, no parity bits and one stop bit.
+Since the board does not provide a clock and API to measure elapsed time, the time is measured on the computer between PKCS1\#11 API calls.
 The elapsed time was measured using the function \texttt{gettimeofday()} with microseconds precision, available in the C library \texttt{sys/time.h}.
-Time measurement begins immediately before sending a message to the device, which triggers the service, and stops when the software receives a response, after it is finished.
-In order to thoroughly study the performance and scalability of each component, the transmitted data size was varied, for components where it is logical and can potentially have a performance impact. The data size was tested, when possible, up to 36 KB, which is the maximum buffer size, limited by the 80 KB of RAM.
-Obvious outlier values were excluded from the experimental calculations. The adopted rule was that values which are significantly above or below the average, and are never repeated were eliminated from the sample set.
-Tests were performed in two different configurations.
-For the first test configuration, the measured service is performed once in the device each transmission. This transmission is repeated multiple times, minimum thirty, for each set of values, until an acceptable variance is achieved. For most components the variance is well below 1\%.
-For most components, the first configuration produced unstable results with a high variance, due to the communications overhead on every test run.
-Thus, a second test configuration was applied on components, where the time to transmit messages needs to be minimized, to more accurately assess its isolated performance. For each transmission, the service was performed 100 consecutive times on the board. The resulting time was divided by 100 to obtain the average processing time.
-With the second configuration, the results are visibly more stable.
-An example of the difference between both configurations results, was on the AES tests. The first configuration's overhead, from the communications, compared to the second, resulted in higher time values of on average 15\%, with a peak 61\% overhead for the smallest data sizes.% Additionally when plotting the results, the second results scale almost perfectly linear, and the first results' are significantly more unstable.
+
+In order to thoroughly study the performance and scalability of each component, the transmitted data size was varied, for components where it can potentially have a performance impact. The data size was tested, when possible, up to 36 KB, which is the maximum buffer size, limited by the 80 KB of RAM.
+
+The communication channel performance was measured by transmitting a certain amount of data up to 36 KB. For each data size, the test was repeated 30 times, in order to achieve a variance below 1\%.
+For the remaining tested components, this test method produced unstable results due to the communications overhead on every test run.
+Thus, the remaining services were tested by running the service 100 times inside the device, for each API call. The measured processing time is divided by 100 to obtain the average time. This method minimizes the communications overhead, since it is only done once, so the isolated service can be more accurately assessed.
+The services were run 100 times inside the device, since it produced below 1\% variance for every test run of every service.
+
+The SmartFusion2 and implemented services were tested taking into account three different time components \(T_{Total} = T_{Call} + T_{Transmittion} + T_{Service}\). The \(T_{Call}\) component is the elapsed time for invoking the PKCS\#11 API, before any data is transmitted. From the results, we can conclude that the impact of this component on the performance is negligible, since it is practically always 0.
+The data transmission time follows the performance behaviour of the communications channel.
+Thus, all service tests focused solely on measuring the performance of the isolated service on the device, with no data transmission. To get a complete model of the overall performance of the system from the user's perspective, the isolated service processing time can be added to the communications time.
 
 % -----------------------------------------------------
 \subsection{Performance models}\label{chap:evaluation:performance:models}
 
-Some time results followed a close to perfect linear evolution, in function of the processed data size. In those cases, performance can be modeled with a formula composed of two different components \ref{eq:linear-eq}, a constant value independent of processed data, and a factor dependent on the processed data size.
+After measuring the results for multiple services, it was observed that most followed a close to perfect linear evolution, in function of the processed data size. In those cases, performance can be modeled with a formula composed of two different components \ref{eq:linear-eq}, a constant value independent of processed data, and a factor dependent on the processed data size.
 \begin{equation}
 	\label{eq:linear-eq}
 	T_{Total} = T_{Constant} + T_{Data} * KB
 \end{equation}
-To assess the accuracy of the models, the median average percentage error was calculated and is presented next to its values. Tests which always process a fixed data size, such as the ECC and KeyTree core services, only have a constant time component.
+In those cases, in order to provide a characterization of service's performance, these values were calculated.
+So as to assess the accuracy of the models, the median average percentage error was calculated and is presented next to its values. Tests which always process a fixed data size, such as the ECC and KeyTree core services, only have a constant time component.
 
 % -----------------------------------------------------
 \subsection{Communications}\label{chap:evaluation:performance:comms}
 
-In order to assess the communication channel performance, and its impact on the system, the average time to transmit data was measured. For each test, the computer application sent data of a specific size to the device, which returned an acknowledge message on reception. The test, in accordance with the first scenario, was repeated at least thirty times for each data size. The highest variance did not go above 0.2\%, for any value.
+In order to assess the communication channel performance, and its impact on the system, the average time to transmit data was measured. For each test, the computer application sends data of a specific size to the device, which returns an acknowledge message on reception. Regarding the test results, the highest variance did not go above 1\%, for any value.
 The average transmission times for each value are displayed in Figure \ref{fig:comms:time}.
-The values range from 0.048 seconds for 0.5 KB, to 3.2 s for 36 KB.
-The performance, in milliseconds, can be modelled by a linear equation \ref{eq:linear-eq}, with values \(T_{total} = 7.281 + 88.638 * KB\), and a median average percentage error of 0.92 \%.
-
-% \begin{figure}[h!]
-%         \centering
-%         \includegraphics[width=0.7\textwidth]{./Images/comms-time.png}
-%         \caption{Serial Port data transmission times}
-%         \label{fig:comms:time}
-% \end{figure}
-%
-% \begin{figure}[h!]
-%         \centering
-%         \includegraphics[width=0.7\textwidth]{./Images/comms-tput.png}
-%         \caption{Serial port data transmission throughput}
-%         \label{fig:comms:tput}
-% \end{figure}
 \begin{figure}[h!]
 	\centering     %%% not \center
 	\subfigure[Data Transmission Time]{\label{fig:comms:time}\includegraphics[width=79mm]{Images/comms-time.png}}
 	\subfigure[Channel Throughput]{\label{fig:comms:tput}\includegraphics[width=79mm]{Images/comms-tput.png}}
-	\caption{Serial port data transmission evaluation}
+	\caption{Serial port data transmission results}
 \end{figure}
-
-For the subsequent graphic, the throughput was calculated from the transmission tests, for every test repetition.
-Figure~\ref{fig:comms:tput} plots the experimental throughput and theoretical throughput. The theoretical throughput was calculated from the baud rate \(115200/8 = 14.06 KB/s\).
-We can observe the experimental throughput starts at around 10 KB/s for smaller data sizes, and stabilizes around 11 KB/s, as size increases.
-We can conclude the practical throughput is close to the theoretical, and as expected, stabilizes as the data size increases.
+The values range from 0.048 seconds for 0.5 KB, to 3.2 s for 36 KB.
+In the subsequent graphic, the throughput was calculated from the transmission results.
+Figure~\ref{fig:comms:tput} depicts the experimental throughput and theoretical throughput. The theoretical throughput was calculated from the baud rate \(115200/8 = 14.06 KB/s\).
+We can observe that the experimental throughput starts at around 10 KB/s for smaller data sizes, and stabilizes around 11 KB/s, as size increases.
+We can conclude that the practical throughput is close to the theoretical, and as expected, stabilizes as the data size increases.
+The performance of the data channel, in milliseconds, can be modelled by a linear equation \ref{eq:linear-eq}, with values \(T_{total} = 7.281 + 88.638 * KB\), and a median average percentage error of 0.92 \%.
 
 % -----------------------------------------------------
 % -----------------------------------------------------
@@ -84,38 +71,32 @@ We can conclude the practical throughput is close to the theoretical, and as exp
 
 % TODO - AES FPGA core test results!!!!
 
-All the security accelerators of the SmartFusion2 SoC were tested. This includes the TRNG, AES, SHA, HMAC, KeyTree based SHA and ECC scalar multiplication and point addition services.
-As discussed before, all services were tested using the two presented configurations. The services were tested taking into account three different time components \(T_{Total} = T_{Call} + T_{Transmittion} + T_{Service}\), with the first test configuration. The \(T_{Call}\) component is the elapsed for invoking the PKCS\#11 API, before any data is transmitted or the service is executed. From the results, we concluded this component's impact on performance is negligible, since it is practically always 0.
-Predictably, the transmission time always follows the performance model studied in the previous section.
-Thus, the following security core and implemented services tests focused on solely measuring the performance of the service on the device, without the data transmission part. To get a complete model of the overall systems' performance, from the user's perspective, the isolated service processing time can be added to the communications time.
-Using the significantly more stable second test configuration, the isolated service processing time results are presented next.
-Twenty different data sizes were used in the test, from 0.5 KB up to 36 KB.
-All services followed a near perfect linear evolution, in function of the processed data size, as presented in Table \ref{tab:core-model}.
-
-\input{tables_and_code/cores-model.tex}
-
-All time values are presented in milliseconds, and the median average percentage error represents the error of the model's predicted values compared to the real results.
-The AES service was tested with all possible variations. Namely, with 128 bit and 256 bit keys, with all four available modes and with encryption and decryption. Only one result is shown, since there was no variation among them. The AES mode, key size or encryption/decryption operation does not impact the performance. Therefore, there is no performance advantage in choosing CTR mode over CBC mode, or vice-versa.
-Regarding the results, higher values of the time dependent factor, indicates the service time increases faster, as data sizes increase. Overall, the AES and HMAC total service time increases faster, compared to SHA, which increases significantly slower. The constant time is similar among the three services, HMAC is slightly higher.
-The error percentages are all below 1\%, except for the TRNG service, proving the calculated models accurately represent all services' performance.
-The TRNG service was tested by generating 16 random bytes, up to the maximum allowed by the API of 128 bytes. As expected the performance barely increases with the data size, and the constant factor is the most relevant for its performance.
-The ECC services are the slowest performers, particularly the scalar multiplication (ECDH), with each run taking more than half a second.
-
+All the security accelerators of the SmartFusion2 SoC were tested. This includes the TRNG, AES, SHA, HMAC, KeyTree and ECC scalar multiplication and point addition services.
+Additionally, a side-channel resistant 128 bit AES core implemented in the FPGA was also tested.
+The isolated service processing time and throughput results are presented in Figures \ref{fig:performance:core-time} and \ref{fig:performance:core-tput}. Twenty different data sizes were used in the test, from 0.5 KB up to 36 KB.
+The TRNG service was tested by generating 16 random bytes, up to the maximum allowed of 128 bytes. As expected the performance barely increases with the data size.
 \begin{figure}[h!]
-	\centering
-	\includegraphics[width=0.7\textwidth]{./Images/core-tput.png}
-	\caption{Security services throughput evolution}
-	\label{fig:performance:core-tput}
+	\centering     %%% not \center
+	\subfigure[Processing Time]{\label{fig:performance:core-time}\includegraphics[width=79mm]{Images/core-time.png}}
+	\subfigure[Throughput]{\label{fig:performance:core-tput}\includegraphics[width=79mm]{Images/core-tput.png}}
+	\caption{Security services performance and throughput evolution}
 \end{figure}
+The AES service was tested with all possible variations. Namely, with 128 bit and 256 bit keys, with all four available modes and with encryption and decryption. Only one result is shown, since there was no variation among them. The AES mode, key size or encryption/decryption operation does not impact the performance. Therefore, there is no performance advantage in choosing CTR mode over CBC mode, or any other mode.
+Overall, the AES and HMAC total service time increases faster, compared to SHA, which increases significantly slower.
+The ECC services are the slowest, particularly the scalar multiplication (ECDH), with each run taking more than half a second.
 
-The graphic \ref{fig:performance:core-tput} represents the throughput calculated from the processing time results previously gathered. It shows all services throughput, shown in KB/ms, increases and eventually stabilizes at a specific value. AES stabilizes at around 1.2 KB/ms, and both SHA and HMAC at around 0.1 KB/ms.
+Figure \ref{fig:performance:core-tput} represents the throughput calculated from the processing time results previously gathered. It shows all services throughput, shown in KB/ms, increases and eventually stabilizes at a specific value. AES stabilizes at around 1.2 KB/ms, and both SHA and HMAC at around 0.1 KB/ms.
+
+All data dependent services followed a near perfect linear evolution, in function of the processed data size, as presented in Table \ref{tab:core-model}.
+\input{tables_and_code/cores-model.tex}
+The error percentages are all below 1\%, except for the TRNG service, proving these models accurately predict the performance of the services.
 
 % -----------------------------------------------------
 % -----------------------------------------------------
 \subsubsection*{Core/Software Comparison}\label{chap:evaluation:services:software}
 
 The SHA and HMAC performance difference results were enigmatic. The HMAC data dependent portion, 7.815 ms, is nearly 10 times higher than the SHA value, 0.807 ms. This means HMAC's time performance degrades nearly 10 times faster than the SHA performance. This is a surprising result, since the HMAC algorithm is composed of two hash computations and uses SHA-256, so the results are expected to be closer.
-For this reason, a lightweight implementation of HMAC, SHA and AES was included in the board for comparison. The library used for HMAC and SHA was \cite{ogayHMAC}, and for AES \cite{tinycrypt}. 
+The included software implementation of HMAC, SHA and AES were tested for comparison with the SmartFusion2 services. The library used for HMAC and SHA was \cite{ogayHMAC}, and for AES \cite{tinycrypt}. 
 
 \begin{figure}[h!]
 	\centering
@@ -124,9 +105,8 @@ For this reason, a lightweight implementation of HMAC, SHA and AES was included 
 	\label{fig:performance:software-core-time}
 \end{figure}
 
-The HMAC, SHA and AES software implementations were tested using the second test configuration.
 Analyzing the time performance results in Figure \ref{fig:performance:software-core-time}, the SHA and HMAC software results are almost identical, the HMAC is a slightly worse performer. Compared to the software results, the SHA core is significantly faster, and deteriorates very slowly as data size increases. The opposite happens for the HMAC core. It is convincingly a worst performer, compared to both HMAC and SHA software implementations. 
-This is an ambiguous result, as there is no clear reason for the HMAC core performance degradation, compared to the SHA core and the software implementations. One could assume it could be caused by the DPA mitigations, but it would still not explain the meaningful discrepancy compared to the SHA core, which also includes these mitigations.
+This is an ambiguous result, as there is no clear reason for the HMAC core performance degradation, compared to the SHA core and the software implementations. One could assume it is caused by possible DPA mitigations, but it would still not explain the meaningful discrepancy compared to the SHA core, which also includes these mitigations.
 The AES software implementation was tested with encryption in CBC mode and a 256 bit key. As expected, it performs worse than the core service. CTR mode with the same configuration was also tested, and has very similar performance to CBC.
 
 % -----------------------------------------------------
@@ -134,7 +114,7 @@ The AES software implementation was tested with encryption in CBC mode and a 256
 \subsubsection*{Memory Performance}\label{chap:evaluation:services:memory}
 
 The read and write performance of the different device's memories, along with the PUF service were tested. Both eSRAM and eNVM memories were tested from 0.5 KB to 36 KB. The PUF performance was tested from 16 bytes, up to its limit of 512 bytes. For the PUF and eNVM performance, due to the write cycle limitations, each test was performed with only 10 repetitions, compared to the usual 100 with the second configuration. Precautions were also taken, by changing the eNVM page being written for every repetition, to avoid exhausting any particular page.
-The performance results in Table \ref{tab:memory-model} were calculated according to a linear model.
+The performance results depicted in Table \ref{tab:memory-model} were calculated according to the linear model.
 
 \input{tables_and_code/memory-model.tex}
 
@@ -147,7 +127,7 @@ The RAM write performance is comparable to the eNVM read performance. The RAM re
 \subsection{Implemented Services}\label{chap:evaluation:services}
 
 All implemented services from Chapter \ref{chap:implementation} were tested from data sizes of 0.5 KB up to 36 KB. Each service's performance depends on the used accelerator's, memory access and implemented logic.
-The tested services were, encryption and authentication, decryption and authentication, both using the AES accelerator and the HMAC software implementation, the import keys service, using the AES, HMAC and PUF cores, ECDSA and ECDH, both using the ECC scalar multiplication accelerator. ECDSA also uses the ECC point addition core. It is worth noting, the encryption service also uses the TRNG service, to generate a random IV. The continuous encryption and decryption services, used AES in CBC mode, the HMAC software implementation and a 36 KB buffer for data. The services were tested with data sizes up to 200 KB.
+The tested services were, encryption and authentication, decryption and authentication, both using the AES accelerator and the HMAC software implementation; the key import service, using the AES, HMAC and PUF cores, ECDSA and ECDH, both using the ECC scalar multiplication accelerator. ECDSA also uses the ECC point addition core. It is worth noting that the encryption service also uses the TRNG service, to generate a random IV. The continuous encryption and decryption services, used AES in CBC mode, the HMAC software implementation and a 36 KB buffer for data. The services were tested with data sizes up to 200 KB.
 Tests were performed with the second configuration, without data transmission, to test the processing time of the isolated services.
 Similarly to the previous tests, the time performance results evolve linearly. The obtained values are presented in Table \ref{tab:services-model}.
 
@@ -160,9 +140,6 @@ The service performance barely varied, due to the small data interval. Its perfo
 Key generation with ECDH and the SHA-based KeyTree derivation function performs at a constant time of 578.092 ms.
 Scalar multiplication has a big impact on the performance for both ECDH and ECDSA.
 The median average percentage error for the continuous encryption/decryption models is below 0.19\%, so the models almost perfectly represent its performance.% The import keys service model has the highest error with 2.86\%.
-% The data dependent value, of both services, is extremely close to the sum of the previously calculated values of AES and HMAC, \(11.124+7.815=18.939\approx18.953\approx18.946\).
-% The continuous operations are better performers due to using the faster HMAC software implementation, compared to the board's core.
-% because of the HSM's 'RAM limitations, more demanding than other operations due to keys being storage in the same memory as the code. With 5 KB of key storage available, the system can store up to 20 symmetric keys of 32 bits, used to secure communications. However this can be bypassed by storing the keys in a high capacity external storage connected to the device. The keys are stored encrypted with internal keys, so they are secure.
 
 \begin{figure}[h!]
 	\centering
@@ -181,46 +158,31 @@ A smaller range from the minimum to maximum throughput, for a particular buffer 
 \begin{figure}[h!]
 	\centering
 	\includegraphics[width=0.7\textwidth]{./Images/buffer-tput.png}
-	\caption{Continuous encryption throughput evolution with increasing buffer sizes}
+	\caption{Continuous encryption and MAC throughput evolution with increasing buffer sizes}
 	\label{fig:performance:buffer-tput}
 \end{figure}
 
-% \begin{figure}[h!]
-%         \centering     %%% not \center
-%         \subfigure[Constant component overhead \% of total performance]{\label{fig:performance:buffer-overhead}\includegraphics[width=79mm]{./Images/buffer-overhead.png}}
-%         \subfigure[Throughput evolution from buffer size]{\label{fig:performance:buffer-tput}\includegraphics[width=79mm]{./Images/buffer-tput.png}}
-%         \caption{Buffer size overhead and throughput evolution}
-% \end{figure}
-
-Analysing the plot, the average throughput significantly increases from 0,1 KB up until 5 KB, after which, the average throughput stabilizes around 66 KB/s and the maximum at 68 KB/s. The minimum throughput stabilizes around 49.5 KB/s, after a buffer size of 0.5 KB. If the goal is to maximize throughput, there is no advantage in using a buffer bigger than 10 KB. Even a 5 KB buffer has almost identical performance. Additional trade-offs can be implemented, if the total data size the system will process is known beforehand. For higher data sizes, where the maximum throughput is achieved, the optimal buffer size is 10 KB. However, if the system mainly receives small data of around 0.5 KB, the minimum throughput becomes relevant. It becomes stable from a buffer of 0.5 KB, up to a 35 KB. For this use case, if memory space is needed, a 0.5 KB buffer is acceptable. The extra saved memory can be used to implement more functionalities.
-
-
-% TODO
-% The results in table~ for the encryption and decryption operations are very similar due to both using the same board services, AES encryption and HMAC, but in a different order. It is also important to note AES encryption and decryption in CTR mode is essentially the same operation due the mode's characteristics.
-% Relating to the variation in data size, the values vary between approximately 0.1284 and 0.1825 seconds, which is a very insignificant difference. Thus we can conclude, the data size has a negligible impact on the operations performance.
-
-% Regarding the key generation operation results in table~, two values were obtained through different methods. Due to the operation using SRAM-PUF services to enroll new keys in the eNVM memory, with limited write cycles and key slots, this operation cannot be repeated enough times to get a relevant enough sample size.
-% So a trade off was achieved. The operation was performed 1000 times without the key enrollment operation, meaning only the ecdh key generation algorithm and key derivation function (SHA-256).
-% Since the enrollment phase is presumed to be expensive, due to writing in eNVM memory, the test was also performed 10 times with key enrollment, to get an idea of its potential performance cost.
-% This result is congruent with the one obtained by \cite{parrinha2017flexible} of 0.57s per ECC scalar multiplication.
+Analysing the plot, the average throughput significantly increases from 0,1 KB up until 5 KB, after which, the average throughput stabilizes around 66 KB/s and the maximum at 68 KB/s. The minimum throughput stabilizes around 49.5 KB/s, after a buffer size of 0.5 KB. If the goal is to maximize throughput, there is no advantage in using a buffer bigger than 10 KB. Even a 5 KB buffer has almost identical performance. Additional trade-offs can be implemented, if the amount of data available into system is known beforehand. For higher data sizes, where the maximum throughput is achieved, a buffer size of at least 5 KB is a good choice. However, if the system mainly receives small data of around 0.5 KB, the minimum throughput becomes relevant. It becomes stable from a buffer of 0.5 KB, up to a 35 KB. For this use case, if memory space is needed, a 0.5 KB buffer is acceptable. The extra saved memory can be used to implement more functionalities.
 
 % -----------------------------------------------------
 % -----------------------------------------------------
 \section{Requirements}\label{chap:evaluation:requirements}
 
 This section evaluates the fulfilled requirements of the developed system, defined in Chapter \ref{chap:problem:requirements}.
-Firstly, the chosen device SmartFusion2 SoC is a portable board, with a robust set of security services.
+The SmartFusion2 SoC is a portable board, with a robust set of security services.
 Compared to the existing HSMs on the market, this device is one of the cheapest, so it is adequate for distribution among several users. Market HSMs go from 650€ up to \$39,000 \cite{HSMpriceArticles}, \cite{HSMPresentationPrices}. A M2S090TS SmartFusion2 evaluation kit is priced at 384 € \cite{smartfusionPrice}.
-Regarding its services, it provides encryption and authentication with AES and HMAC, a secure storage service for keys, SRAM-PUF, and ECC primitives for shared keys with ECDH and digital signatures, by implementing ECDSA. It provides tamper detection capabilities and data zeroization.
+
+The board provides encryption and authentication with AES and HMAC, a secure storage service for keys, and shared key generation with ECDH. It provides tamper detection capabilities, secure boot and zeroization.
 It has the necessary functionalities to provide authentication and confidentiality to communications, which is the main requirement of the system.
-The prototype uses the board's services, except for the HMAC software implementation, and all keys are stored securely.
+The developed prototype uses the board's services, except for the HMAC software implementation, and all keys are stored securely.
+
 The developed key management solution allows the periodic replacement of keys. Therefore, communications with new entities, with similar devices, can be established.
 Users must authenticate themselves to the device, using its authentication PIN. This way entities can manage which users have access to the device, on behalf of the entity.
-Whenever a tamper attempt or error is detected, the device is blocked and does not allow commands, and eventually is completely erased, if deemed necessary. Any potential attacks and data leaks data are prevented.
-A PKCS\#11 API was developed to expose the device's features and increase device interoperability. For users, an easy-to-use command line interface application, which calls the implemented PKCS\#11 API, was implemented.
+Whenever a tamper attempt or error is detected, the device does not accept any more API calls, and can be completely erased. This mitigates potential physical attacks and data leaks.
+A PKCS\#11 API was developed to expose the device's functionalities and increase device interoperability.
 
 % -----------------------------------------------------
 % -----------------------------------------------------
 \section*{Summary}\label{chap:evaluation:summary}
 
-In this chapter, the implemented system performance was thoroughly tested. Starting with the communication channel performance, following with all the SmartFusion2 security cores and implemented services. All the performance tests were isolated from the communications channel performance. Performance models which accurately represent each service performance, were calculated and presented. All the models allow anyone using this device, to accurately study and predict the performance of a custom service, implemented on the board. Therefore, this chapter provides a robust study of the SmartFusion2 board, its services characteristics, performance, as well as possible services to implement, feature trade offs and efficiency concerns.
+In this chapter, the implemented system performance was thoroughly tested. Starting with the communication channel performance, then the SmartFusion2 security accelerators and implemented services. In order to accurately predict the performance of the studied services, performance models were calculated from the performance results. These models allow anyone using this device, to accurately study and predict the performance of services, implemented on the board. Thus, this chapter provides a robust study of the SmartFusion2 board, its services characteristics, performance, as well as possible services to implement, feature trade offs and efficiency concerns.
