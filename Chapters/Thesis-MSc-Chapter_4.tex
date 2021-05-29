@@ -145,47 +145,52 @@ Two different mechanisms to generate and agree on new symmetric keys are present
 % -----------------------------------------------------
 \subsubsection{Key Generation}\label{chap:arch:services:new-comms:ecdh}
 
-The protocol to generate a shared symmetric key with another entity, using asymmetric cryptography is detailed in Figure~\ref{fig:protocol:ecdh}.
+As introduced in Section \ref{chap:background:crypto:ecdh}, two entities can agree on a symmetric key, using public key cryptography and the ECDH algorithm.
+Both entities must have a private and public key pair. Then, they share both public keys with the other entity. Only the private key must remain a secret, the public key can be shared. To generate the same secret, both entities can use their private key and the peer's public key.
+
+Just like previous services, there needs to be a communication protocol to trade the necessary information, and generate the key. The device must receive the peer's public key and return its own public key. Following these guidelines, the protocol to generate a shared symmetric key with another entity, using asymmetric cryptography, is detailed in Figure~\ref{fig:protocol:ecdh}.
 \begin{figure}[h!]
 	\centering
 	\includegraphics[width=0.60\textwidth]{./Images/ecdh.png}
-	\caption{Communication protocol to generate symmetric keys, with an internal private key, to be stored internally}
+	\caption{Communication protocol to generate a symmetric key with another entity, using an internal private key}
 	\label{fig:protocol:ecdh}
 \end{figure}
 
-% The user forwards the operation code, public key and salt value to the device.
-The user forwards to the device, the operation code and the public information from the central station: the foreign entity's public key and an additional public salt component.
-The generation process depicted in Figure \ref{fig:protocol:ecdh} is thus: first, a secret is computed with the ECDH algorithm, using the device's private key and the received public key. The secret is run through a key derivation function with the salt value, to obtain a new symmetric key.
+The protocol starts with the user sending the operation code, signaling the device it wants to generate a symmetric key. The device responds with its public key, which needs to be shared with the other entity. After the user receives the peer's public key, it forwards this key to the device, and waits for a response. If successful, the device internally generated the symmetric key, and stored it in its secure storage. The device also returns the new key ID to the user, so the entity can keep track of the ID which it needs to use to securely communicate with the other peer.
+The internal key generation process is e.g., the ECDH algorithm, only needs the internal private key and the received public key.
 
-\begin{equation}
-	\label{eq:ecdh-kdf}
-	KDF\{ECDH_{K}\{K^{-1}\}, Salt\}
-\end{equation}
-
-The same secret can be generated with the device's public key and the foreign entity's private key, in their device. If both entities receive each other's public keys and agree on the same salt value, through the central station, the generated key is identical.
-A new unique ID is generated for the key, which is stored in the device, alongside the key. This ID is returned to the user, along with the operation status.
-The salt value is used, in order to generate several symmetric keys from the same asymmetric key pairs.
+As mentioned, both entities must share their device's public key with the other entity. They must do it in a way, so that they can be sure the received public key is from the actual entity they wish to communicate, and not an attacker. This is usually achieved by a PKI, which is a trusted third party which stores, validates and distributes public keys. 
+Consequently, the entities can share public keys using a different communication service, with no validation of the traded public keys. Another alternative, is to exchange keys by way of another special entity, trusted by both sides. They should have previously agreed keys with the special entity, so they can securely communicate the public key to the other side, through the special entity. Since the special entity is trusted by both sides, they can trust the traded public keys belong to the correct entity.
 
 % -----------------------------------------------------
 \subsubsection{Import Keys}\label{chap:arch:services:new-comms:import}
 
-This section details the protocol to import a list of encrypted symmetric keys into the device.
-The imported keys must be encrypted with a preset symmetric key, stored inside the device from fabric, using the secure data exchange service. Thus, a central management section with a similar device can distribute keys to the enrolled entities, on a regular schedule.
-The protocol for the service is depicted in Figure \ref{fig:protocol:import-keys}.
+The key importation service provides a mechanism to share and import keys to the entities devices using symmetric key cryptography. This alternative provides flexibility to the system.
+Users are not constrained to key sharing using public key cryptography. This service also provides the mechanism to solve another problem. If symmetric key are used incorrectly or for too long, attackers can collect enough data to potentially break the security of keys.This is can be mitigated by this service, since it allows for key updates of the existing keys, to avoid its overuse.
 
+The device with the implemented key import operation receives an encrypted and authenticated list of keys, decrypts them with the secure data exchange service used for secure communications and overwrites the existing internal keys in the device.
+The communication protocol for this service is depicted in Figure \ref{fig:protocol:import-keys}.
 \begin{figure}[h!]
 	\centering
 	\includegraphics[width=0.60\textwidth]{./Images/import-keys.png}
-	\caption{Communication protocol to import encrypted symmetric keys, and store them encrypted in the HSM's non-volatile memory}
+	\caption{Communication protocol to import encrypted and authenticated symmetric keys, and store them in the HSM}
 	\label{fig:protocol:import-keys}
 \end{figure}
 
-The only transmission consists of sending the operation code, key set length and key data. Then, the device decrypts and authenticates the keys using a predefined symmetric key, stored in the device. The protocol used is the same for secure data exchange, as described previously.
-Each key data section consists of 1 byte for its ID, 1 byte for its size and remaining bytes for the actual key data.
-The decrypted list of keys is encrypted again, with a dedicated symmetric key for memory storage. 
+The operation code, sent by the user, signals the device it will subsequently receive a list of keys. Upon receiving the keys, the device authenticates and decrypts the keys using an internal key.
+Each key on the list is accompanied by 1 byte for its size and 1 byte for its ID.
 
-The ciphertext and randomly generated IV are stored in memory. Both are authenticated by generating a MAC and storing it in secure storage.
-In order to fetch a stored key, a MAC is generated from the ciphertext and IV in memory, and compared to the MAC in secure storage. If identical, the keys can be decrypted and a specific key identified through its ID.
+As mentioned, the keys are received encrypted and authenticated. This must have been previously done by another entity, using the secure data exchange service.
+The entity importing the keys into their device, must have a symmetric key in their device, to communicate with the special entity. This entity called "control station", was introduced in the previous chapter, in Figure \ref{fig:user:import-service}.
+The sole purpose of the entity is to act as a trusted third party, which distributes keys to the entities, through the secure data exchange service.
+Each system must be delivered to entities with an internal symmetric key for communications with the control station. Thus, entities can communicate with the control station to request keys with no setup or key agreement necessary.
+
+Whenever an entity wishes to communicate with others, they can send a list of entities they intend to communicate with to the station, secured with the data exchange service. The control station subsequently supplies the user with the list of keys, to be imported in their device.
+For example, if Alice wants to communicate with Bob, Alice can request the key from the control station. Then, the control station generates the key and sends it to both Bob and Alice, encrypted and authenticated with different predefined keys for Bob and Alice.
+Alice and Bob use this service to import the key into their devices, and can subsequently begin secure communications.
+
+% The ciphertext and randomly generated IV are stored in memory. Both are authenticated by generating a MAC and storing it in secure storage.
+% In order to fetch a stored key, a MAC is generated from the ciphertext and IV in memory, and compared to the MAC in secure storage. If identical, the keys can be decrypted and a specific key identified through its ID.
 
 % The device can also import a new set of keys, provided by the control station.
 % This way, already established channels of communication can be updated on a regular time schedule.
@@ -203,6 +208,6 @@ In order to fetch a stored key, a MAC is generated from the ciphertext and IV in
 % -----------------------------------------------------
 \section{Summary}\label{chap:arch:summary}
 
-This section described the system's functionalities, algorithms and communications protocols, between a secure and portable device, and the user's computer application.
+This section described the system's functionalities, algorithms and communications protocols, between a secure and portable device, and the user's computer.
 The system grants confidentiality and authentication to communications between any number of users, as soon as they receive the device, without overloading the users with convoluted tasks or responsibilities.
-It is very flexible, by allowing entities to manage the authorized user's of their devices and with whom they wish to communicate, by offloading the management responsibility to a trusted control station.
+It provides entities with the flexibility to manage which entities they wish to communicate with by themselves, or by offloading the management responsibility to a trusted control station.
