@@ -14,213 +14,179 @@ It covers the implementation details, namely the standards and libraries, the de
 % -----------------------------------------------------
 \section{Libraries and Tools}\label{chap:implementation:tools}
 
-The device's implementation is running on the SoC of a SmartFusion2 board, version M2S090TS from Microsemi, with the features presented in Section~\ref{chap:background:computing:smartfusion}.
-The application was implemented using the C programming language, with the SoftConsole version 3.4 IDE and the drivers to access the board's functionalities, provided by Microsemi. The board was configured using Libero version 12.2.
-The device functions as a HSM, connected through a USB connection to a computer. It was programmed using the external FlashPro4 programmer, required to develop and debug embedded applications with the SoftConsole IDE \cite{smartfusionSecurityPractices}.
-An API, to access the device's services, was implemented using the PKCS\#11 standard, in order to standardize the accessibility of its services to other systems. The developed user application has a simple \ac{CLI} interface, which invokes the PKCS\#11 functions. Both this software and the API were implemented in C++, for the open source MinGW compiler for Windows 10.
-The computer running the user software, and the smartfusion board running the HSM code, are connected through a USB connection.
-The device implementation uses the available \ac{UART} communication controller and corresponding drivers for communications, while the user application uses the windows drivers to communicate with serial ports.
-% This setup allows the board to send and receive messages of 16 byte blocks at a time.
-% Mbedtls consideration
-% It is an adequate device due to several components such as the required cryptographic functions in its system controller, a TRNG essential for cryptography, secure storage for keys and anti-tampering protections.
-% The inclusion of a cryptography library, such as Mbedtls, designed for embedded systems was considered. The library provides algorithm implementations: ECDH, ECDSA, AES encryption and HMAC. The library can be integrated with the boards functionalities and have unnecessary features disabled to lower the used memory.
-% Ultimately, the security services offered by the device provide the necessary functionality to fulfill the requirements defined previously, with the exception of generating the device's certificate, but this was done by exporting the public key, generating the certificate and loading the certificate on the device.
-% Beyond increasing the memory footprint, the library does not offer significant performance benefits, or security measures against side-channel attacks similar to the one's offered by the device's services.
+The device's implementation is running on the SoC of a SmartFusion2 board, version M2S090TS from Microsemi, presented in Section \ref{chap:background:computing:smartfusion}.
+The application was implemented using the C programming language, with the SoftConsole version 3.4 \ac{IDE} provided by Microsemi. The board was configured using Libero version 12.2.
+The device functions as a HSM, connected through a serial connection to a computer. It was programmed using the external FlashPro4 programmer, required to develop and debug embedded applications with the SoftConsole IDE \cite{smartfusionSecurityPractices}.
 
- % \cite{parrinha2017flexible}
-% The paper compares the performance of operations on the smartfusion2 with the mbedtls library and the board's security cores. It concludes AES encryption has a higher throughput of 1.8 Mbit/s on the mbedtls implementation compared to the 730 Kbit/s on the embedded core. For the elliptic curve scalar multiplication, used for ECDH, the software implementation is significantly slower, from 28.4s per operation compared to 0.57s with the embedded core.
+A common developer interface, to access the device's services, was implemented using the PKCS\#11 standard, in order to standardize the accessibility of its services to other systems. The developed user application has a simple \ac{CLI} interface, which invokes the PKCS\#11 functions.
+Both the software and the API were implemented in C/C++, for the open source MinGW compiler for Windows 10.
+The device implementation uses the available \ac{UART} communication controller and corresponding drivers for communications, while the user application uses the windows drivers to communicate with serial ports.
 
 % -----------------------------------------------------
 \section{HSM Services}\label{chap:implementation:services}
 
-The services were implemented using the SmartFusion2 cores: SRAM-PUF, AES, HMAC, SHA, ECC, TRNG and tamper detection.
-All the implemented services are accessed through the developed PKCS\#11 API. Its communication protocol is detailed in Section \ref{chap:arch:services}.
-% RAM
-By default, the eSRAM is 64 KB for running code. For each byte of \ac{RAM}, there are 2 bits for error detection and correction, a total of 16 KB. This feature mitigates \ac{SEU}. It corrects 1 bit errors and detects up to 2 bit errors. If more memory is needed for more application code, the board can be configured with this setting disabled in Libero. This frees the additional 16 KB of memory for RAM, for a total of 80 KB.
+The services were implemented using the SmartFusion2 security accelerators: SRAM-PUF, AES, HMAC, SHA, ECC, TRNG and tamper detection.
+All the implemented services are accessed through the developed PKCS\#11 API, with the communication protocols detailed in Section \ref{chap:arch:services}.
+
+By default, the device's RAM has 64 KB for running code. For each byte of the \ac{RAM}, there are 2 bits for error detection and correction, a total of 16 KB. This feature mitigates \ac{SEU}, which can flip memory bits. It corrects 1 bit errors and detects up to 2 bit errors. If more memory is needed for more application code, the board can be configured with this setting disabled in Libero. This frees the additional 16 KB of memory for RAM, for a total of 80 KB.
+% The developed implementation configured the board with this feature off, in order to use 80 KB of RAM for code.
 
 % -----------------------------------------------------
 \subsection{Login}\label{chap:implementation:services:authentication}
 
-The login operation is used to authenticate the user, using an eight digit PIN. The other implemented services can be accessed, after the user is logged in.
-The authentication PIN is saved in the SRAM-PUF service in a predefined and static slot, or using the developed key management solution detailed ahead, in Section \ref{chap:implementation:services:key-import}. When authentication is performed, the PIN is read, compared with the client's supplied PIN, and subsequently erased from volatile memory.
+Entities must be authenticated before they can access the device's services. The login operation authenticates the user, using an eight digit PIN.
+There is only a single PIN to authenticate the entity. The individual users are not authenticated.
+The PIN is stored in the secure storage of the internal device. The available secure storage and management solutions which can be used to store the number are discussed in a section ahead.
 Once the user is authenticated, the PIN can be altered by changing the existing value.
 
 \subsection{Secure Communications}\label{chap:implementation:services:secure}
 
-The goal of this service is to provide authentication and confidentiality to the data being exchanged.
-As previously mentioned, the security of AES-GCM in hardware is considered to be unsurpassed by any other AES authenticated-encryption scheme~\cite{aesmodes}.
-Unfortunately, the SmartFusion2 board does not support this encryption algorithm, or any authenticated-encryption scheme. The board provides separate encryption and authentication algorithms.
-Therefore, the devised solution combines an AES encryption mode with the authentication algorithm HMAC. Among the supported AES modes, as concluded in Chapter~\ref{chap:background}, CTR mode is the most favourable option because of its efficiency and security, without the additional complexity of implementing a padding solution to CBC.
-For authentication, the board supports HMAC with the SHA-256 hash function, which uses a 256 bit symmetric key, to generate a 256 bit code. As discussed in Section \ref{chap:background:crypto:mac}, it is a well-designed construction, even though it is not the most efficient.
-For combining these algorithms, studies recommend combining a secure encryption and secure MAC, with the encrypt-then-MAC method~\cite{encryptmacorder}.
-The key used for HMAC should be different from the one used in encryption, to ensure the best security practices, by not reusing the same key in different algorithms. So in practice, a key used for securing communications is split in two keys, one for encryption and one for authentication.
-When choosing key sizes, taking into account the limited storage capacity of the board, a smaller, but still secure, key size is preferred. The AES 128 bit and 256 bit services guarantee 128 and 256 bit security respectively. HMAC with SHA-256 provides 256 bit security, with 256 bit keys. According to the NIST recommendations~\cite{nistRecommendations}, algorithms which guarantee both 128 and 256 bit security, are expected to be secure until 2031 and beyond. If storage is extremely limited, AES with 128 bit keys is a secure and adequate option. However, with 256 bit security, the system will have a longer life expectancy.
-With AES 128 bit, the secure data service provides 128 bit security, since it has the lowest security level compared to HMAC, which provides 256 bit. Choosing AES with 256 bit keys, provides 256 bit security to the service.
-In the developed implementation, for every communication, two 256 bit keys are used.
+The goal of this service is to provide authentication and confidentiality to the data being exchanged, between entities with these devices, using internal keys.
+In order to provide these services, a protocol was previously defined in Section \ref{chap:arch:services:data-exchange}, which combines a symmetric encryption and authentication scheme. The algorithms are combined with an encrypt-then-MAC approach, meaning the plaintext is encrypted first, then authenticated.
 
-For every new encryption operation, a unique 16 byte IV is generated, using the TRNG service.
-Then, the plaintext sent by the user software is encrypted, and the MAC is generated from the ciphertext and IV. The final output of IV, ciphertext and MAC is returned to the user.
-The board was configured with its maximum of RAM, 80 KB. With all the code and drivers needed for this implementation, only around 36 KB of space for data buffers is available. Initially, two buffers of 18 KB each were used, one for the input data and one for the output result. With some tests and improvements, this was improved to a single 36 KB buffer, where the initial input is stored, as well as the result while it is computed. With this implementation, the system is limited to securing 36 KB of data. The next logical upgrade was to implement continuous cipher and authentication, where chunks of the total data are received from the user, one after the other. However, the board is not capable of continuous operations using the provided AES implementation.
+The SmartFusion2 SoC supports the type of algorithms needed for this protocol.
+For every encryption operation, a random 16 byte IV is generated, using the TRNG service.
+For symmetric key authentication, the board supports HMAC with the SHA-256 hash function, which uses a 256 bit symmetric key, to generate a 256 bit code. As discussed in Section \ref{chap:background:crypto:mac}, it is a well-designed construction, even though it is not the most efficient.
+For confidentiality, the board provides several AES symmetric encryption modes, with 128 bit and 256 bit keys. Among them, CBC and CTR are the most favourable options because of their security.
+
+When choosing key sizes, and taking into account the limited storage capacity of the board, a smaller, but still secure, key size is preferred. The AES 128 bit and 256 bit services guarantee 128 and 256 bit security respectively. HMAC with SHA-256 provides 256 bit security, with 256 bit keys.
+According to the NIST recommendations~\cite{nistRecommendations}, algorithms which guarantee both 128 and 256 bit security, are expected to be secure until 2031 and beyond. If storage is extremely limited, AES with 128 bit keys is a secure and adequate option. However, with 256 bit security, the system will have a longer life expectancy.
+
+The key used for HMAC should be different from the one used in encryption, to ensure the best security practices, by not reusing the same key in different algorithms. So in practice, a key used for securing communications is split in two keys, one for encryption and one for authentication.
+
+The board was configured with its maximum of RAM, 80 KB. With all the code needed for this implementation, a maximum of 36 KB is available for the plaintext and ciphertext buffers.
+Initially, two buffers of 18 KB each were used, one for the input data and one for the output result. This was improved to a single 36 KB buffer, where the initial input is stored, as well as the result while it is computed.
+Therefore, with this protocol implementation, the system is limited to securing 36 KB of plaintext.
+In order to improve this, a continuous cipher and authentication implementation is needed. The data would not be received in full, but instead, the data would be divided in chunks, which are received by the device, computed and returned to the user, one after the other. However, the board is not capable of continuous operations using the provided AES and HMAC implementations.
+
+To overcome this limitation, the characteristics of the AES CBC mode can be taken advantage of, as pictured in Figure \ref{fig:protocol:cbc-chunks}. 
+\begin{figure}[h!]
+	\centering
+	\includegraphics[width=0.75\textwidth]{./Images/cbc-chunks.png}
+	\caption{Continuous CBC block encryption of data divided in chunks}
+	\label{fig:protocol:cbc-chunks}
+\end{figure}
+CBC mode encrypts data one 16 byte block at a time, using an IV. The IV of the first block is the randomly generated value from the TRNG. The IV of the subsequent blocks, is the previously computed ciphertext block.
+If the data is received in chunks, the IV of the first chunk is the randomly generated value, while the IV of the next chunks is the last ciphertext block of the previous chunk.
+This allows continuous encryption of data divided in chunks.
+For HMAC, a lightweight software implementation was included, to allow continuous authentication \cite{ogayHMAC}.
+
+Since with this approach, the full data is divided in chunks, a modified communications protocol is necessary, so the device can receive and send the data, one chunk at a time.  The developed continuous communications protocol is depicted in Figure \ref{fig:protocol:data-exchange-chunks}.
 \begin{figure}[h!]
 	\centering
 	\includegraphics[width=0.75\textwidth]{./Images/data-exchange-chunks.png}
 	\caption{Communication protocol for continuous data ciphering and authentication in the HSM with internal keys}
 	\label{fig:protocol:data-exchange-chunks}
 \end{figure}
-To overcome this limitation, a solution was designed which takes advantage of the AES CBC mode's characteristics and a lightweight software implementation of HMAC. The AES mode starts encryption with a random IV for the first block. The IV for all the subsequent blocks, is the ciphertext of the previous block. Therefore, chunks can be encrypted with this mode, using the last ciphertext block of the last chunk, as the IV for the current chunk. The continuous communications protocol is depicted in Figure \ref{fig:protocol:data-exchange-chunks}. The user software sends the chunks one at a time, the HMAC calculation is updated for each block, and the resulting ciphertext is returned each time. When there are no more plaintext chunks to receive, the board returns the remaining ciphertext and final MAC value. The total output is composed of the initial IV, ciphertext and MAC.
-This communication approach is more flexible, compared to knowing the total data size, before receiving the chunks. It does not limit the system, if used for example in a network setting. Data can be sent to the device as it is received, and if the transmission is congested or broken, the system is not stuck waiting for the rest. The downside of this approach is the internal buffer on the HSM must be managed, which adds implementation complexity.
-As concluded previously, CBC is a secure mode, assuming a secure padding scheme is used to prevent padding oracle attacks. To avoid padding and guarantee the mode's security, ciphertext stealing was implemented.
-As previously introduced, the board's AES implementation is not resistant to side-channel attacks, such as DPA. A AES core running on the board's FPGA, resistant to these attacks, was tested. This implementation is using 128 bit keys, with CBC mode.
+The operation code identifying the service is sent first, along with the key ID which identifies the internal key stored in the device, with the initial call to the PKCS\#11 API.
+Then, each subsequent call to the API, sends a chunk of data along with its length.
+For each chunk received, the device adds the chunk to its buffer, encrypts the data, updates the HMAC calculation, and returns a ciphertext chunk.
+When there are no more chunks to receive, the board returns the remaining ciphertext and final MAC value. The total output is composed of the initial IV, ciphertext and MAC.
 
-\subsection{TCP Channel}\label{chap:implementation:services:secure:tcp}
+The total data length is not sent initially, instead, the length of each chunk is sent before the chunk. This allows for a more flexible system. User applications calling the PKCS\#11 API, can send data to the device as it is needed, even if it does not have the complete data initially.
+The downside of this approach is the device does not know the amount of data it will encrypt. The internal buffer must be managed, so it adds complexity to the implementation.
 
-In order to truly establish a secure communications channel, the secure data service was used to secure a TCP connection. A TCP implementation using Windows sockets is used to exchange data through a channel, between a client and server, running on the same computer. The library was altered, to call the PKCS\#11 API of the SmartFusion2 device, to encrypt the plaintext data in each TCP packet, before it is sent. Likewise, when a packet is received, the decryption API is called, in order to retrieve the plaintext.
-Before a secure TCP connection is established, the symmetric session key is agreed, using the board's ECDH core. First, each side generates a random public and private ECC key pair, on the NIST defined P-384 curve. Next, they trade the generated public keys, and compute the same symmetric key. In order to emulate two communicating entities, using a similar board, one side is running an implementation of the same cryptographic services, with the mbedTLS 2.26.0 library.
-% One side, either client or server, uses the board API, while the other uses a local implementation of the same services, with the mbedTLS 2.26.0 library.
+The reverse operation for authentication and decryption of data is exactly the same. The only change is the operation code value is different, so the device knows what operation to perform.
+To avoid padding and guarantee CBC's security, ciphertext stealing was implemented.
 
-% The ECDH service was tested on the system to establish a shared symmetric key between two parties, before communications. First, each side generates a random public and private ECC key pair. Next, they trade the generated public keys, and compute the same symmetric key. In order to emulate two communicating entities, using a similar board, one side is running an implementation of the same cryptographic services, with the mbedTLS 2.26.0 library.
-
-% Thus AES with 128 bit keys is preferred, since it guarantees adequate security for the foreseeable future, and is the more conservative option.
-% Even though the HMAC service needs a 256 bit key, a 128 bit key can be used with the upper 128 bits padded with zeros \cite{smartfusionSecurityPractices}.
-% Therefore for every communication a 256 bit key is used, the lower 128 bits for encryption and upper 128 bits for authentication.
-
-% The encryption and authentication keys, both 128 bit, are fetched from the SRAM-PUF service, using the slot (key ID) requested by the client application.
-% The returned string is either the original plaintext, or the MAC, IV and ciphertext, concatenated in that order.
-
-% --------
-
-% The system provides a single hash algorithm, SHA-256, which has a security strength of 128 bits.
-% The \ac{HMAC}-\ac{SHA}-256 algorithm needs a 256 bit key, different from the one used with encryption, to ensure the best security practices. A 128 bit key can be used, if padded with zeros. Thus, for every communication, a 128 bit key for encryption and a 128 bit key for authentication is used. In total, a 256 bit shared secret.
-
-% The qualified digital signatures operation combines \ac{ECC} and the \ac{SHA}-256 hash algorithm, and provides 128 bit security, calculated by taking the smallest security strength value of both algorithms. For the encryption and authentication operation combining \ac{AES}-128 and \ac{HMAC}-\ac{SHA}-256, 128 bit security is provided.
-
-% -----------------
-\subsection{Digital Signatures}\label{chap:implementation:services:signatures}
-
-The board supports asymmetric cryptography using the ECC P-384 curve, which guarantees 192 bit security. The board has three ECC core functions, multiplication of a point with a scalar value, addition of two points on the curve and another for obtaining the curve's base point. The scalar multiplication allows the generation of a public key, which is a point of 96 bytes, from the multiplication of the corresponding private key, a 48 byte scalar value, and the curve's base point. Scalar multiplication can also be used to multiply another entity's public key, with the personal private key, to generate a shared secret. This is the logic behind the ECDH algorithm.
-The board is not equipped with a \ac{ECDSA} API. The algorithm can be implemented, by combining the provided ECC security cores, the SHA core, and a big numbers library, which allows operations between numbers of at least 48 bytes.
-A big numbers library was included in the implementation for this purpose \cite{libecc}. The library was stripped of all unnecessary code and headers, keeping the big integer operations. The ECC primitives and true random number generator were included in the library code. Digital signature generation was tested, without verification. The library takes up around 54 KB of RAM space. Thus, this functionality only works with a limited buffer size of around 1.5 KB, if all other implemented features are disabled. A continuous SHA implementation could be used, to help mitigate this limitation, by continually generating the hash, while it receives the data chunks.
-This is an extremely limited use case, and less than ideal. Future work should revise this functionality, by evaluating existing lightweight libraries, which provide the necessary features, or even a custom implementation. The limitation could also be overcome by replacing the SHA core with a continuous SHA implementation. However, the RAM space for additional functionalities would still be limited.
-
-% -----------------
-\subsection{Key Generation}\label{chap:implementation:services:key-generation}
-
-The key generation service follows the protocol and guidelines defined in the previous Chapter \ref{chap:arch}.
-The peer's public key is supplied by the user application, and the device's private key is fetched from a predetermined PUF slot, or from another key storage.
-For the ECDH algorithm, the ECC scalar multiplication board accelerator is used. It multiplies a scalar value of 48 bytes, the private key, with a point of 96 bytes, the peer's public key. The result is a 96 byte point, which is effectively the shared secret. The same shared secret can be computed by the peer in their device, using their private key, and this user's public key.
-The shared secret can be used directly as the new key, or can be inputted in a key derivation function.
-The implementation derives two 256 bit keys, with the KeyTree service. It is used as a key derivation function on the shared secret, combined with a salt, which can be public.
-By applying a key derivation function with a public salt, multiple new keys can be generated from the same public key pairs, by supplying different salts. 
-When the new key is stored, its ID is returned to the user.
-% The ECDH service was tested on the system to establish a shared symmetric key between two parties, before communications. First, each side generates a random public and private ECC key pair. Next, they trade the generated public keys, and compute the same symmetric key. In order to emulate two communicating entities, using a similar board, one side is running an implementation of the same cryptographic services, with the mbedTLS 2.26.0 library.
+As previously introduced, the board's AES implementation is not resistant to side-channel attacks, such as DPA. This means attackers with physical access to the device, can potentially read and compromise the keys stored internally. In order to mitigate this and build a more robust system, a 128 bit AES core implemented in the board's FPGA, resistant to side-channel attacks, was tested with this service.
 
 % -----------------
 \subsection{Key Management}\label{chap:implementation:services:key-import}
 
-This Section outlines the strengths and weaknesses of the board's secure storage and the implemented key management solution. 
-As introduced in Section \ref{chap:background:computing:smartfusion}, the SmartFusion2 includes a secure storage service, the SRAM-PUF. It has 56 available key slots, each with a maximum of 512 bytes. This service has a write limit to preserve its lifespan. The eNVM memory, used by the service, is limited to 1000 writes for a predicted lifespan of 20 years. Thus, there is a limit on the key storage frequency in the slots. The service should be used carefully, restraining how often it is written to.
-An alternate solution, in which the keys are stored in a non volatile memory was developed, as depicted in Figure \ref{fig:implementation:key-management}. The keys are stored encrypted and authenticated with a dedicated key, following the protocol described in Section \ref{chap:implementation:services:secure}.
+Symmetric and asymmetric keys are essential for the functionality and security of the system and its services. Secure symmetric keys are necessary for the security of communications, while asymmetric keys are needed for key agreement and digital signatures.
+All these keys are stored inside the device, and the system is responsible for their security and management. Thus, it is essential for the system to have a secure and flexible key management solution, which takes advantage of the device's secure storage.
+
+As described in Section \ref{chap:background:computing:smartfusion}, the SmartFusion2 provides a secure storage service, the SRAM-PUF. It has 56 available key slots, and one key can be saved in each slot with a maximum of 512 bytes for a single key.
+The eNVM memory, used by the service, is limited to 1000 writes for a predicted lifespan of 20 years. Thus, there is a limit on the key storage frequency in the slots. The service should be used carefully, restraining how often it is written to, in order to preserve its lifespan.
+
+%The keys are stored encrypted and authenticated with a dedicated key, following the protocol described in Section \ref{chap:implementation:services:secure}.
+So as to mitigate the limitation of the PUF storage, an alternate solution, in which the keys are stored in a non volatile memory was developed, as depicted in Figure \ref{fig:implementation:key-management}.
 \begin{figure}[h!]
 	\centering
-	\includegraphics[width=0.7\textwidth]{./Images/key-management.png}
-	\caption{Key management and importation solution using PUF and encrypted keys in storage}
+	\includegraphics[width=0.45\textwidth]{./Images/key-management.png}
+	\caption{Key management solution to store keys encrypted and authenticated in a non volatile memory using the SRAM-PUF secure storage}
 	\label{fig:implementation:key-management}
 \end{figure}
-The key which encrypts and authenticates all other keys is an intrinsic key, randomly generated in the device, and stored in a dedicated PUF slot. The ciphertext and IV of the keys are stored in memory, authenticated with HMAC. The generated tag is stored in a separate PUF slot.
-A key can be accessed by generating the MAC of the stored data and comparing it to the one stored in the PUF slot. If they match the keys are authenticated, and can be decrypted with the IV and dedicated PUF key.
-While this solution still uses the PUF service, its usage is more measured. When using only the PUF core, one PUF slot needs to be written for each key. In the case of the implemented solution, for each change of the key set stored in memory, only the MAC PUF slot is written to. If keys are added one at a time, the amount of PUF slots written per key is identical for both options. However, multiple keys can be updated at once, if for example keys are updated on a regular time schedule. In this case, multiple keys can be added or updated, with only one write to a PUF slot. The amount of available key storage is not a problem, since the board allows for external storage devices to be connected, where keys can be stored, encrypted and authenticated. If attackers get access to the key storage, the encrypted keys cannot be read, without the keys protected in the SRAM-PUF.
-To complement this solution, an import operation was implemented, which receives a set of encrypted keys, decrypts them with the secure data exchange service, and overwrites the existing keys. This can be used in conjunction with a control station, which distributes the keys to users with devices. The user's can import the key set using this service.
-Each key is stored in memory accompanied by its identifier and size.
+In order to securely store the keys, they must be encrypted so as to hide their contents, and authenticated to detect any unauthorized modifications.
+To encrypt and authenticate keys, a symmetric key is necessary. This key is randomly generated in the device and stored in a dedicated PUF slot, only used for storing keys in memory.
+The ciphertext of the keys is stored in memory, along with the IV used for encryption.
+Both pieces of information are authenticated by generating a MAC, which is stored in another dedicated PUF slot.
+With this solution, a key can be accessed by generating the MAC of the stored data and comparing it to the one stored in the PUF slot. If they match, the keys are authenticated, and can be decrypted with the IV and dedicated PUF key.
 
-As introduced in Section \ref{chap:background:computing:smartfusion}, the AES, HMAC and SHA cores only have light measures against DPA. Thus, keys should be regularly replaced, using the import keys service, to avoid attackers getting hold of enough data to break encryption keys. On the other hand, this is only possible if the attacker has physical access to the device, and does not trigger the tamper detection flags. 
-% This type of threats can be mitigated using the import keys service, to regularly replace encryption keys.
+While this solution still uses the PUF service, its usage is more measured. When using the PUF service, when a key is stored one slot is written.
+In the case of the implemented solution, for each change of the key list stored in memory, only the MAC slot is written to.
+If keys are added one at a time, the amount of PUF slots written per key is identical for both options. However, multiple keys can be updated at once, if for example a list o f keys is imported. In this case, multiple keys can be added or updated, with only one write to a PUF slot.
+
+The amount of available key storage is not a problem, since the board allows for external storage devices to be connected, where keys can be stored, encrypted and authenticated. If attackers get access to the key storage, the encrypted keys cannot be read, without the key protected in the SRAM-PUF.
+
+This solution is design to store a list of keys. The service, introduced in Section \ref{chap:arch:services:new-comms:import}, for importation of keys was designed, in order to provide a list of keys for the key solution.
+The service allows entities to receive a set of encrypted keys from another entity, forward the list to their device, which decrypts them with the secure data exchange service and stores them in the non volatile storage.
+The entity from which the keys are received is responsible for the distribution of keys among entities. So as to communicate with the trusted entity, all devices are delivered with a stored symmetric key for secure communications with the entity.
+
+% -----------------
+\subsection{Key Generation}\label{chap:implementation:services:key-generation}
+
+The goal of this service is to enable agreement of symmetric keys between entities with these devices. This enables entities with no previously agreed keys, to securely communicate with each other using the devices.
+This service takes advantage of public-key cryptography in order to agree on a key.
+The key generation service follows the protocol and guidelines defined in the previous Section \ref{chap:arch:services:new-comms:ecdh}.
+Both entities have a private and public key pair. After sharing public keys with each other, they can generate the same secret using their private key and the public key of the other entity.
+The SmartFusion2 SoC provides the necessary ECC scalar multiplication accelerator, to generate a shared key with the ECDH algorithm. The accelerator multiplies the 48 byte private key with a 96 byte public key to generate a 96 byte shared value, which can be stored using the system's key management solution.
+
+% -----------------
+\subsection{TCP Channel}\label{chap:implementation:services:secure:tcp}
+
+With the secure data exchange service, entities can securely trade messages using an offline service such as e-mail or an online chat service.
+In order to truly establish a secure communications channel, and demonstrate the common developer interface, the secure data service was used to encrypt and authenticate a TCP connection. A TCP implementation using Windows sockets is used to exchange data through a channel, between a client and server, running on the same computer. As pictured in Figure \ref{fig:implementation:tcp}, the library was altered, to call the PKCS\#11 API of the SmartFusion2 system, to encrypt the plaintext data in each TCP packet, before it is sent. Likewise, when a packet is received, the decryption API is called, in order to retrieve the plaintext.
+\begin{figure}[h!]
+	\centering
+	\includegraphics[width=0.5\textwidth]{./Images/tcp.png}
+	\caption{TCP connection between a server using the HSM system through PKCS\#11 API calls and a client running a MbedTLS implementation}
+	\label{fig:implementation:tcp}
+\end{figure}
+Before a secure TCP connection is established, both entities must agree on a symmetric session key, which will be used to encrypt and authenticate the connection. This is achieved by using the previously described key generation service with ECDH. After each side trades their public keys on the P-384 curve, they can compute the same symmetric key. In order to emulate two communicating entities using a similar system, one side is running a local implementation of the same cryptographic services of the proposed system, with the mbedTLS 2.26.0 library.
+
+% -----------------
+\subsection{Qualified Digital Signatures}\label{chap:implementation:services:signatures}
+
+The goal of digital signatures is to provide non-repudiation to messages. This prevents an entity from denying the authorship of a message. 
+The service was designed to provide an improved version of signatures, called qualified digital signatures, where the private keys, which generate signatures, are stored inside the HSM, and are never exposed to the outside.
+This guarantees the signature generator is someone with access to the device holding the private key.
+
+The SmartFusion2 SoC provides ECC key support which can be used to generate signatures with the ECDSA algorithm. However, the board does not provide an ECDSA implementation. Either the board uses an external source for digital signature generation, which would cease to be qualified, or the algorithm is implemented in the board.
+
+In general, the ECDSA algorithm is composed of two types of operations. ECC operations, e.g., scalar multiplication and point addition, which are supported by the board. The other is large numbers arithmetic operations, such as, modular multiplications and divisions. These operations are not supported by the board, a big numbers library is necessary. In case of the supported P-384 curve, the library should support operations between 48 byte numbers. 
+
+Thus, a big numbers library was included in the system \cite{libecc}. The library was stripped of all unnecessary code and headers, keeping the necessary big integer operations. The ECC primitives and true random number generator were included in the library code. Digital signature generation was implemented, without verification. The library takes up around 54 KB of RAM space. Thus, this functionality only works with a limited buffer size of around 1.5 KB, if all other implemented services are disabled.
+This is an extremely limited use case, and less than ideal. Future work should revise this functionality, by evaluating existing lightweight libraries, which provide the necessary features, or even a custom implementation.
 
 % -----------------
 \subsection{Tamper Detection}\label{chap:implementation:services:tamper-detection}
 
-Tamper attacks and possible attempts can be detected by the board. When these events occur, flags are asynchronously set, which warn the user from potential anomalies, errors, tamper detections or possible attempts. With this information, measures can be taken to protect the system. % In the developed system, when one of these events is detected, the board's leds are turned on to warn the user, and the device software is blocked from accepting any more commands.
-When the tamper attacks are flagged, zeroization is performed on the device, erasing all keys, memory and data.
-The user also has the option to manually erase the device by pressing a switch on the board, which triggers zeroization.
-This process can place the device in three possible states. It can be rendered permanently unusable, reset to its initial state from fabric or recoverable only with a key file supplied by microsemi. In the zeroization tests performed, the board was reset to its initial state from fabric.
+An important part of a HSM based system is physical protections against tampering and attacks.
+In order to defend the system against physical threats, the tamper detection, zeroization and secure boot functionalities of the SmartFusion2 SoC were taken advantage of.
+
+Tamper attacks and possible attempts can be detected by the board. When these events occur, flags are asynchronously set, which warn the user from potential anomalies, errors and attacks. With this information, measures, such as zeroization, can be taken to protect the system.
+Zeroization is a process which erases all sensitive information from the device. This process can place the device in three possible states. It can be rendered permanently unusable, reset to its initial state or recoverable only with a key file supplied by Microsemi.
+
+Another security measure of the SmartFusion2 board, is the computation of digests from the eNVM blocks and fabric configuration, which also holds the code. Every time the board is programmed or the configuration is changed, new digests are computed and stored in secure storage. On boot, the board computes the digests and compares them to the stored values. This allows the board to safeguard the integrity of its storage and configuration.
+
+When the tamper attacks are flagged in the implemented system, the device does not accept any more PKCS\#11 calls and zeroization is performed on the device, erasing all keys, configuration and data. Additionally, the secure boot checks are turned on.
+Zeroization was configured to reset the device to its initial state from fabric.
+The user also has the option to manually trigger zeroization, by pressing a switch on the board.
 These measures can have a denial-of-service effect on the system, but are a trade-off deemed necessary, in order to avoid successful attacks and potential leaks of sensitive information.
-Another security measure of the SmartFusion2 board, is the computation of digests from the eNVM blocks and fabric configuration, which also holds the code. Every time the board is programmed or the configuration is changed, new digests are computed and stored in secure storage. On boot, the board computes the digests and compares them to the stored values. This allows the board to safeguard the integrity of its storage and configuration, and detect tamper attacks.
 
 % -----------------------------------------------------
 \section{PKCS\#11 API}\label{chap:implementation:app:pkcs}
 
-A PKCS\#11 API was developed to access the HSM services. It is invoked by the user software.
+In order to demonstrate the flexibility of the system, a PKCS\#11 API was developed to access the HSM services. Developers who wish to use this system for future work on a SmartFusion2 SoC, can call this API from the developed software.
 The PKCS\#11 implementation supports one token with one session.
 PKCS\#11 defines two types of users, the regular user and the security officer. The implementation does not make that distinction. Both types of user can login, and gain access to all other services.
-The full list of the implemented PKCS\#11 functions are listed in Table \ref{tab:pkcs11-api}.
+The full list of the implemented PKCS\#11 functions, their arguments and description are listed in Table \ref{tab:pkcs11-api}.
 
 % -----------------------------------------------------
 % -----------------------------------------------------
 \section*{Summary}\label{chap:implementation:summary}
 
-This chapter presented a proof of concept implementation of a HSM application supported on a SmartFusion2 device, using its security services and accelerators. It specified the used libraries and tools, all implemented services motivation, details, advantages and drawbacks,  as well as the developed PKCS\#11 API to access these services. The prototype focused on secure communications with authentication and confidentiality. It provided improvements on the architecture baseline set in Chapter \ref{chap:arch}, using the device's capabilities and benefiting from some software implementations. It also provided flexibility with a key management solution, using the board's secure storage efficiently, new key generation and digital signatures using public-key cryptography features.
+This chapter presented a proof of concept implementation of a HSM application supported on a SmartFusion2 device, using its security services and accelerators. It specified the used libraries and tools, all implemented services motivation, details, advantages and drawbacks, as well as the developed PKCS\#11 API to access these services. The prototype focused on secure communications with authentication and confidentiality. It provided improvements on the architecture baseline set in Chapter \ref{chap:arch}, using the device's capabilities and benefiting from some software implementations. It also provided flexibility with a key management solution, using the board's secure storage efficiently, new key generation and qualified digital signatures using public-key cryptography features.
 The work also explored the device's drawbacks and provided possible ways to mitigate them. Lastly, it presented the available tamper detection options and zeroization features, with implementation examples.
-
-% The user software initializes, the cryptoki application and opens the session with the device through the \texttt{C\_Initialize} and \texttt{C\_OpenSession} functions.
-% The opposite \texttt{C\_CloseSession} and \texttt{C\_Finalize} functions close the session, and terminate the application.
-% The user interface handles the input from the user, and uses the data to call the functions in the implemented PKCS\#11 API.
-% The user inputs the operation code he wishes to perform, and the application handles the correct API calls to the PKCS\#11 interface.
-% The user can authenticate itself by calling the \texttt{C\_Login} function. The authentication PIN can then be changed with the \texttt{C\_SetPIN} function.
-% The \texttt{C\_Logout} function logs out the user.
-% To encrypt and authenticate some data, a local object for the secret key is created with \texttt{C\_CreateObject}. It does not contain the key data, only the key ID, so it can be passed of to the PKCS\#11 API. Continuous encryption is performed through calls to \texttt{C\_EncryptInit} to initialize the operation, \texttt{C\_EncryptUpdate} for every chunk, and \texttt{C\_EncryptFinal} to end the operation.
-% The same logic is applied to continuous decryption, with \texttt{C\_DecryptInit}, \texttt{C\_DecryptUpdate} and \texttt{C\_DecryptFinal}.
-% For deleting a key on the device, first a secret key object is created with its ID, like before, and then a call to \texttt{C\_DestroyObject} erases the key from the device.
-% A new key is generated with the ECDH mechanism and \ac{SHA}-256 key derivation function, with a call to \texttt{C\_DeriveKey}.
-% Only one custom which is called directly is implemented. The \texttt{HSM\_C\_GetKeyList} returns the number of enrolled keys in the device.
-
-% The solution should support a plethora of devices, as it will increase the adoptability of the solution among clients. This entails the use of a widely established protocol, which clearly defines a set of functions and standards the system should follow.
-% The \ac{PKCS} \#11 standard will be utilized to fulfill this requirements. It allows operations to be standardized across different devices, increasing the range of supported devices. By implementing the system in accordance with these guidelines, it will have a higher device interoperability. Additionally, it allows the application to use, create and modify objects, without exposing them to its memory.
-% % -----------------------------------------------------
-% \subsection{Key Management Protocols}\label{chap:implementation:protocol:key}
-%
-% The protocols for the communication management operations are detailed next, namely for symmetric key generation. The protocol to generate a new symmetric key with another entity using asymmetric cryptography is detailed in figure~\ref{fig:protocol:ecdh}.
-%
-% \begin{figure}[h!]
-%         \centering
-%         \includegraphics[width=0.60\textwidth]{./Images/ecdh.png}
-%         \caption{Communication protocol to generate symmetric keys, with the HSM internal private key, and stored them internally}
-%         \label{fig:protocol:ecdh}
-% \end{figure}
-%
-% % The device calls the ECDH algorithm with its private key and the received public key to generate a secret and run it through a key derivation function with the salt value to obtain the new symmetric key. The service's formula is thus:
-% The user forwards the operation code, public key and salt value to the device.
-% The device will then generate a symmetric key, using the process in equation \ref{eq:ecdh-kdf}.
-%
-% \begin{equation}
-%         \label{eq:ecdh-kdf}
-%         KDF\{ECDH_{K}\{K^{-1}\}, Salt\}
-% \end{equation}
-%
-% A secret is generated from the \ac{ECDH} algorithm, with the device's private key, and another entity's public key. The same secret can be generated with the device's public key and the other entity's private key.
-% This secret is run through a key derivation function in conjunction with a salt which can be public, to generate a symmetric key. If both entities generate the same secret and agree on the same salt value, the generated key is identical.
-%
-% The new key is then stored in non-volatile memory encrypted with the dedicated symmetric encryption key for storage, saved in its PUF slot.
-% A new unique ID is generated for the key, which is stored alongside the key in memory. This ID is returned to the user along with the operation success status.
-%
-% % -----------------------------------------------------
-% \subsection{Import Keys into HSM Protocol}\label{chap:implementation:protocol:import-keys}
-%
-% This section details the protocol to import a list of encrypted symmetric keys, into the device.
-% The imported keys must be encrypted with a predefined symmetric key, stored in a dedicated PUF slot inside the device. This service is useful so a central management section with a similar device can distribute keys to the enrolled entities, on a regular schedule, such as monthly.
-% The protocol for this service is pictured in figure \ref{fig:protocol:import-keys}.
-%
-% \begin{figure}[h!]
-%         \centering
-%         \includegraphics[width=0.60\textwidth]{./Images/import-keys.png}
-%         \caption{Communication protocol to import encrypted symmetric keys, and store them encrypted in the HSM's memory}
-%         \label{fig:protocol:import-keys}
-% \end{figure}
-%
-% The only transmission consists in the client sending the operation code, keys length and key data.
-% Then, the device decrypts and authenticates the keys using a predefined symmetric key stored in a secure PUF slot. The protocol used is the same for secure data exchange described in the previous section.
-%
-% Each key consists of 1 byte for its ID, 1 byte for its size and remaining bytes for the key data.
-% The decrypted list of keys is encrypted again, using \ac{AES} \ac{CTR} mode with another predefined symmetric key for storage of data in non-volatile memory. The ciphertext, randomly generated IV and ciphertext length is stored in memory. To provide authentication and thus protection against tampering, a \ac{MAC} is generated from the three pieces of data and stored in a PUF slot.
-%
-% In order to fetch a stored symmetric key to use in one of the implemented services, the \ac{MAC} is generated and compared to the PUF slot. If identical, the key can be decrypted from memory using the same key used for its encryption and identified with its ID.
-
-% All data is either stored in the secure eNVM portion, or in the non-volatile memory, encrypted with an internal \ac{KEK}.
