@@ -45,7 +45,7 @@ After measuring the results for multiple services, it was observed that most fol
 	\label{eq:linear-eq}
 	T_{Total} = T_{Constant} + T_{Data} * KB
 \end{equation}
-In those cases, in order to provide a characterization of service's performance, these values were calculated.
+In those cases, in order to provide a characterization of the service's performance, these values were calculated.
 So as to assess the accuracy of the models, the median average percentage error was calculated and is presented next to its values. Tests which always process a fixed data size, such as the ECC and KeyTree core services, only have a constant time component.
 
 % -----------------------------------------------------
@@ -169,8 +169,8 @@ A smaller range from the minimum to maximum throughput, for a particular buffer 
 Analysing the plot, the average throughput significantly increases from 0,1 KB up until 5 KB, after which, the average throughput stabilizes around 66 KB/s and the maximum at 68 KB/s. 
 If the goal is to maximize throughput, there is no advantage in using a buffer bigger than 10 KB. Even a 5 KB buffer has almost identical performance. 
 
-The minimum throughput spikes at 49.5 KB/s with a 0.5 KB buffer, then is relatively constant. As discussed before, the minimum throughput is achieved at the lowest processed data size of 0.5 KB. Thus, by analysing the graphic, the minimum throughput increases until the buffer size (0.5 KB) is equal the amount of data being processed (0.5 KB). After that, there is no benefit in having a bigger buffer size, since the lowest amount of processed data is still 0.5 KB.
-Therefore, if the amount of data which will be processed is known beforehand, the system can be setup with a buffer of equal size, so as to maximize throughput.
+The minimum throughput spikes at 49.5 KB/s with a 0.5 KB buffer, then is relatively constant. As discussed before, the minimum throughput is achieved at the lowest processed data size of 0.5 KB. Thus, by analysing the graphic, the minimum throughput increases until the buffer size (0.5 KB) is equal to the amount of data being processed (0.5 KB). After that, there is no benefit in having a bigger buffer size, since the lowest amount of processed data is still 0.5 KB.
+Therefore, if the amount of data which will be processed is known beforehand, the system can be configured with a buffer of equal size, so as to maximize throughput.
 % For higher data sizes, where the maximum throughput is achieved, a buffer size of at least 5 KB is a good choice. However, if the system mainly receives small data of around 0.5 KB, the minimum throughput becomes relevant. It becomes stable from a buffer of 0.5 KB, up to a 35 KB. For this use case, if memory space is needed, a 0.5 KB buffer is acceptable. The extra saved memory can be used to implement more functionalities.
 
 % -----------------------------------------------------
@@ -194,4 +194,4 @@ A PKCS\#11 API was developed to expose the device's functionalities and increase
 % -----------------------------------------------------
 \section*{Summary}\label{chap:evaluation:summary}
 
-In this chapter, the implemented system performance was thoroughly tested. Starting with the communication channel performance, then the SmartFusion2 security accelerators and implemented services. In order to accurately predict the performance of the studied services, performance models were calculated from the performance results. These models allow anyone using this device, to accurately study and predict the performance of services, implemented on the board. Thus, this chapter provides a robust study of the SmartFusion2 board, its services characteristics, performance, as well as possible services to implement, feature trade offs and efficiency concerns.
+In this chapter, the implemented system performance was thoroughly tested. Starting with the communication channel performance, then the SmartFusion2 security accelerators and implemented services. In order to accurately predict the performance of the studied services, performance models were calculated from the performance results. These models allow anyone using this device to accurately study and predict the performance of services, implemented on the board. Thus, this chapter provides a robust study of the SmartFusion2 board, its services characteristics, performance, as well as possible services to implement, feature trade offs and efficiency concerns.

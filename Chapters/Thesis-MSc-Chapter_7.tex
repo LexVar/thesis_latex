@@ -20,9 +20,9 @@ The prototype implemented on the device, focused on the implementation of a serv
 This hurdle was overcome by implementing a continuous authenticated encryption service, using an HMAC software implementation, and taking advantage of the characteristic of the AES CBC mode.
 
 A key generation service using asymmetric key pairs was also implemented. It generates a shared secret, using an internal private key and a public key.
-The system also has a limitation in its ECC primitives. It does not provide a ECDSA implementation. In order to implement signatures, a big integer library must be included in the device. The inclusion of such a library is complex due to its tendency to be heavy in code space and the device's limited RAM memory, even when disabling error correction and detection (80 KB). 
+The system also has a limitation in its ECC primitives. It does not provide an ECDSA implementation. In order to implement signatures, a big integer library must be included in the device. The inclusion of such a library is complex due to its tendency to be heavy in code space and the device's limited RAM memory, even when disabling error correction and detection (80 KB). 
 
-Regarind key management, the PUF secure storage service is limited to 1000 write cycles for a predicted twenty year lifespan. To mitigate this, a key management service was developed, which stores the keys encrypted in a non volatile memory using the PUF service. This allows the update of multiple keys with only one PUF write for each update, instead of one write per key.
+Regarding key management, the PUF secure storage service is limited to 1000 write cycles for a predicted twenty year lifespan. To mitigate this, a key management service was developed, which stores the keys encrypted in a non volatile memory using the PUF service. This allows the update of multiple keys with only one PUF write for each update, instead of one write per key.
 
 This work contributes with an extensive characterization of the SmartFusion2 device. It studied each security service advantage and possible trade offs. Furthermore, it models the performance of every service, providing a useful prediction of the system's behaviour. Lastly, the implemented prototype provides solid groundwork for a secure communications service, in a low cost HSM type device.
 

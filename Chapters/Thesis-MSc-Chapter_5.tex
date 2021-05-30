@@ -67,7 +67,7 @@ To overcome this limitation, the characteristics of the AES CBC mode can be take
 	\label{fig:protocol:cbc-chunks}
 \end{figure}
 CBC mode encrypts data one 16 byte block at a time, using an IV. The IV of the first block is the randomly generated value from the TRNG. The IV of the subsequent blocks, is the previously computed ciphertext block.
-If the data is received in chunks, the IV of the first chunk is the randomly generated value, while the IV of the next chunks is the last ciphertext block of the previous chunk.
+If the data is received in chunks, the IV of the first chunk is the randomly generated value, while the IV of the next chunk is the last ciphertext block of the previous chunk.
 This allows continuous encryption of data divided in chunks.
 For HMAC, a lightweight software implementation was included, to allow continuous authentication \cite{ogayHMAC}.
 
@@ -89,7 +89,7 @@ The downside of this approach is the device does not know the amount of data it 
 The reverse operation for authentication and decryption of data is exactly the same. The only change is the operation code value is different, so the device knows what operation to perform.
 To avoid padding and guarantee CBC's security, ciphertext stealing was implemented.
 
-As previously introduced, the board's AES implementation is not resistant to side-channel attacks, such as DPA. This means attackers with physical access to the device, can potentially read and compromise the keys stored internally. In order to mitigate this and build a more robust system, a 128 bit AES core implemented in the board's FPGA, resistant to side-channel attacks, was also tested with this service.
+As previously introduced, the board's AES implementation is not resistant to side-channel attacks, such as DPA. This means attackers with physical access to the device can potentially read and compromise the keys stored internally. In order to mitigate this and build a more robust system, a 128 bit AES core implemented in the board's FPGA, resistant to side-channel attacks, was also tested with this service.
 
 % -----------------
 \subsection{Key Management}\label{chap:implementation:services:key-import}
@@ -119,7 +119,7 @@ If keys are added one at a time, the amount of PUF slots written per key is iden
 
 The amount of available key storage is not a problem, since the board allows for external storage devices to be connected, where keys can be stored, encrypted and authenticated. If attackers get access to the key storage, the encrypted keys cannot be read, without the key protected in the SRAM-PUF.
 
-This solution is design to store a list of keys. The service, introduced in Section \ref{chap:arch:services:new-comms:import}, for importation of keys was designed, in order to provide a list of keys for the key solution.
+This solution is designed to store a list of keys. The service, introduced in Section \ref{chap:arch:services:new-comms:import}, for importation of keys was designed, in order to provide a list of keys for the key solution.
 The service allows entities to receive a set of encrypted keys from another entity, forward the list to their device, which decrypts them with the secure data exchange service and stores them in the non volatile storage.
 The entity from which the keys are received is responsible for the distribution of keys among entities. So as to communicate with the trusted entity, all devices are delivered with a stored symmetric key for secure communications with the entity.
 
@@ -154,7 +154,7 @@ This guarantees the signature generator is someone with access to the device hol
 
 The SmartFusion2 SoC provides ECC key support which can be used to generate signatures with the ECDSA algorithm. However, the board does not provide an ECDSA implementation. Either the board uses an external source for digital signature generation, which would cease to be qualified, or the algorithm is implemented in the board.
 
-In general, the ECDSA algorithm is composed of two types of operations. ECC operations, e.g., scalar multiplication and point addition, which are supported by the board. The other is large numbers arithmetic operations, such as, modular multiplications and divisions. These operations are not supported by the board, a big numbers library is necessary. In case of the supported P-384 curve, the library should support operations between 48 byte numbers. 
+In general, the ECDSA algorithm is composed of two types of operations. ECC operations, e.g., scalar multiplication and point addition, which are supported by the board. The other is large numbers operations, such as modular multiplications and divisions. These operations are not supported by the board, a big numbers library is necessary. In case of the supported P-384 curve, the library should support operations between 48 byte numbers. 
 
 Thus, a big numbers library was included in the system \cite{libecc}. The library was stripped of all unnecessary code and headers, keeping the necessary big integer operations. The ECC primitives and true random number generator were included in the library code. Digital signature generation was implemented, without verification. The library takes up around 54 KB of RAM space. Thus, this functionality only works with a limited buffer size of around 1.5 KB, if all other implemented services are disabled.
 This is an extremely limited use case, and less than ideal. Future work should revise this functionality, by evaluating existing lightweight libraries, which provide the necessary features, or even a custom implementation.

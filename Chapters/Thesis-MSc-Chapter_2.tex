@@ -24,7 +24,7 @@ This section details the technical concepts required to understand the problem, 
 There are four important cryptographic services relevant for this work. Confidentiality is used to scramble information, and hide the content from unauthorized entities. Integrity protects data from unauthorized modification. Authentication ascertains the origin of a message. Non-Repudiation prevents an entity from denying the authorship of a document or message.
 To guarantee these services, two types of key infrastructure exist: symmetric and asymmetric. Symmetric keys are shared by two or more communicating parties. The same key is used to encrypt and decrypt data, or for other services. The keys are generally smaller and the operations faster than with asymmetric keys. Asymmetric keys constitute a pair for each side, a private and a public key. The private key is personal and should never be shared. The public key may be shared widely.
 % Asymmetric keys are generally bigger and the operations are slower compared to symmetric key algorithms.
-There are two types of ciphers regarding the procedure: stream and block ciphers. Stream ciphers usually process 1 bit of data at a time. Stream ciphers are usually faster than block ciphers, have lower memory requirements and thus are more suitable to embedded devices with limited memory. Block ciphers encrypt fixed-length groups of bits, called blocks. They have a higher memory usage, in order to keep the blocks in memory. The processed data needs to be padded to a multiple of the block size. This can introduce problems if not done correctly. Another caveat of blocks ciphers is they are more susceptible to noise in transmissions. If a bit is flipped in a stream cipher, only the corresponding bit is affected. While with a block cipher, more than 1 bit can be affected.
+There are two types of ciphers regarding the procedure: stream and block ciphers. Stream ciphers usually process 1 bit of data at a time. Stream ciphers are usually faster than block ciphers, have lower memory requirements and thus are more suitable to embedded devices with limited memory. Block ciphers encrypt fixed-length groups of bits, called blocks. They have a higher memory usage, in order to keep the blocks in memory. The processed data needs to be padded to a multiple of the block size. This can introduce problems if not done correctly. Another caveat of block ciphers is they are more susceptible to noise in transmissions. If a bit is flipped in a stream cipher, only the corresponding bit is affected. While with a block cipher, more than 1 bit can be affected.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \subsection{Hash Functions}\label{chap:background:crypto:hash}
@@ -114,14 +114,14 @@ For security reasons, authentication tags should be at least 96 bits, even thoug
 \subsection{Asymmetric Encryption}\label{chap:background:crypto:assymetric}
 
 Asymmetric cryptography utilizes a pair of keys, a public and private key. It is commonly used to provide confidentiality, data integrity, authentication and non-repudiation.
-The private key must always remain secure with the owner. Public keys may be distributed. Encrypting a message with the public key, provides confidentiality, since only the owner who possesses the private key, can decipher the message. On the other hand, private key encryption provides authentication, since only the owner is in possession of the private key. These two different concepts can be combined to provide confidentiality, authentication and non-repudiation, through digital signatures, to a message.
+The private key must always remain secure with the owner. Public keys may be distributed. Encrypting a message with the public key provides confidentiality, since only the owner who possesses the private key can decipher the message. On the other hand, private key encryption provides authentication, since only the owner is in possession of the private key. These two different concepts can be combined to provide confidentiality, authentication and non-repudiation, through digital signatures, to a message.
 Compared to symmetric keys, asymmetric keys are less risky to distribute, as the public key can be viewed by anyone. However, there is the problem of validating public keys, which consists of guaranteeing a public key is owned by the correct identity.
 Once two parties have traded public keys, asymmetric and symmetric keys can be combined in a hybrid encryption scheme. It takes advantage of the faster symmetric encryption to cipher the data, and the asymmetric encryption to encrypt the symmetric key, and provide authentication. Alternatively, it can be used to share symmetric keys for usage with an authenticated-encryption scheme.
 There are two popular algorithms for public-key encryption, \ac{RSA} and \ac{ECC}~\cite{mahto2016security}.
 \ac{RSA} has been used for decades, is well established and widely used. It is based on the difficulty of factoring the product of two large prime numbers.
 \ac{ECC} is a more recent algorithm, based on the Elliptic Curve Discrete Logarithm Problem. The main advantage of \ac{ECC} is it offers the same level of security, with a smaller key size. According to Gupta \& Silakari, 2011~\cite{eccoverrsa}, a 160-bit \ac{ECC} private key has similar security to a 1024-bit \ac{RSA} key.
 \ac{ECC} operations are potentially faster with smaller key sizes, so this makes elliptic curve based schemes more suited for less powerful and memory constrained devices \cite{selvakumaraswamy2016efficient}.
-With the threat of quantum computers, both \ac{ECC} and \ac{RSA} could become obsolete in the future, as it is vulnerable to brute force attacks from such devices.
+With the threat of quantum computers, both \ac{ECC} and \ac{RSA} could become obsolete in the future, as they are vulnerable to brute force attacks from such devices.
 % useful for small wireless devices with processing power, storage space, or power consumption restrictions.
 %They also state that smaller key sizes may result in faster execution timings for the schemes, which is beneficial to systems where real time performance is a critical factor.
 
@@ -196,12 +196,12 @@ Secure cryptoprocessors are dedicated physical computational devices for perform
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \subsection{Hardware Security Modules}\label{chap:background:computing:hsm}
 
-A \ac{HSM} is a high grade computational device, responsible for storage, management and generation of cryptographic keys, as well as cryptographic operations. Keys never leave the device and all operations are performed inside the \ac{HSM}. These devices have physical security mechanisms to achieve tamper-resistance, random number generators, support several cryptographic algorithms and have fail-safe mechanisms in place, in case of an attack, e.g., deletion of keys. Some devices have accelerated \ac{CPU} and optimizations to improve operations' performance.
+A \ac{HSM} is a high grade computational device, responsible for storage, management and generation of cryptographic keys, as well as cryptographic operations. Keys never leave the device and all operations are performed inside the \ac{HSM}. These devices have physical security mechanisms to achieve tamper-resistance, random number generators, support several cryptographic algorithms and have fail-safe mechanisms in place, in case of an attack, e.g., deletion of keys. Some devices have accelerated \ac{CPU} optimizations to improve the performance of operations.
 These modules are usually costlier than other computational systems but are more advanced in processing power and available services.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \subsection{Smart Cards}\label{chap:background:computing:smartcards}
-Smart Cards are a type of \ac{HSM}, credit card-sized with an embedded microchip and provide secure, tamper-resistant storage. These devices have a low price for manufacturing, which allows for bulk production and easy replacement if needed. They have a low processing power, and small memory which allows storage of a small amount of data. To be authenticated, the cards need either contact or contactless readers. These characteristics make them extremely popular, used in many industries, such as, retail, healthcare, communication and government.
+Smart Cards are a type of \ac{HSM}, credit card-sized with an embedded microchip and provide secure, tamper-resistant storage. These devices have a low price for manufacturing, which allows for bulk production and easy replacement if needed. They have a low processing power, and small memory which allows storage of a small amount of data. To be authenticated, the cards need either contact or contactless readers. These characteristics make them extremely popular, used in many industries, such as retail, healthcare, communication and government.
 
 % descrever smartfusion, caracteristicas, o que suporta, etc.
 \subsection{Field-Programmable Gate Array System-on-Chip}\label{chap:background:computing:smartfusion}
@@ -223,7 +223,7 @@ The KeyTree service provides access to a SHA-256 based key-tree cryptography alg
 The \ac{TRNG} service provides a raw entropy source based upon a noisy ring oscillator, measured against a system clock.
 
 The device includes several relevant \ac{ECC} accelerators, with the \ac{NIST} defined P-384 elliptic curve.
-It can generate public keys from the corresponding private key, using its scalar point multiplication service, by multiplying the scalar (private key) with the curve's base point. This service also allows the generation of a shared secret with \ac{ECDH}, by multiplying the device's private key, with another user's public key.
+It can generate public keys from the corresponding private key, using its scalar point multiplication service, by multiplying the scalar (private key) with the curve's base point. This service also allows the generation of a shared secret with \ac{ECDH}, by multiplying the device's private key with another user's public key.
 The device also includes a point addition service, which allows the implementation of the \ac{ECDSA} algorithm for generating digital signatures.
 
 The board provides a SRAM-PUF service to store user supplied or randomly generated keys.  It holds up to 56 key slots with a maximum of 4096 bits each.
@@ -252,7 +252,7 @@ This feature is called zeroization, and can be run when a tamper attempt is dete
 Boot code should be validated before its execution leads to potentially executing untrusted code. This can cause problems such as malware insertion, download of intellectual property or user spying.
 Most embedded processors do not validate code before it is executed. The SmartFusion2 \ac{SoC} solves this problem by using a non-volatile memory (eNVM) to store boot code, which is write protected. It authenticates each stage of the boot process, to create a chain-of-trust.
 Other systems also implement solutions to secure boot code. Infineon secures the boot process for ARM platforms by incorporating a \ac{TPM} into the platform. The \ac{TPM} operates as a root of trust, to certify the platform's integrity and correct system state. This prevents tampered kernels and fault attacks.
-Texas Instruments Sitara processors allows the customer to specify a public key as a root of trust, into the device. This key is used to authenticate other keys, used to authenticate software components.
+Texas Instruments Sitara processors allow the customer to specify a public key as a root of trust, into the device. This key is used to authenticate other keys, used to authenticate software components.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{State of the Art}\label{chap:background:art}

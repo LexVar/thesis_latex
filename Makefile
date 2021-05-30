@@ -9,6 +9,7 @@ all:
 
 # Compile pdf document, latex compiler necessary in the caller machine
 pdf: 
+	# htlatex main.tex html "" -dTrash "--interaction=nonstopmode"
 	$(LATEX_COMPILER) main.tex
 	bibtex main.aux
 	$(LATEX_COMPILER) main.tex istulthesis.cls
