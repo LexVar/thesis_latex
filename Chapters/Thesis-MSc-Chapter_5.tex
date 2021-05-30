@@ -83,12 +83,12 @@ For the initial API call, the operation code identifying the service is sent, al
 Then, each subsequent update call, sends a chunk of data along with its length.
 For each chunk received, the device adds the chunk to its buffer, encrypts it, updates the HMAC calculation, and returns the ciphertext chunk.
 When there are no more chunks to receive, the board returns the remaining ciphertext and final MAC value. The total output is composed of the initial IV, ciphertext and MAC.
+In order to avoid padding and guarantee CBC's security, ciphertext stealing was implemented.
 
 The total data length is not sent initially, instead, the length of each chunk is sent before the chunk. This allows for a more flexible system. User applications calling the PKCS\#11 API, can send data to the device as it is needed, even if it does not have the complete data initially.
 The downside of this approach is the device does not know the amount of data it will encrypt. Therefore, the internal buffer must be managed, so it adds complexity to the implementation.
 
 The reverse operation for authentication and decryption of data is exactly the same. The only difference is in the operation code value, so the device knows what operation to perform.
-To avoid padding and guarantee CBC's security, ciphertext stealing was implemented.
 
 As previously introduced, the board's AES implementation is not resistant to side-channel attacks, such as DPA. This means attackers with physical access to the device can potentially read and compromise the keys stored internally. In order to mitigate this and build a more robust system, a 128 bit AES core implemented in the board's FPGA, resistant to side-channel attacks, was also tested with this service.
 
