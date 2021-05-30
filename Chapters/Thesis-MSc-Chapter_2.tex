@@ -115,8 +115,10 @@ For security reasons, authentication tags should be at least 96 bits, even thoug
 
 Asymmetric cryptography utilizes a pair of keys, a public and private key. It is commonly used to provide confidentiality, data integrity, authentication and non-repudiation.
 The private key must always remain secure with the owner. Public keys may be distributed. Encrypting a message with the public key provides confidentiality, since only the owner who possesses the private key can decipher the message. On the other hand, private key encryption provides authentication, since only the owner is in possession of the private key. These two different concepts can be combined to provide confidentiality, authentication and non-repudiation, through digital signatures, to a message.
+
 Compared to symmetric keys, asymmetric keys are less risky to distribute, as the public key can be viewed by anyone. However, there is the problem of validating public keys, which consists of guaranteeing a public key is owned by the correct identity.
 Once two parties have traded public keys, asymmetric and symmetric keys can be combined in a hybrid encryption scheme. It takes advantage of the faster symmetric encryption to cipher the data, and the asymmetric encryption to encrypt the symmetric key, and provide authentication. Alternatively, it can be used to share symmetric keys for usage with an authenticated-encryption scheme.
+
 There are two popular algorithms for public-key encryption, \ac{RSA} and \ac{ECC}~\cite{mahto2016security}.
 \ac{RSA} has been used for decades, is well established and widely used. It is based on the difficulty of factoring the product of two large prime numbers.
 \ac{ECC} is a more recent algorithm, based on the Elliptic Curve Discrete Logarithm Problem. The main advantage of \ac{ECC} is it offers the same level of security, with a smaller key size. According to Gupta \& Silakari, 2011~\cite{eccoverrsa}, a 160-bit \ac{ECC} private key has similar security to a 1024-bit \ac{RSA} key.
