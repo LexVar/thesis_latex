@@ -89,7 +89,7 @@ The downside of this approach is the device does not know the amount of data it 
 The reverse operation for authentication and decryption of data is exactly the same. The only change is the operation code value is different, so the device knows what operation to perform.
 To avoid padding and guarantee CBC's security, ciphertext stealing was implemented.
 
-As previously introduced, the board's AES implementation is not resistant to side-channel attacks, such as DPA. This means attackers with physical access to the device, can potentially read and compromise the keys stored internally. In order to mitigate this and build a more robust system, a 128 bit AES core implemented in the board's FPGA, resistant to side-channel attacks, was tested with this service.
+As previously introduced, the board's AES implementation is not resistant to side-channel attacks, such as DPA. This means attackers with physical access to the device, can potentially read and compromise the keys stored internally. In order to mitigate this and build a more robust system, a 128 bit AES core implemented in the board's FPGA, resistant to side-channel attacks, was also tested with this service.
 
 % -----------------
 \subsection{Key Management}\label{chap:implementation:services:key-import}
@@ -97,10 +97,9 @@ As previously introduced, the board's AES implementation is not resistant to sid
 Symmetric and asymmetric keys are essential for the functionality and security of the system and its services. Secure symmetric keys are necessary for the security of communications, while asymmetric keys are needed for key agreement and digital signatures.
 All these keys are stored inside the device, and the system is responsible for their security and management. Thus, it is essential for the system to have a secure and flexible key management solution, which takes advantage of the device's secure storage.
 
-As described in Section \ref{chap:background:computing:smartfusion}, the SmartFusion2 provides a secure storage service, the SRAM-PUF. It has 56 available key slots, and one key can be saved in each slot with a maximum of 512 bytes for a single key.
-The eNVM memory, used by the service, is limited to 1000 writes for a predicted lifespan of 20 years. Thus, there is a limit on the key storage frequency in the slots. The service should be used carefully, restraining how often it is written to, in order to preserve its lifespan.
+As described in Section \ref{chap:background:computing:smartfusion}, the SmartFusion2 provides a secure storage service, the SRAM-PUF. It has 56 available key slots, where one key can be saved in each slot with a maximum of 512 bytes for a single key.
+The service uses private eNVM blocks to store part of the key data. Since the eNVM is limited to 1000 writes for each page, for a predicted lifespan of 20 years. Thus, there is a limit on the key storage frequency in the slots. The service should be used carefully, restraining how often it is written to, in order to preserve its lifespan.
 
-%The keys are stored encrypted and authenticated with a dedicated key, following the protocol described in Section \ref{chap:implementation:services:secure}.
 So as to mitigate the limitation of the PUF storage, an alternate solution, in which the keys are stored in a non volatile memory was developed, as depicted in Figure \ref{fig:implementation:key-management}.
 \begin{figure}[h!]
 	\centering
@@ -137,7 +136,7 @@ The SmartFusion2 SoC provides the necessary ECC scalar multiplication accelerato
 \subsection{TCP Channel}\label{chap:implementation:services:secure:tcp}
 
 With the secure data exchange service, entities can securely trade messages using an offline service such as e-mail or an online chat service.
-In order to truly establish a secure communications channel, and demonstrate the common developer interface, the secure data service was used to encrypt and authenticate a TCP connection. A TCP implementation using Windows sockets is used to exchange data through a channel, between a client and server, running on the same computer. As pictured in Figure \ref{fig:implementation:tcp}, the library was altered, to call the PKCS\#11 API of the SmartFusion2 system, to encrypt the plaintext data in each TCP packet, before it is sent. Likewise, when a packet is received, the decryption API is called, in order to retrieve the plaintext.
+In order to truly establish a secure communication channel, and demonstrate the common developer interface, the secure data service was used to encrypt and authenticate a TCP connection. A TCP implementation using Windows sockets is used to exchange data through a channel, between a client and server, running on the same computer. As pictured in Figure \ref{fig:implementation:tcp}, the library was altered, to call the PKCS\#11 API of the SmartFusion2 system, to encrypt the plaintext data in each TCP packet, before it is sent. Likewise, when a packet is received, the decryption API is called, in order to retrieve the plaintext.
 \begin{figure}[h!]
 	\centering
 	\includegraphics[width=0.5\textwidth]{./Images/tcp.png}

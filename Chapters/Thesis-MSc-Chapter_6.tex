@@ -31,6 +31,7 @@ The communication channel performance was measured by transmitting a certain amo
 For the remaining tested components, this test method produced unstable results due to the communications overhead on every test run.
 Thus, the remaining services were tested by running the service 100 times inside the device, for each API call. The measured processing time is divided by 100 to obtain the average time. This method minimizes the communications overhead, since it is only done once, so the isolated service can be more accurately assessed.
 The services were run 100 times inside the device, since it produced below 1\% variance for every test run of every service.
+Due to the write limitations of the PUF and eNVM, the performance tests were performed with only 10 repetition to preserve its write cycles.
 
 The SmartFusion2 and implemented services were tested taking into account three different time components \(T_{Total} = T_{Call} + T_{Transmittion} + T_{Service}\). The \(T_{Call}\) component is the elapsed time for invoking the PKCS\#11 API, before any data is transmitted. From the results, we can conclude that the impact of this component on the performance is negligible, since it is practically always 0.
 The data transmission time follows the performance behaviour of the communications channel.
@@ -69,12 +70,9 @@ The performance of the data channel, in milliseconds, can be modelled by a linea
 % -----------------------------------------------------
 \subsection{SmartFusion2 Services}\label{chap:evaluation:board}
 
-% TODO - AES FPGA core test results!!!!
-
-All the security accelerators of the SmartFusion2 SoC were tested. This includes the TRNG, AES, SHA, HMAC, KeyTree and ECC scalar multiplication and point addition services.
+All the security accelerators of the SmartFusion2 SoC were tested. This includes the TRNG, AES accelerator, SHA, HMAC, KeyTree and ECC scalar multiplication and point addition services.
 Additionally, a side-channel resistant 128 bit AES core implemented in the FPGA was also tested.
 The isolated service processing time and throughput results are presented in Figures \ref{fig:performance:core-time} and \ref{fig:performance:core-tput}. Twenty different data sizes were used in the test, from 0.5 KB up to 36 KB.
-The TRNG service was tested by generating 16 random bytes, up to the maximum allowed of 128 bytes. As expected the performance barely increases with the data size.
 \begin{figure}[h!]
 	\centering     %%% not \center
 	\subfigure[Processing Time]{\label{fig:performance:core-time}\includegraphics[width=79mm]{Images/core-time.png}}
@@ -84,6 +82,7 @@ The TRNG service was tested by generating 16 random bytes, up to the maximum all
 The AES service was tested with all possible variations. Namely, with 128 bit and 256 bit keys, with all four available modes and with encryption and decryption. Only one result is shown, since there was no variation among them. The AES mode, key size or encryption/decryption operation does not impact the performance. Therefore, there is no performance advantage in choosing CTR mode over CBC mode, or any other mode.
 Overall, the AES and HMAC total service time increases faster, compared to SHA, which increases significantly slower.
 The ECC services are the slowest, particularly the scalar multiplication (ECDH), with each run taking more than half a second.
+The TRNG service was tested by generating 16 random bytes, up to the maximum allowed of 128 bytes. As expected the performance barely increases with the data size.
 
 Figure \ref{fig:performance:core-tput} represents the throughput calculated from the processing time results previously gathered. It shows all services throughput, shown in KB/ms, increases and eventually stabilizes at a specific value. AES stabilizes at around 1.2 KB/ms, and both SHA and HMAC at around 0.1 KB/ms.
 
@@ -113,33 +112,28 @@ The AES software implementation was tested with encryption in CBC mode and a 256
 % -----------------------------------------------------
 \subsubsection*{Memory Performance}\label{chap:evaluation:services:memory}
 
-The read and write performance of the different device's memories, along with the PUF service were tested. Both eSRAM and eNVM memories were tested from 0.5 KB to 36 KB. The PUF performance was tested from 16 bytes, up to its limit of 512 bytes. For the PUF and eNVM performance, due to the write cycle limitations, each test was performed with only 10 repetitions, compared to the usual 100 with the second configuration. Precautions were also taken, by changing the eNVM page being written for every repetition, to avoid exhausting any particular page.
-The performance results depicted in Table \ref{tab:memory-model} were calculated according to the linear model.
+The read and write performance of the different device's memories, along with the PUF service were tested. Both eSRAM and eNVM memories were tested from 0.5 KB to 36 KB. The PUF performance was tested from 16 bytes, up to its limit of 512 bytes.
+The performance results for the RAM, NVM and PUF are pictured in Figures \ref{fig:performance:memory-time} and \ref{chap:appendixB} of Appendix \ref{chap:appendixB}.
 
+The results show the PUF service barely fluctuates with the data size, since a slot only goes up to 512 bytes. It has an almost constant read and write performance.
+Regarding the eNVM, its write performance deteriorates significantly with increasing data sizes.
+The RAM write performance is comparable to the eNVM read performance. The RAM read performance was also tested, however, the results are not shown due to its extremely negligible and erratic performance. Instead, a simple increment operation test is presented, in order to show a benchmark for the RAM's performance.
+
+The linear model values were calculated and are presented in Table \ref{tab:memory-model}.
 \input{tables_and_code/memory-model.tex}
 
-We can observe the PUF service barely fluctuates with the data size, since it is limited to 512 bytes per slot. The constant value is the significant portion, for both read and write performance.
-The eNVM write performance deteriorates significantly with increasing data sizes, it is 298.10 ms slower per KB of data. The read performance is negligible.
-The RAM write performance is comparable to the eNVM read performance. The RAM read performance was also tested, however, the results are not shown due to its extremely negligible and erratic performance. Instead, a simple increment operation test is presented, in order to show a benchmark for the RAM's performance.
 
 % -----------------------------------------------------
 % -----------------------------------------------------
 \subsection{Implemented Services}\label{chap:evaluation:services}
 
-All implemented services from Chapter \ref{chap:implementation} were tested from data sizes of 0.5 KB up to 36 KB. Each service's performance depends on the used accelerator's, memory access and implemented logic.
-The tested services were, encryption and authentication, decryption and authentication, both using the AES accelerator and the HMAC software implementation; the key import service, using the AES, HMAC and PUF cores, ECDSA and ECDH, both using the ECC scalar multiplication accelerator. ECDSA also uses the ECC point addition core. It is worth noting that the encryption service also uses the TRNG service, to generate a random IV. The continuous encryption and decryption services, used AES in CBC mode, the HMAC software implementation and a 36 KB buffer for data. The services were tested with data sizes up to 200 KB.
-Tests were performed with the second configuration, without data transmission, to test the processing time of the isolated services.
-Similarly to the previous tests, the time performance results evolve linearly. The obtained values are presented in Table \ref{tab:services-model}.
+This section presents the performance results of the implemented services from Chapter \ref{chap:implementation}. Each service's performance depends on the used accelerator's, memory access and implemented logic.
+The tested services were, encryption and authentication, decryption and authentication, both using the AES accelerator and the HMAC software implementation; the key import service, using the AES, HMAC and PUF cores, ECDSA and ECDH, both using the ECC scalar multiplication accelerator. ECDSA also uses the ECC point addition core. It is worth noting that the encryption service also uses the TRNG service, to generate a random IV. 
+The continuous encryption and decryption services used a 36 KB buffer for data.
 
-\input{tables_and_code/services-model.tex}
-
-Analyzing the results, both encryption/decryption and authentication services have very similar values, due to being based on the same service's and AES encryption and decryption having no discernible performance difference.
-There is however a detectable difference in the constant component, due to the random IV generation with the board's TRNG on the encryption service.
-The import keys service tested up to 1 KB of key data, stored in RAM memory instead of eNVM. The generated MAC is stored in the PUF slot. The service was tested with 10 repetitions, instead of 100, to preserve eNVM write cycles.
-The service performance barely varied, due to the small data interval. Its performance is depicted in Figure \ref{fig:performance:nvm-puf-time}, compared to the PUF and eNVM read and write performance. This figure is a good comparison for both key management options.
-Key generation with ECDH and the SHA-based KeyTree derivation function performs at a constant time of 578.092 ms.
-Scalar multiplication has a big impact on the performance for both ECDH and ECDSA.
-The median average percentage error for the continuous encryption/decryption models is below 0.19\%, so the models almost perfectly represent its performance.% The import keys service model has the highest error with 2.86\%.
+The performance of the key import service is depicted in Figure \ref{fig:performance:nvm-puf-time} in Appendix \ref{chap:appendixB}. The figure compares this service to the PUF read and write performance, in order to compare both key storage options.
+Just as the PUF service, the key import service barely varied, due to the small data interval.
+Analyzing the results in Figure	\ref{fig:performance:services-time} of Appendix	\ref{appendixB}, both encryption/decryption and authentication services have very similar values, due to being based on the same service's and AES encryption and decryption having no discernible performance difference.
 
 \begin{figure}[h!]
 	\centering
@@ -147,22 +141,37 @@ The median average percentage error for the continuous encryption/decryption mod
 	\caption{Continuous encryption and decryption throughput evolution for increasing input data sizes}
 	\label{fig:performance:services-tput}
 \end{figure}
-
 Figure \ref{fig:performance:services-tput} plots the throughput (KB/s) values for the continuous encryption and decryption services. Throughput steadily increases and stabilizes after 10 KB, at around 68 KB/s, for both services.
-The continuous encryption/decryption implementation raises an efficiency question. An optimal buffer size must be chosen. The previous tests were performed with a 36 KB buffer.
-To answer this, the impact of the buffer size on performance must be studied.
-This was achieved by performing the same test on the continuous encryption service, with varying buffer sizes, from 0.1 KB up to 35 KB. Figure \ref{fig:performance:buffer-tput} shows the maximum, average and minimum throughput for each buffer size.
-All tests revealed the same linear performance behaviour as the previous test with a 36 KB buffer. The worst performance, and therefore lower throughput, is achieved with low data sizes of 0.5 KB. The time evolution is linear, and the throughput eventually stabilizes around its maximum value, with data sizes higher than 20 KB.
-A smaller range from the minimum to maximum throughput, for a particular buffer size, indicates the throughput increases slower, as data size increases.
 
+Similarly to the previous tests, the time performance results evolve linearly. The obtained values are presented in Table \ref{tab:services-model}.
+\input{tables_and_code/services-model.tex}
+
+By analysing the calculated models we can detect a difference in the constant component of the encryption service compared to decryption. This is due to the random IV generation with the board's TRNG on the encryption service.
+Key generation with ECDH performs at a constant time of 578.092 ms, and ECDSA at 629.434 ms.
+Scalar multiplication has a big impact on the performance for both ECDH and ECDSA.
+The median average percentage error for the continuous encryption/decryption models is below 0.19\%, so the models almost perfectly represent its performance.% The import keys service model has the highest error with 2.86\%.
+
+% ---------
+As mentioned previously, the continuous encryption/decryption with MAC implementation uses a 36 KB buffer. Thus, the service can receive chunks of up to 36 KB at a time.
+Since the server is continuous and can encrypt and authenticate a limitless amount of data, the buffer does not necessarily need to be the maximum possible value. The service might have comparable performance with a smaller buffer, which frees up memory space for further implementation code.
+
+In order to understand the impact of the buffer size on performance, the previous test on the encryption and MAC services was repeated, with varying buffer sizes, from 0.1 KB up to 35 KB.
+All tests revealed the same linear performance behaviour as the previous test with a 36 KB buffer. In order to compare and understand the service performance for each buffer buffer size, the maximum, minimum and average throughput are pictured in Figure \ref{fig:performance:buffer-tput}.
 \begin{figure}[h!]
 	\centering
 	\includegraphics[width=0.7\textwidth]{./Images/buffer-tput.png}
 	\caption{Continuous encryption and MAC throughput evolution with increasing buffer sizes}
 	\label{fig:performance:buffer-tput}
 \end{figure}
+The worst performance, and therefore lower throughput, is achieved with the lowest data size of 0.5 KB. The throughput eventually stabilizes around its maximum value, with data sizes higher than 20 KB.
+A smaller range from the minimum to maximum throughput, for a particular buffer size, indicates the throughput increases slower, as data size increases.
 
-Analysing the plot, the average throughput significantly increases from 0,1 KB up until 5 KB, after which, the average throughput stabilizes around 66 KB/s and the maximum at 68 KB/s. The minimum throughput stabilizes around 49.5 KB/s, after a buffer size of 0.5 KB. If the goal is to maximize throughput, there is no advantage in using a buffer bigger than 10 KB. Even a 5 KB buffer has almost identical performance. Additional trade-offs can be implemented, if the amount of data available into system is known beforehand. For higher data sizes, where the maximum throughput is achieved, a buffer size of at least 5 KB is a good choice. However, if the system mainly receives small data of around 0.5 KB, the minimum throughput becomes relevant. It becomes stable from a buffer of 0.5 KB, up to a 35 KB. For this use case, if memory space is needed, a 0.5 KB buffer is acceptable. The extra saved memory can be used to implement more functionalities.
+Analysing the plot, the average throughput significantly increases from 0,1 KB up until 5 KB, after which, the average throughput stabilizes around 66 KB/s and the maximum at 68 KB/s. 
+If the goal is to maximize throughput, there is no advantage in using a buffer bigger than 10 KB. Even a 5 KB buffer has almost identical performance. 
+
+The minimum throughput spikes at 49.5 KB/s with a 0.5 KB buffer, then is relatively constant. As discussed before, the minimum throughput is achieved at the lowest processed data size of 0.5 KB. Thus, by analysing the graphic, the minimum throughput increases until the buffer size (0.5 KB) is equal the amount of data being processed (0.5 KB). After that, there is no benefit in having a bigger buffer size, since the lowest amount of processed data is still 0.5 KB.
+Therefore, if the amount of data which will be processed is known beforehand, the system can be setup with a buffer of equal size, so as to maximize throughput.
+% For higher data sizes, where the maximum throughput is achieved, a buffer size of at least 5 KB is a good choice. However, if the system mainly receives small data of around 0.5 KB, the minimum throughput becomes relevant. It becomes stable from a buffer of 0.5 KB, up to a 35 KB. For this use case, if memory space is needed, a 0.5 KB buffer is acceptable. The extra saved memory can be used to implement more functionalities.
 
 % -----------------------------------------------------
 % -----------------------------------------------------
