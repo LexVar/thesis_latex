@@ -1,12 +1,12 @@
 \begin{table}[h!]
 \centering
 \def\arraystretch{1.5}
-\begin{tabular}{|c|c|c|c|c|c|c|c|}
+\begin{tabular}{|c|c|c|c|c|c|c|c|c|}
 \hline
-Time (ms) & AES    & SHA    & HMAC   & TRNG   & KeyTree & ECC Add. & ECDH	\\ \hline
-Constant  & 0.489  & 0.498  & 0.783  & 0.368  & 1.655   & 7.204    & 545.381	\\ \hline
-Data (KB) & 11.124 & 0.807  & 7.815  & 0.007  & -       & -	   & -		\\ \hline
-MAE       & 0.12\% & 0.84\% & 0.13\% & 2.29\% & -       & -	   & -		\\ \hline
+Time (ms) & AES SoC & AES FPGA & SHA    & HMAC   & TRNG   & KeyTree & ECC Add. & ECDH	\\ \hline
+Constant  & 0.489   & 9.541   & 0.498  & 0.783  & 0.368  & 1.655   & 7.204    & 545.381	\\ \hline
+Data (KB) & 11.124  & 0.492  & 0.807  & 7.815  & 0.007  & -       & -	   & -		\\ \hline
+MAE       & 0.12\%  & 0.25\%  & 0.84\% & 0.13\% & 2.29\% & -       & -	   & -		\\ \hline
 \end{tabular}
 \caption{SmartFusion2 services time performance according to a linear model}
 \label{tab:core-model}

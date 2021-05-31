@@ -71,8 +71,8 @@ The performance of the data channel, in milliseconds, can be modelled by a linea
 % -----------------------------------------------------
 \subsection{SmartFusion2 Services}\label{chap:evaluation:board}
 
-All the security accelerators of the SmartFusion2 SoC were tested. This includes the TRNG, AES accelerator, SHA, HMAC, KeyTree and ECC scalar multiplication and point addition services.
-Additionally, a side-channel resistant 128 bit AES core implemented in the FPGA was also tested.
+All the security accelerators of the SmartFusion2 SoC were tested. This includes the TRNG, the AES SoC accelerator, SHA, HMAC, KeyTree and ECC scalar multiplication and point addition services.
+Additionally, a different side-channel resistant 128 bit AES implementation on the FPGA was also tested.
 The isolated service processing time and throughput results are presented in Figures \ref{fig:performance:core-time} and \ref{fig:performance:core-tput}.
 \begin{figure}[h!]
 	\centering     %%% not \center
@@ -81,9 +81,9 @@ The isolated service processing time and throughput results are presented in Fig
 	\caption{Security services performance and throughput evolution}
 \end{figure}
 
-The AES service was tested with all possible variations. Namely, with 128 bit and 256 bit keys, with all four available modes and with encryption and decryption. Only one result is shown, since there was no variation among them. The AES mode, key size or encryption/decryption operation does not impact the performance. Therefore, there is no performance advantage in choosing CTR mode over CBC mode, or any other mode.
+The AES SoC service was tested with all possible variations. Namely, with 128 bit and 256 bit keys, with all four available modes and with encryption and decryption. Only one result is shown, since there was no variation among them. The AES mode, key size or encryption/decryption operation does not impact the performance. Therefore, there is no performance advantage in choosing CTR mode over CBC mode, or any other mode.
 Overall, the AES and HMAC total service time increases faster, compared to SHA, which increases significantly slower.
-The AES FPGA core is significantly faster than the AES accelerator, with performance comparable to the SHA. Due to its side channel mitigations and performance advantage, it is a significantly better choice than the board's AES accelerator.
+The AES core implemented on the FPGA is significantly faster than the SoC AES core, with performance comparable to the SHA accelerator. Due to its side channel mitigations and performance advantage, it is a significantly better choice than the AES SoC core.
 
 Figure \ref{fig:performance:core-tput} represents the throughput calculated from the processing time results previously gathered. It shows most services throughput, shown in KB/ms, increases and eventually stabilizes at a specific value. SHA stabilizes at around 1.2 KB/ms, and both AES and HMAC at around 0.1 KB/ms.
 % The AES FPGA throughput increases significantly and does not stabilize.
@@ -98,9 +98,9 @@ The error percentages are all below 1\%, except for the TRNG service, proving th
 % -----------------------------------------------------
 \subsubsection*{Core/Software Comparison}\label{chap:evaluation:services:software}
 
-The SHA and HMAC performance difference results were enigmatic. The HMAC data dependent portion, 7.815 ms, is nearly 10 times higher than the SHA value, 0.807 ms. This means HMAC's time performance degrades nearly 10 times faster than the SHA performance. This is a surprising result, since the HMAC algorithm is composed of two hash computations and uses SHA-256, so the results are expected to be closer.
+The SHA and HMAC SoC cores performance difference results were enigmatic. The HMAC data dependent portion, 7.815 ms, is nearly 10 times higher than the SHA value, 0.807 ms. This means HMAC's time performance degrades nearly 10 times faster than the SHA performance. This is a surprising result, since the HMAC algorithm is composed of two hash computations and uses SHA-256, so the results are expected to be closer.
 
-The software implementation, included in the previous chapter, of HMAC, SHA and AES were tested for comparison with the SmartFusion2 services. The library used for HMAC and SHA was \cite{ogayHMAC}, and for AES \cite{tinycrypt}. 
+The software implementation, included in the previous chapter, of HMAC, SHA and AES were tested for comparison with the SmartFusion2 SoC services. The library used for HMAC and SHA was \cite{ogayHMAC}, and for AES \cite{tinycrypt}. 
 
 \begin{figure}[h!]
 	\centering
@@ -133,7 +133,7 @@ The linear model values were calculated and are presented in Table \ref{tab:memo
 \subsection{Implemented Services}\label{chap:evaluation:services}
 
 This section presents the performance results of the implemented services from Chapter \ref{chap:implementation}. Each service's performance depends on the used accelerator's, memory access and implemented logic.
-The tested services were, encryption and authentication, decryption and authentication, both using the AES accelerator and the HMAC software implementation; the key import service, using the AES, HMAC and PUF cores, ECDSA and ECDH, both using the ECC scalar multiplication accelerator. ECDSA also uses the ECC point addition core. It is worth noting that the encryption service also uses the TRNG service, to generate a random IV. 
+The tested services were, encryption and authentication, decryption and authentication, both using the AES SoC accelerator and the HMAC software implementation; the key import service, using the SoC AES, HMAC and PUF cores, ECDSA and ECDH, both using the ECC scalar multiplication accelerator. ECDSA also uses the ECC point addition core. It is worth noting that the encryption service also uses the TRNG service, to generate a random IV. 
 The continuous encryption and decryption services used a 36 KB buffer for data.
 
 The performance of the key import service is depicted in Figure \ref{fig:performance:nvm-puf-time} in Appendix \ref{chap:appendixB}. The figure compares this service to the PUF read and write performance, in order to compare both key storage options.
