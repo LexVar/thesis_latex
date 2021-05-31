@@ -72,7 +72,7 @@ The performance of the data channel, in milliseconds, can be modelled by a linea
 \subsection{SmartFusion2 Services}\label{chap:evaluation:board}
 
 All the security accelerators of the SmartFusion2 SoC were tested. This includes the TRNG, the AES SoC accelerator, SHA, HMAC, KeyTree and ECC scalar multiplication and point addition services.
-Additionally, a different side-channel resistant 128 bit AES implementation on the FPGA was also tested.
+Additionally, a side-channel resistant 128 bit AES core implemented in the FPGA was also tested.
 The isolated service processing time and throughput results are presented in Figures \ref{fig:performance:core-time} and \ref{fig:performance:core-tput}.
 \begin{figure}[h!]
 	\centering     %%% not \center
@@ -82,8 +82,9 @@ The isolated service processing time and throughput results are presented in Fig
 \end{figure}
 
 The AES SoC service was tested with all possible variations. Namely, with 128 bit and 256 bit keys, with all four available modes and with encryption and decryption. Only one result is shown, since there was no variation among them. The AES mode, key size or encryption/decryption operation does not impact the performance. Therefore, there is no performance advantage in choosing CTR mode over CBC mode, or any other mode.
-Overall, the AES and HMAC total service time increases faster, compared to SHA, which increases significantly slower.
-The AES core implemented on the FPGA is significantly faster than the SoC AES core, with performance comparable to the SHA accelerator. Due to its side channel mitigations and performance advantage, it is a significantly better choice than the AES SoC core.
+
+Overall, the SoC AES and HMAC total service time increases faster, compared to SHA, which increases significantly slower.
+The AES core implemented on the FPGA is significantly faster than the AES SoC core, with performance comparable to the SHA accelerator. Due to its side channel mitigations and performance advantage, the AES FPGA core is a significantly better choice than the AES SoC core.
 
 Figure \ref{fig:performance:core-tput} represents the throughput calculated from the processing time results previously gathered. It shows most services throughput, shown in KB/ms, increases and eventually stabilizes at a specific value. SHA stabilizes at around 1.2 KB/ms, and both AES and HMAC at around 0.1 KB/ms.
 % The AES FPGA throughput increases significantly and does not stabilize.
