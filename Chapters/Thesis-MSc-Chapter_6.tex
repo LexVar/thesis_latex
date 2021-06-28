@@ -60,6 +60,7 @@ The average transmission times for each value are displayed in Figure \ref{fig:c
 	\caption{Serial port data transmission results}
 \end{figure}
 The values range from 0.048 seconds for 0.5 KB, to 3.2 s for 36 KB.
+Comparing the communication channel performance to the isolated services performance, we observe the communications channel has time values from 0 to 3.2 seconds, while with the same data sizes, the performance of the services does not go above 1 second. Therefore, we conclude the bottleneck of this system is located in the serial port connection. This is expected since this channel is intended for prototyping and the board provides a much faster USB connection for production systems.
 
 In the subsequent graphic, the throughput was calculated from the transmission results.
 Figure~\ref{fig:comms:tput} depicts the experimental throughput and theoretical throughput. The theoretical throughput was calculated from the baud rate \(115200/8 = 14.06 KB/s\).
@@ -91,7 +92,8 @@ Figure \ref{fig:performance:core-tput} represents the throughput calculated from
 
 All data dependent services followed a near perfect linear evolution, in function of the processed data size, as presented in Table \ref{tab:core-model}.
 \input{tables_and_code/cores-model.tex}
-Analysing the table values, we can conclude that the scalar multiplication (ECDH) is the slowest, with each run taking more than half a second.
+Analysing the calculated values can lead to further conclusions regarding the AES FPGA and SoC core. The FPGA core has a much higher constant performance compared to the SoC core. This is relevant for smaller data sizes, where the constant value is the most relevant. Thus, for smaller sizes, the FPGA core might not be the better choice in regards to performance.
+Furthermore, we can conclude that the scalar multiplication (ECDH) is the slowest, with each run taking more than half a second.
 The TRNG service was tested by generating 16 random bytes, up to the maximum allowed of 128 bytes. As expected, the performance barely increases with the data size.
 The error percentages are all below 1\%, except for the TRNG service, proving these models accurately predict the performance of the services.
 
@@ -112,6 +114,8 @@ The software implementation, included in the previous chapter, of HMAC, SHA and 
 
 Analyzing the time performance results in Figure \ref{fig:performance:software-core-time}, the SHA and HMAC software results are almost identical, the HMAC is a slightly worse performer. Compared to the software results, the SHA core is significantly faster, and deteriorates very slowly as data size increases. The opposite happens for the HMAC core. It is convincingly a worst performer, compared to both HMAC and SHA software implementations. 
 This is an ambiguous result, as there is no clear reason for the HMAC core performance degradation, compared to the SHA core and the software implementations. One could assume it is caused by possible DPA mitigations, but it would still not explain the meaningful discrepancy compared to the SHA core, which also includes these mitigations.
+This leads to the conclusion that the HMAC on the SoC is a worst choice compared to the software implementation, for both performance and features. The software HMAC provides continuous authentication while the SoC does not.
+
 The AES software implementation was tested with encryption in CBC mode and a 256 bit key. As expected, it performs worse than the core service. CTR mode with the same configuration was also tested, and has very similar performance to CBC.
 
 % -----------------------------------------------------
@@ -127,6 +131,7 @@ The RAM write performance is comparable to the eNVM read performance. The RAM re
 
 The linear model values were calculated and are presented in Table \ref{tab:memory-model}.
 \input{tables_and_code/memory-model.tex}
+From the results we can conclude the volatile RAM is the faster memory, while the eNVM is slower. The SRAM-PUF has the worst performance with smaller data sizes, since besides using the eNVM for storing part of the data, it performs calculations for both read and write operations in order to securely generate or store the keys.
 
 
 % -----------------------------------------------------
@@ -187,7 +192,10 @@ Therefore, if the amount of data which will be processed is known beforehand, th
 
 This section lists all the fulfilled requirements of the developed system, defined in Chapter \ref{chap:problem:requirements}.
 The SmartFusion2 SoC is a portable board, with a robust set of security services.
+It provides a set of security services on the same level of higher grade HSMs on the market, presented in Chapter \ref{chap:background}.
 Compared to the existing HSMs on the market, this device is one of the cheapest, so it is adequate for distribution among several users. Market HSMs go from 650€ up to \$39,000 \cite{HSMpriceArticles}, \cite{HSMPresentationPrices}. A M2S090TS SmartFusion2 evaluation kit is priced at 384 € \cite{smartfusionPrice}.
+Therefore, this device provides the necessary services to function as a HSM replacement, with a lower cost and the flexibility to include FPGA and software implementations to overcome its limitations.
+It does not offer the same performance and specialized services as other HSMs, such as smart card support, but that is to be expected for a lower cost device.
 
 The board provides encryption and authentication with AES and HMAC, a secure storage service for keys, and shared key generation with ECDH. It provides tamper detection capabilities, secure boot and zeroization.
 It has the necessary functionalities to provide authentication and confidentiality to communications, which is the main requirement of the system.

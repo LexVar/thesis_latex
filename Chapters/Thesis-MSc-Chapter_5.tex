@@ -172,7 +172,7 @@ Another security measure of the SmartFusion2 board, is the computation of digest
 
 When the tamper attacks are flagged in the implemented system, the device does not accept any more PKCS\#11 calls and zeroization is performed on the device, erasing all keys, configuration and data. Additionally, the secure boot checks are turned on.
 The user also has the option to manually trigger zeroization, by pressing a button on the board.
-These measures can have a denial-of-service effect on the system, but are a trade-off deemed necessary, in order to avoid successful attacks and potential leaks of sensitive information.
+These measures can have a denial-of-service effect on the system. Depending on the context in which the system is used, it can be a trade-off deemed necessary. However, the system can have mechanisms to enable users to continue using the device. For example, a user can insert a special code provided by an administrator, in order to unlock the device after it has detected a potential tamper attack.
 % Zeroization was configured to reset the device to its initial state from fabric.
 
 % -----------------------------------------------------

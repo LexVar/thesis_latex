@@ -106,7 +106,7 @@ The decryption protocol is pictured in Equation \ref{eq:decrypt-mac}. The protoc
 
 Digital signatures provide non-repudiation to a piece of data. This prevents an entity from denying the authorship of a message. Qualified signatures are a special type of signatures where the private keys, which generated them, are stored inside a device, such as a HSM, and are never exposed to the outside.
 Therefore, the signature must be generated inside the HSM, and the device should support an algorithm for the generation of signatures.
-The private key, which will generate signatures, identifies the entity and is stored inside the device. In order for the device to be ready for the generation of signatures, a private and public key pair must be randomly generated in the device, or imported from the outside if the device does not support this. This must done before the device is delivered to entities.
+The private key, which will generate signatures, identifies the entity and is stored inside the device. In order for the device to be ready for the generation of signatures, a private and public key pair must be randomly generated in the device, or imported from the outside if the device does not support this. This must be done before the device is delivered to entities.
 %the key must be randomly generated and subsequently stored in the device, before it is delivered to entities.
 
 As with the previous service, a communications protocol between the user and device must be defined. The device must receive the data, from which it will generate the signature, while the user will receive the generated signature.

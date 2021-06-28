@@ -31,6 +31,12 @@ This work also contributes with an extensive characterization of the SmartFusion
 \section{Future Work} \label{chap:conclusion:future-work}
 
 This work can be improved by implementing fully working digital signatures. To achieve this, a lightweight big integer library, with all arithmetic operations in the ECDSA algorithm is needed. It should support 48 byte integers, and have a maximum memory footprint of around 50 KB, to fit in the 80 KB of RAM with error detection and correction disabled, while keeping the secure communication and key management services enabled.
+
+Another potential improvement to the SmartFusion2 is to study other software and FPGA cores, compared to the AES, HMAC and SHA SoC cores, regarding their side-channel protection and performance. There is potential for including other FPGA cores, with better scaling performance in regards to increasing data sizes, which have side-channel protection.
+
+Regarding the secure communications prototype, the data transmission performance between the computer and the SmartFusion2 SoC can be improved by using the available USB connection which provides a much higher throughput rate.
+Additionally, the secure data exchange service only acts as a middleman to secure communications. Ideally, the secure data exchange service would secure a real time connection between two individuals. This can be achieved, e.g., by including a TCP or TLS library directly in the board, in order to allow two similar devices to establish a direct and secure connection.
+
 % For signature generation of unlimited data sizes, a continuous SHA implementation is necessary, since the board does not offer one.
 % Future work could also test, using the secure communications service, an encrypted connection between two similar devices, running the existing prototype. The connection could be TLS encrypted, using the board to encrypt and authenticate the data, with internal symmetric keys. %This connection could be improved with a TLS implementation, using internal symmetric keys.
 % Finally, the AES, SHA and HMAC cores are not side-channel protected. This includes AES, SHA-256 and HMAC. This could be improved by implementing cryptographic core's of its services using the FPGA.

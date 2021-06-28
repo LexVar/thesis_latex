@@ -148,7 +148,7 @@ A \ac{TRNG} can generate a sequence of numbers that cannot be predicted. Generat
 The standards define an \ac{API} designed to interface between applications and cryptographic devices, such as smart cards or \ac{HSM}~\cite{pkcs11analysis}. 
 Applications can use, create and modify objects, without exposing them to the application's memory.
 The standard has been widely used, promoting interoperability between devices. By using the same standard, devices can take advantage of another's \ac{API}.
-Applications can access cryptographic devices through slots. The slots represent a socket or device reader. A session can be established through a slot, which represents a socket or device reader. The application can authenticate itself to a token with a default \ac{PIN}. The token holds private and public objects, which can be keys or certificates, among others objects, and can be accessed by the application.
+Applications can access cryptographic devices through slots. The slots represent a socket or device reader. A session can be established through a slot, which represents a socket or device reader. The application can authenticate itself to a token with a default \ac{PIN}. The token holds private and public objects, which can be keys or certificates, among other objects, and can be accessed by the application.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Secure Cryptoprocessors}\label{chap:background:cryptoprocessors}
@@ -173,7 +173,7 @@ Smart Cards are a type of \ac{HSM}, credit card-sized with an embedded microchip
 A \ac{FPGA} is an integrated circuit designed to be programmed and configured after manufacturing. \ac{FPGA}s are often used to prototype and for highly specialized systems produced at low scale. One of the major advantages is their agility and flexibility to be customized for special use cases~\cite{cyberphysicalsystems}. However, the reconfigurability may introduce certain weaknesses to the system. Its bitstream is vulnerable to cloning, if no additional protection is applied. The configuration data of these devices is stored in non-volatile memory and may be directly copied if no authentication mechanism is implemented~\cite{drimer2007authentication}.
 
 FPGA is composed of an array of electrically programmable logic blocks. FPGAs can provide a cheaper and faster solution compared to other circuits \cite{farooq2012fpga}. These devices can be partially reconfigured while the rest is still running, which is great for production systems. FPGAs are a good option due to less time-to-market and lower cost. They have been used in systems targeting different areas: multimedia, networking, control and bioinformatics \cite{dorta2009overview}.
-This type of devices have also been used for implementing of cryptography algorithms, e.g., AES and ECC \cite{wolf2011design}.
+These types of devices have also been used for implementing cryptographic algorithms, e.g., AES and ECC \cite{wolf2011design}.
 %Despite this, FPGAs are a good options due to their less time to market and low volume cost.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -276,3 +276,6 @@ HSMs on the market go from 650€ up to \$39,000 \cite{HSMpriceArticles}, \cite{
 One of the smallest and cheapest devices, the YubiHSM 2 by Yubico \cite{YubiHSM2}, is a \ac{USB} sized device for 650€. It supports several SHA algorithms, RSA, the asymmetric key ECC algorithms: ECDSA and ECDH, with multiple curves, a \ac{TRNG} and the \ac{AES}-\ac{CCM} authenticated encryption algorithm.
 It provides a PKCS\#11 implementation, 128KB of tamper resistant storage for keys, and an authenticated and encrypted connection, between the PKCS\#11 API calls and the device.
 For comparison, a M2S090TS SmartFusion2 evaluation kit is priced at 384 € \cite{smartfusionPrice}.
+
+Overall, the studied systems and devices are not suited for this work for one or more reasons. All of the systems focus on a very specific context other than secure communications between entities. The HSMs used in these systems have a high cost and are not very flexible, which prevents its use for a low cost and portable secure communications device. Lastly, other systems use FPGAs which are not security focused and are vulnerable to tampering. Therefore, the proposed solution intends to use a lower cost and flexible system, such as the SmartFusion2 SoC with an integrated and secured FPGA. All the discussed systems could potentially be implemented in such a device.
+For this reason, it is important to assess the suitableness of this type of device as a HSM for this solution and potentially others. Thus, this work will also have the objective of analysing and evaluating the chosen device regarding its services, functionalities and performance as a suitable HSM alternative.
