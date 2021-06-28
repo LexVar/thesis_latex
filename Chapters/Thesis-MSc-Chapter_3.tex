@@ -7,40 +7,43 @@
 \cleardoublepage
 \label{chap:problem}
 
-This chapter defines the problem, the client requirements and lists the necessary services of a potential solution, which successfully addresses the problem.
-First, some context surrounding the problem is given. Next, the profile of the target users is described. The following section lists the client requirements the solution must provide.
-Then, it will shed light on some essential concepts, to understand the services that need to be implemented. Lastly, it details some possible use case scenarios.
+This chapter defines the problem, the requirements and lists the necessary services of a potential solution, which successfully addresses the problem.
+First, some context surrounding the problem is given. Next, the profile of the target users is described and the requirements the solution must provide. Lastly, it details some possible use case scenarios.
+% Then, it will shed light on some essential concepts, to understand the services that need to be implemented. 
 
 % -----------------------------------------------------
 \section{Context}\label{chap:problem:context}
 
-As discussed before, the same computers commonly used for communications and information storage are exploitable by attackers, and can cause minor inconveniences, to severe repercussions, such as, losing your confidential data to malicious parties.
-This work focuses on an interesting approach to improve security, by adding another layer of security to communications, through the addition of a device, independent of the user's computer. The device is responsible for the security of sensitive data and communications.
+As discussed before, the same computers commonly used for communications and information storage are exploitable by attackers, and can cause minor inconveniences to severe repercussions, such as, losing confidential data to malicious parties.
+This work focuses on securing communications between entities by using a physical device, independent of the user's computer, which is responsible for the security of communications.
+% This work focuses on an approach to improve security, by adding another layer of security to communications, through the addition of a device, independent of the user's computer. The device is responsible for the security of sensitive data and communications.
 
 % -----------------------------------------------------
 \subsection{Entities}\label{chap:problem:entities}
 
-These types of devices are especially relevant to people with high responsibility jobs, that handle very sensitive information, which have dire consequences if they are lost, corrupted or leaked.
-Some examples are government officials who handle confidential information pertaining to a country, company executives, such as the CEO with access to company secrets, diplomats who manage confidential treaties, and military officers who have access to information critical to national security.
-Not just individuals could have an interest in these systems. A device can be assigned to a group of people representing an entity. For example, in the military, a device can be assigned to the navy, one to the infantry and so on. Any ranked officer, or person with a certain level of authority, could use the navy's device, to communicate with other entities, on behalf of the navy.
+% These types of devices are especially relevant to people with high responsibility jobs, that handle very sensitive information, which have dire consequences if they are lost, corrupted or leaked.
+% Some examples are government officials who handle confidential information pertaining to a country, company executives, such as the CEO with access to company secrets, diplomats who manage confidential treaties, and military officers who have access to information critical to national security.
 
-\subsection{Devices}\label{chap:problem:devices}
+These security focused physical devices are designed to be used by entities, such as, government officials, company executives and military officers.
+Not just individuals can have an interest in these systems. A device can be assigned to a group of people representing an entity. For example, in the military, a device can be assigned to the navy, one to the infantry and so on. Any ranked officer, or person with a certain level of authority, could use the navy's device, to communicate with other entities, on behalf of the navy.
 
-There are dedicated devices currently on the market, designed to secure communications and store private data.
-These types of devices have physical tamper-resistant measures against attackers, who wish to read the device's information. They also provide fail-safe mechanisms in case of an attack.
-HSM is a high grade device, with more computational power and larger storage capacity for secrets.
-Smart Cards provide secure and portable tamper-resistant storage. They have lower processing power, and a smaller memory. They have a lower cost, so can be produced in bulk and easily replaced.
-Because of these features, they are widely used in the retail, healthcare, communication and government industries.
+% \subsection{Devices}\label{chap:problem:devices}
+%
+% There are dedicated devices currently on the market, designed to secure communications and store private data.
+% These types of devices have physical tamper-resistant measures against attackers, who wish to read the device's information. They also provide fail-safe mechanisms in case of an attack.
+% HSM is a high grade device, with more computational power and larger storage capacity for secrets.
+% Smart Cards provide secure and portable tamper-resistant storage. They have lower processing power, and a smaller memory. They have a lower cost, so can be produced in bulk and easily replaced.
+% Because of these features, they are widely used in the retail, healthcare, communication and government industries.
 
 % -----------------------------------------------------
 % -----------------------------------------------------
 \section{Requirements}\label{chap:problem:requirements}
 
-To effectively address the problem, there are several high-level requirements the solution must adhere to:
+To effectively address the problem, there are several high-level requirements the solution must fulfill:
 \begin{itemize}
-	\item Devices should be distributable to individuals or entities, with more than one person;
-	\item The system must allow communications between individuals, representing themselves or an entity;
-	\item The system must be responsible for securing all communications against any attacks;
+	\item Devices should be distributable to individuals or entities to be used by more than one person;
+	\item The system must allow secure communications between individuals, representing themselves or an entity;
+	% \item The system must be responsible for securing all communications against any attacks;
 	\item The device should be independent from the user's personal computer;
 	\item Users should be able to establish secure communications with new and existing entities;
 	% \item New secure connections should be created, if existing communications are suspected to be compromised;
@@ -49,16 +52,16 @@ To effectively address the problem, there are several high-level requirements th
 	\item Only authorized individuals should be able to use the device.
 \end{itemize}
 
-These client requirements need to be translated into slightly more technical and tangible requirements. In order to secure communications, the solution should guarantee confidentiality, integrity and authentication.
+These requirements need to be translated into slightly more technical and tangible requirements. In order to secure communications, the solution should guarantee confidentiality, integrity and authentication.
 Additionally with asymmetric keys, the system can provide non-repudiation to documents or files, by means of qualified digital signatures.
 The device must securely store all keys, and perform all cryptographic operations pertaining to the security of communications. Keys must never be exposed unencrypted to the outside.
 
 Additionally, the device should have physical tamper-resistant measures and mechanisms in place, in case of an intrusion, such as, permanent erasure of all sensitive data. 
-This means that even if an attacker is in possession of the physical device, it should be extremely difficult to extract any information from it.
-The solution should work with a plethora of devices, in order to increase the adoptability of the solution among clients, or to be easily adapted in other projects.
+This means that even if an attacker is in possession of the physical device, it should be impossible to extract any information from it.
+The solution should work with a plethora of devices, in order to increase the adoptability of the solution among clients, or to be easily adapted in other projects. Thus, the system should be accessible through a common interface, so it can be used by developers in their own system.
 The system should provide an application on the user's computer, which communicates with the physical device, and offers a simple interface to its services, for the average non-technical user.
 The system should use a common connection solution, e.g. USB cable, between the computer and device, to further increase adoptability.
-In addition, the system should perform the services in a reasonable time, to minimize the wait, and improve the user experience.
+In addition, the system should perform the services in a reasonable time, so as to enable efficient text communications, e.g., a chat.
 
 % -----------------------------------------------------
 % The solution should follow the PKCS \#11 standards, to strengthen its security requirements.
@@ -93,6 +96,12 @@ Only the entity is authenticated, the device does not authenticate itself to the
 The main goal of the system is to enable secure communications. Communications can be set up between two or more entities. For each configured communication, the same symmetric key is securely stored in each device. One key per communication.
 For a user to send secure data, first he authenticates himself to the device, then sends the data to it. The device will return it secured. The user can then send it through a convenient offline service such as email, or an online chat service. Only a recipient with a similar device and the same key can read the original contents.
 
+
+%% USAGE EXAMPLE %%
+A possible usage example of secure data exchange between two users, Alice and Bob, is depicted in Figure \ref{fig:user:data-service}. Firstly, Alice forwards the data, to be sent securely to Bob, to the device and the device returns the data secured with an internal key. Then, Alice can forward the result to any entity with the same internal key in their device, through a chat application, e-mail or other convenient service.
+Upon receiving the secure message from Alice, Bob sends it to the device, and receives the original message back.
+This service must prevent any third party from gaining access to the data, or altering the message. The receiver can be confident of the data's origin. It could not have been sent by any malicious entity.
+
 \begin{figure}[h!]
     \centering
     \includegraphics[width=0.7\textwidth]{./Images/user-data-service.png}
@@ -100,19 +109,15 @@ For a user to send secure data, first he authenticates himself to the device, th
     \label{fig:user:data-service}
 \end{figure}
 
-%% USAGE EXAMPLE %%
-A possible usage example of secure data exchange between two users, Alice and Bob, is depicted in Figure \ref{fig:user:data-service}. Firstly, Alice forwards the data, to be sent securely to Bob, to the device and the device returns the data secured with an internal key. Then, Alice can forward the result to any entity with the same internal key in their device, through a chat application, e-mail or other convenient service.
-Upon receiving the secure message from Alice, Bob sends it to the device, and receives the original message back.
-This service must prevent any third party from gaining access to the data, or altering the message. The receiver can be confident of the data's origin. It could not have been sent by any malicious entity.
-
 %% INITIAL STATE, FABRIC CONFIGURATION %%
 Each entity, upon ordering the device, should be able to specify which entities it wants to communicate with.
 For example, Alice can request a device which enables two separate communication channels with Bob and Charlie, separately. Alice can also request a single channel with all three entities. In this case, only one shared key is required for all.
 Before devices are delivered, the keys will be generated and stored in the necessary device. When all involved entities receive their device, they can begin secure communications immediately.
 
 %% COMMUNICATION CHANNELS LIMIT %%
-The device should not have a practical limit on the amount of communication channels it can establish. This means it should have a reasonable amount of key storage space, for communications with enough different entities.
-If the device's secure storage is limited, then a solution using symmetric or asymmetric keys to secure all other keys on a higher capacity non-volatile memory.
+% The device should not have a practical limit on the amount of communication channels it can establish.
+The device should have a reasonable amount of key storage space, for communications with enough different entities.
+If the device's secure storage is limited, then a solution using a higher capacity non-volatile memory must be implemented.
 This gives entities the flexibility needed to communicate with the number of entities they choose.
 
 %% QUALIFIED DIGITAL SIGNATURES %%
@@ -129,10 +134,10 @@ Then, when a user wishes to generate a signature for a piece of data, he must se
 
 %% REASONING FOR SERVICE %%
 The operations described so far provide a usable and functional system to organizations and users, but it is not very flexible. It does not allow users to communicate with new entities, without returning the device to manufacturing, to be equipped with the necessary information.
-To avoid this, a service should be available to users with production devices in their possession, to securely trade data with another entity with an identical device, which the device previously could not. It should be easy to provide the functionality without burdening the user with additional responsibility.
+To avoid this, a service should be available to users with these systems in their possession, to securely trade data with another entity with an identical device, which the device previously could not. It should be easy to provide the functionality without burdening the user with additional responsibility.
 
 %% SERVICE PRESENTATION %%
-A possible solution is the inclusion of a control station, where entities originally collect their devices. Each device is delivered with its own communication channel with the control station. This station is effectively treated as a special entity.
+A possible solution is the inclusion of a trusted entity, called a control station, where entities originally collect their devices. Each device is delivered with its own communication channel with the control station. This station is effectively treated as a special entity.
 Whenever users wish to communicate with another user, they can send a list of entities they intend to communicate with to the station, secured with the data exchange service. The control station subsequently supplies the user with the necessary information, to be imported in their device.
 
 \begin{figure}[h]
@@ -170,7 +175,7 @@ A less cumbersome possibility for the user is, whenever an entity is added to th
 \section*{Summary}\label{chap:problem:summary}
 
 This chapter defines the context for the addition of a device, independent of a personal computer, which secures communications between entities, such as the military or government.
-The fundamental and non-technical requirements for an adequate solution were defined, such as, its characteristics, capabilities and usability. In short, the system should be composed of a user-friendly and low cost device, easily distributed among individuals or groups, and provide secure communications between them.
-Several possible use case scenarios for the system were identified.
-The system could be used to authenticate a user to the device, to allow access to its secure communication capabilities. The system must allow communications between entities with identical devices, by the means of a personal computer connected to the device, which secures the messages before transmission.
+The fundamental and non-technical requirements for an adequate solution were presented, such as, its characteristics, capabilities and usability. In short, the system should be composed of a user-friendly and low cost device, easily distributed among individuals or groups, and provide secure communications between them.
+Possible use case scenarios for the system were identified.
+The system could be used to authenticate a user to the device, to allow access to its secure communication capabilities. The system must allow communications between entities with identical devices, by the means of a computer connected to the device, which secures messages before transmission.
 The system could also allow the establishment of communications with new entities, by employing a control station which, when necessary, distributes the essential information among all entities, to allow new secure communication channels.

@@ -10,7 +10,7 @@
 
 The fundamental objective of this work is to develop a portable device,  which enables entities to establish secure channels of communication.
 A solution was developed on a portable HSM, which secures communications between users, stores the owner's sensitive data, such as keys, and performs all services critical to its security. This is an easy process for the owner, who does not need to concern himself with any setup or management, the system is accessible and ready to use when received.
-This chapter presents an overview of the developed system, its services, the communications protocol and use cases, unconstrained by a specific physical device.
+This chapter presents an overview of the developed system, its services, the protocol used for communications and use cases, unconstrained by a specific physical device.
 
 % -----------------------------------------------------
 % -----------------------------------------------------
@@ -28,10 +28,10 @@ The system, pictured in Figure~\ref{fig:overview}, is composed of two main compo
 
 %% SYSTEM OVERVIEW %%
 The user's computer running the software is connected to the device, through a physical connection, used to send and receive data and commands.
-Using these tools, the user can signal the device to perform the desired services.
+Using these tools, the user can request the device to perform the desired services.
 These services are implemented inside the device, which stores and manages keys, as well as other data.
 If the device is misplaced or stolen, the stored keys and documents are not at risk of being extracted. The developed software and physical tamper measures ensure it.
-Upon receiving their device, each user is only required to connect it to their computer using the appropriate cable. The system is ready to use, through the provided interface software.
+Upon receiving their device, each user is only required to connect it to their computer using the appropriate cable. The system is ready to use, through the provided interface software, which should be used in the user's personal computer.
 
 % -----------------------------------------------------
 % -----------------------------------------------------
@@ -44,8 +44,8 @@ Firstly, it presents the authentication, then the secure data exchange service, 
 % -----------------------------------------------------
 \subsection{Authentication}\label{chap:arch:services:auth}
 
-Each entity will have its own device, which can be connected to a computer. To access the device's services, all users need to be authenticated to the device, through a PIN number, which is securely stored inside the device. There is only a single PIN number, used to authenticate the entity to their device.
-Each entity can supply this number to users, which will use the device on behalf of the entity.
+Each entity will have its own device, which can be connected to a computer. To access the device's services, all users need to be authenticated to the device, through a PIN, which is securely stored inside the device. There is only a single PIN, used to authenticate the entity to their device.
+Each entity can supply this PIN to users, which will use the device on behalf of the entity.
 After the user sends the correct PIN and is authenticated, the PIN can be changed.
 
 % -----------------------------------------------------
@@ -54,25 +54,27 @@ After the user sends the correct PIN and is authenticated, the PIN can be change
 As previously introduced, the main goal of this solution is to secure communications between multiple entities, with identical devices.
 Herein defined is the secure data exchange service, responsible for securing communications between entities. 
 Communications are secured by providing three services: confidentiality, integrity and authentication. This allows communicating entities to ascertain the origin of messages and prevent unauthorized entities from reading and modifying them.
-To grant these services, communicating entities must agree on a symmetric key. This key will be stored in the devices of both entities, and is never exposed to the outside.
-This system provides services for key agreement between entities, which will be discussed further ahead. In order to describe the mechanisms of this service, we will assume a symmetric key has already been agreed between both entities.
+To grant these services, communicating entities must agree on a symmetric key. This key will be stored in the devices of both entities, and is never exposed outside the device. In order for entities to agree on a key, the system provides services which will be discussed further ahead. In order to describe the secure data exchange service, we will assume a symmetric key has already been agreed between both entities.
+% This system provides services for key agreement between entities, which will be discussed further ahead.
 
 As discussed in the previous chapter, and depicted in Figure \ref{fig:overview}, Alice's computer will communicate with her HSM, in order to secure data, to be sent to Bob. For this, there needs to be a communications protocol between the computer and HSM, to define what data is sent, in what order and by who. To secure a piece of data sent by Alice, the device needs to receive the data, and return the data encrypted and authenticated with an internal key, previously agreed by Bob and Alice.
 Thus, the communication protocol, between the device and computer application, is illustrated in Figure~\ref{fig:protocol:data-exchange}.
+
 \begin{figure}[h!]
 	\centering
 	\includegraphics[width=0.60\textwidth]{./Images/data-exchange.png}
 	\caption{Communication protocol for data ciphering and authentication in the HSM with internal keys}
 	\label{fig:protocol:data-exchange}
 \end{figure}
-Since the system is designed to have multiple services, and be able to store multiple keys, there needs to be a mechanism to identify the different services and keys.
-Services will be identified through an operation code, with a unique value for each service. Similarly, keys will be identified through an ID with a unique value for each key. Alice must know the ID for every key and to what entity it was agreed with. The ID is stored in the device along with the corresponding key.
 
-Thus, if Alice wants to secure data, the computer must first send a message composed of a 1 byte code, identifying the secure data exchange service, and a 1 byte key ID, to identify the symmetric key which will be used to secure data.
+Since the system is designed to have multiple services, and be able to store multiple keys, there needs to be a mechanism to identify the different services and keys.
+Services will be identified through an operation code, with an unique value for each service. Similarly, keys will be identified through an ID with an unique value for each key. Alice must know the ID for every key and to what entity it was agreed with. The ID is stored in the device along with the corresponding key.
+
+Thus, if Alice wants to secure data, the computer must first send a message composed of a code, identifying the secure data exchange service, and the key ID, to identify the symmetric key which will be used to secure data.
 Upon receiving the message, the device will check internally if the user is authenticated and if both the operation code corresponds with an existing service and if the key with the corresponding ID exists.
 Subsequently, the corresponding success or failure status is returned by the device.
 
-After a successful exchange, the data can be sent to the device. Before the data is received, the device must know the size of the data which it will receive from the computer. Thus, 2 bytes containing the data size are sent first.
+After a successful exchange, the data can be sent to the device. Before the data is received, the device must know the size of the data which it will receive from the computer. % Thus, 2 bytes containing the data size are sent first.
 After the data is processed in the device, its output is sent back to Alice, which can be securely sent to another entity, with the same symmetric key in their device.
 If Bob wants to obtain the plaintext of the data sent by Alice, the same communication process is used. Bob sends the correct operation code and key ID, receives a success status response, then sends the secured data from Alice, and waits for the plaintext response from the device.
 
@@ -81,7 +83,7 @@ On the other hand, there must also be a process to authenticate and decrypt the 
 
 As presented in Section \ref{chap:background:crypto}, symmetric encryption schemes provide confidentiality to data, while MAC algorithms provide authentication. AEAD schemes, which authenticate and encrypt messages, such as AES-GCM, may be more efficient and are less likely to be misused, compared to combining separate encryption and authentication schemes.
 Unfortunately, devices such as the SmartFusion2 SoC, do not provide AEAD schemes. These boards usually provide separate encryption and authentication algorithms.
-Thus, the proposed solution combines an encryption and authentication scheme, in order to provide the necessary cryptography services.
+Thus, to mitigate this problem, the proposed solution combines an encryption and authentication scheme, in order to provide the necessary cryptography services.
 Both algorithms can be combined in different orders. Studies recommend combining a secure encryption and secure MAC, with the encrypt-then-MAC method~\cite{encryptmacorder}. This method encrypts the plaintext first, then generates the MAC from the generated ciphertext.
 
 From this information, the proposed encryption protocol is pictured in Equation \ref{eq:encrypt-mac}. First, the plaintext data is encrypted with an internal symmetric key and a randomly generated IV. Next, a MAC is generated from the concatenated IV and ciphertext.
@@ -103,17 +105,20 @@ The decryption protocol is pictured in Equation \ref{eq:decrypt-mac}. The protoc
 \subsection{Qualified Digital Signatures}\label{chap:arch:services:signatures}
 
 Digital signatures provide non-repudiation to a piece of data. This prevents an entity from denying the authorship of a message. Qualified signatures are a special type of signatures where the private keys, which generated them, are stored inside a device, such as a HSM, and are never exposed to the outside.
-Therefore, the signature must be generated inside the HSM, and the device should support an algorithm for the generation of signatures, such as ECDSA.
-The private key, which will generate signatures, identifies the entity and is stored inside the device. In order for the device to be ready for the generation of signatures, the key must be randomly generated and subsequently stored in the device, before it is delivered to entities.
+Therefore, the signature must be generated inside the HSM, and the device should support an algorithm for the generation of signatures.
+The private key, which will generate signatures, identifies the entity and is stored inside the device. In order for the device to be ready for the generation of signatures, a private and public key pair must be randomly generated in the device, or imported from the outside if the device does not support this. This must done before the device is delivered to entities.
+%the key must be randomly generated and subsequently stored in the device, before it is delivered to entities.
 
 As with the previous service, a communications protocol between the user and device must be defined. The device must receive the data, from which it will generate the signature, while the user will receive the generated signature.
 The devised communication protocol is presented in Figure~\ref{fig:protocol:signature-generate}.
+
 \begin{figure}[h!]
 	\centering
 	\includegraphics[width=0.55\textwidth]{./Images/signature-generate.png}
 	\caption{Communication protocol for generating digital signatures using internal HSM asymmetric key pair}
 	\label{fig:protocol:signature-generate}
 \end{figure}
+
 In order to identify the service, the user will send the corresponding operation code, along with the data to be signed.
 Upon reception of the data, the device checks if the user is authenticated and subsequently generates the qualified signature, using its internal private key.
 Afterwards, the device responds with the generated signature. 
@@ -146,7 +151,7 @@ Two different mechanisms to generate and agree on new symmetric keys are present
 % -----------------------------------------------------
 \subsubsection{Key Generation}\label{chap:arch:services:new-comms:ecdh}
 
-As introduced in Section \ref{chap:background:crypto:ecdh}, two entities can agree on a symmetric key, using public key cryptography and the ECDH algorithm.
+As introduced in Section \ref{chap:background:crypto:ecdh}, two entities can agree on a symmetric key, using public key cryptography.
 Both entities must have a private and public key pair, and share both public keys with the other entity. Only the private key must remain a secret, the public key can be shared. Then, both entities can generate the same key, using their private key and the peer's public key.
 
 Just like previous services, there needs to be a communication protocol to trade the necessary information, and generate the key. The device must receive the peer's public key and return its own public key. After this trade, the key is generated and stored in the device. Following these guidelines, the protocol to generate a shared symmetric key with another entity, using asymmetric cryptography, is detailed in Figure~\ref{fig:protocol:ecdh}.
@@ -157,8 +162,8 @@ Just like previous services, there needs to be a communication protocol to trade
 	\label{fig:protocol:ecdh}
 \end{figure}
 
-The protocol starts with the user sending the operation code, signaling the device it wants to generate a symmetric key. The device responds with its public key, which needs to be shared with the other entity. After the user receives the peer's public key, it forwards this key to the device, and waits for a response. If successful, the device internally generated the symmetric key, and stored it in its secure storage. The device also returns the new key ID to the user, so the entity can keep track of the ID which it needs to use to securely communicate with the other entity.
-The internal key generation process using the ECDH algorithm, only needs the internal private key and the received public key.
+The protocol starts with the user sending the operation code, signaling the device it wants to generate a symmetric key. The device responds with its public key, which needs to be shared with the other entity. After the user receives the peer's public key, it forwards this key to the device, and waits for a response. If successful, the device internally generated the symmetric key, which is now stored in its secure storage. The device also returns the new key ID to the user, so the entity can keep track of the ID which it needs to use to securely communicate with the other entity.
+The internal key generation process only needs the internal private key and the received public key.
 
 As mentioned, both entities must share their device's public key with the other entity. They must do it in a way, so that they can be sure the received public key is from the actual entity they wish to communicate with, and not an impersonator. This is usually achieved by a PKI, which is a trusted third party which stores, validates and distributes public keys. 
 
@@ -184,7 +189,7 @@ The operation code, sent by the user, signals the device it will subsequently re
 Each key on the list is accompanied by 1 byte for its size and 1 byte for its ID.
 
 As mentioned, the keys are received encrypted and authenticated. This must have been previously processed by another special entity, using the secure data exchange service.
-The entity importing the keys into their device, must have a symmetric key in their device, to communicate with the special entity. This entity called "control station", was introduced in the previous chapter, in Figure \ref{fig:user:import-service}.
+The entity importing the keys into their device, must have a symmetric key in their device, to communicate with the special entity. This entity called "control station", was introduced in the previous chapter.
 The sole purpose of the entity is to act as a trusted third party, which distributes keys to the entities, through the secure data exchange service.
 Each system must be delivered to entities with an internal symmetric key for communications with the control station. Thus, entities can communicate with the control station to request keys with no setup or key agreement necessary.
 
@@ -211,6 +216,6 @@ Alice and Bob use this service to import the key into their devices, and can sub
 % -----------------------------------------------------
 \section{Summary}\label{chap:arch:summary}
 
-This chapter described the system's functionalities, algorithms and communications protocols, between a secure and portable device, and the user's computer.
+This chapter presented the system's functionalities, algorithms and communications protocols, between a secure and portable device, and the user's computer.
 The system grants confidentiality and authentication to communications between any number of users, as soon as they receive the device, without overloading the users with convoluted tasks or responsibilities.
 It provides entities with the flexibility to manage which entities they wish to communicate with by themselves, or by offloading the management responsibility to a trusted control station.

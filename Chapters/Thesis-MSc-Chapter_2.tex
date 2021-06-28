@@ -8,28 +8,21 @@
 % The following line allows to ref this chapter
 \label{chap:background}
 
-This section details the technical concepts required to understand the problem, the proposed solution and the process behind it. It starts by providing an overview of cryptographic services, primitives and protocols. Then it presents several general purpose computing systems and ends by presenting other relevant components.
+This chapter details the technical concepts required to understand the problem, the proposed solution and the rationale behind it. It starts by providing an overview of cryptographic services, primitives and protocols. Then, it presents several general purpose computing systems which offer cryptographic services, and ends by presenting other relevant components.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\section{Cryptography and Other Important Concepts}\label{chap:background:crypto}
+\section{Cryptography and Other Concepts}\label{chap:background:crypto}
 
-% \begin{itemize}
-%     \item Confidentiality: used to hide the content of information from unauthorized entities;
-%     \item Data Integrity: ability to protect from unauthorized modification of data;
-%     \item Authentication: used to ascertain the origin of a message;
-%             %Authentication is achieved if the combination of data integrity and freshness (prevention of replay attacks: when a valid message is replayed by a malicious entity);
-%     \item Non-Repudiation: prevents an entity from denying the authorship of a document or message.
-% \end{itemize}
+There are four important cryptographic services relevant for this work. Confidentiality is used to scramble information and hide the content from unauthorized entities. Integrity protects data from unauthorized modification. Authentication ascertains the origin of a message. Non-Repudiation prevents an entity from denying the authorship of a document or message.
+To guarantee these services, two types of key infrastructure exist: symmetric and asymmetric. 
+Symmetric keys are shared by two or more communicating parties. The same key is used to encrypt and decrypt data, or for other services. The keys are generally smaller and the operations faster than with asymmetric keys. Asymmetric keys constitute a pair for each side, a private and a public key. The private key is personal and should never be shared. The public key may be shared widely.
 
-There are four important cryptographic services relevant for this work. Confidentiality is used to scramble information, and hide the content from unauthorized entities. Integrity protects data from unauthorized modification. Authentication ascertains the origin of a message. Non-Repudiation prevents an entity from denying the authorship of a document or message.
-To guarantee these services, two types of key infrastructure exist: symmetric and asymmetric. Symmetric keys are shared by two or more communicating parties. The same key is used to encrypt and decrypt data, or for other services. The keys are generally smaller and the operations faster than with asymmetric keys. Asymmetric keys constitute a pair for each side, a private and a public key. The private key is personal and should never be shared. The public key may be shared widely.
-% Asymmetric keys are generally bigger and the operations are slower compared to symmetric key algorithms.
-There are two types of ciphers regarding the procedure: stream and block ciphers. Stream ciphers usually process 1 bit of data at a time. Stream ciphers are usually faster than block ciphers, have lower memory requirements and thus are more suitable to embedded devices with limited memory. Block ciphers encrypt fixed-length groups of bits, called blocks. They have a higher memory usage, in order to keep the blocks in memory. The processed data needs to be padded to a multiple of the block size. This can introduce problems if not done correctly. Another caveat of block ciphers is they are more susceptible to noise in transmissions. If a bit is flipped in a stream cipher, only the corresponding bit is affected. While with a block cipher, more than 1 bit can be affected.
+There are two types of ciphers: stream and block ciphers. Stream ciphers usually process 1 bit of data at a time. Stream ciphers are usually faster than block ciphers, have lower memory requirements and thus are more suitable to embedded devices with limited memory. Block ciphers encrypt fixed-length groups of bits, called blocks. They have a higher memory usage, in order to keep the blocks in memory. The processed data needs to be padded to a multiple of the block size. This can introduce problems if not done correctly. Another caveat of block ciphers is they are more susceptible to noise in transmissions. If a bit is flipped in a stream cipher, only the corresponding bit is affected, while with a block cipher, more than 1 bit can be affected.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \subsection{Hash Functions}\label{chap:background:crypto:hash}
 
-A cryptography hash function generates a fixed dimension value (digest) based on input texts, such as messages or files. Secure hashes provide message integrity by comparing digests, calculated before and after transmission, to determine if the message was altered. The same message always generates the same digest.
+A cryptography hash function generates a fixed dimension value (digest) based on input texts, such as messages or files. Secure hashes provide message integrity by comparing digests, calculated before and after transmission, to determine if the message was modified. The same message always generates the same digest.
 To achieve this, hash functions must have several properties. The same input value always results in the same hash. Very different outputs must be generated from very similar inputs. It should be hard to find two messages which generate the same hash and it should be hard to find an input that produces a given hash.
 Popular and recommended hash functions include \ac{SHA}-2 and the newer \ac{SHA}-3~\cite{dang2015secure}. Both versions have variants. For example, the \ac{SHA}-256 function produces a 256 bit digest and \ac{SHA}-512 a 512 bit digest.
 % \begin{enumerate}
@@ -44,40 +37,24 @@ Popular and recommended hash functions include \ac{SHA}-2 and the newer \ac{SHA}
 \subsection{Symmetric Encryption}\label{chap:background:crypto:symmetric}
 
 Symmetric ciphers are frequently used to provide authentication and confidentiality, using symmetric keys.
-\ac{AES} is one of the most popular symmetric-key algorithms. It has multiple block and stream cipher modes, which offer confidentiality. It uses 128-bit blocks and keys can be 128, 192 or 256 bits. Block cipher modes encrypt data one block at a time, while stream ciphers treat data like a continuous stream. Some relevant AES encryption modes are presented next.
+\ac{AES} is one of the most popular symmetric-key algorithms. It has multiple block and stream cipher modes, which offer confidentiality. It uses 128-bit blocks and keys can have 128, 192 or 256 bits. Some relevant AES encryption modes are presented next.
 
 \textbf{\ac{ECB}} is the simplest mode. It is a block cipher and works by encrypting each block with the symmetric key. If the same key is used for equal plaintext blocks, the result will always be the same. For this reason, patterns are easily seen and the mode is considered insecure.
 
 \textbf{\ac{CBC}} is another block cipher mode. It combines the first block of plaintext and an \ac{IV} with the XOR operator and encrypts the result. For the subsequent blocks, the previous ciphertext is used instead of the IV. The message needs to be padded to a multiple of the block size. If done incorrectly, the mode is vulnerable to padding oracle attacks \cite{paddingoracle}. Implementing ciphertext stealing, which avoids padding, is recommended for the security of \ac{CBC} \cite{ciphertextstealing}.
-% Encryption is not parallelizable, since a ciphertext block depends on all the blocks before it. Another disadvantage of \ac{CBC} is it cannot precompute data to improve encryption performance. Decryption can be parallelized and supports random read access.
-% When a bit is flipped in the ciphertext, the corresponding plaintext block is completely corrupted, and the same bit of the next block is inverted.
 
 \textbf{\ac{OFB}} mode repeatedly encrypts the IV for each block, xoring the result with the plaintext block. The encryption and decryption processes are exactly the same.
-The block cipher is only used in the encryption direction, which means the message does not need to be padded. It is effectively a stream cipher.
-% The downside of needing to encrypt the IV multiple times, is the encryption and decryption are not parallelizable and random read access is not possible. However, the multiple encryptions of the IV can be precomputed in order to increase performance.
-% Changes to a ciphertext block, only affect the corresponding bits.
+The block cipher is only used in the encryption direction, which means the message does not need to be padded. Therefore, it is a stream cipher.
 
-% \textbf{\ac{CFB}} is a combination of \ac{OFB} and \ac{CBC}. The xor operation is applied on the encrypted \ac{IV} with the plaintext block. The result is then used for the next block.
-% Similarly to \ac{OFB}, \ac{CFB} is effectively a stream cipher. Yet, akin to \ac{CBC}, and for the same reasons, encryption is not parallelizable, opposed to decryption which is. Random read access is possible, contrary to preprocessing which is not.
-% A specific condition of \ac{CFB} is it can become self-synchronous, meaning it will recover if s bits are lost. If s=1, it can recover from slips of any number of bits, if s=8 it can recover from slips of any number of bytes. However for every blockcipher call, \ac{CFB} only processes s bits, compared to 128 bits (block size), which is a major performance cost.
-%
 \textbf{\ac{CTR}} mode concatenates an IV with a counter beginning at 0. This sequence is encrypted and applied to the xor operation with the plaintext block. For each block the sequence is incremented by 1.
-This mode is comparable to \ac{OFB}, as it is also a stream cipher and the encryption operation is exactly the same as the decryption. %and an error affects only the respective bits.
-% However it does not have the performance disadvantages of \ac{OFB}. Encryption and decryption are parallelizable, random read access and preprocessing are both possible.
-% It is worth noting that due to existing no need to implement decryption, it can save code space and complexity.
+This mode is comparable to \ac{OFB}, as it is also a stream cipher and the encryption operation is exactly the same as the decryption. 
 
-% \ac{CBC}, \ac{OFB} and \ac{CFB} modes are proved secure, assuming the \ac{IV} is random, and is unique, meaning it is only used once for each key and message. For \ac{CTR} mode, the IV does not need to be random, but it cannot be reused with the same key.
 The \ac{IV} needs to be sent along with the ciphertext to the receiver, or the receiver will not be able to retrieve the entire message. There is no need for the IV to be kept secret.
 \ac{CBC}, \ac{OFB} and \ac{CTR} modes are proved secure, assuming the \ac{IV} is random and unique, meaning it is only used once for each key and message.
-Regarding performance, the paper~\cite{aesmodes} states \ac{CBC} is slower than \ac{CTR} mode, and \ac{OFB} is even slower.
+Regarding performance, \cite{aesmodes} states \ac{CBC} is slower than \ac{CTR} mode, and \ac{OFB} is even slower.
 When efficiency characteristics matter, nothing comes close to \ac{CTR}: it has better performance characteristics, compared to \ac{CBC} and \ac{OFB}.
+
 All these cipher modes are malleable, meaning an attacker can modify a ciphertext C, to create ciphertext C' which will decrypt to plaintext P' that is similar to the original plaintext. Malleability is connected to message integrity. This is not considered a relevant weakness since these modes are only designed to offer confidentiality. If integrity is needed, one of these modes should be paired with a \ac{MAC}, or instead use a dedicated authenticated-encryption mode like \ac{CCM} or \ac{GCM} (discussed in Section~\ref{chap:background:crypto:aead}), which guarantee both confidentiality and integrity.
-
-%For \ac{CTR} mode, the IV does not need to be random, but it cannot be reused with the same key.
-% Regarding performance, the paper~\cite{aesmodes} states \ac{CBC} is slower than \ac{CTR} mode. \ac{CFB} (even with s = 128) and \ac{OFB} are slower still.
-
-% \ac{XTS} is intended for encrypting data on a storage device. The mode is not approved for any other use. Instead of an IV, it uses the sector number and block index in the sector. It uses a ciphertext stealing to avoid padding in the last block. As expected, it provides no integrity. Therefore is susceptible to data tampering, any ciphertext will be decrypted, regardless of being modified or not.
-% XTS can be combined with a file system with checksums (related to hash functions, also used to verify data integrity) for all data and metadata on disk, such as ZFS or Btrfs.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \subsection{Message Authentication Code}\label{chap:background:crypto:mac}
@@ -87,7 +64,7 @@ A \ac{MAC} algorithm generates a tag from a message and symmetric key. Unlike di
 Several techniques exist to construct a \ac{MAC}. One is \textbf{\ac{CBC-MAC}}, which utilizes the \ac{CBC} block cipher to encrypt data. A chain of blocks is generated, and the last block is the tag.
 \ac{CBC-MAC} also has similar caveats to \ac{CBC}, it is only secure for fixed-length messages \cite{aesmodes} and different keys have to be used for \ac{CBC} encryption and tag generation.
 
-\textbf{\ac{HMAC}} is different from the previous algorithms, it uses a cryptographic hash function, such as SHA-2, and a symmetric secret key to construct a tag. \ac{HMAC} is secure, as long as the underlying hash function used is secure. Therefore SHA-2 is a good option.
+\textbf{\ac{HMAC}} is different, it uses a cryptographic hash function, such as SHA-2, and a symmetric secret key to construct a tag. \ac{HMAC} is secure, as long as the underlying hash function used is secure. Therefore SHA-2 is a good option.
 \ac{HMAC} does not have the security problems of \ac{CBC-MAC}. It is a popular and well-designed construction, but it is not the most efficient approach~\cite{aesmodes}.
 % \ac{CBC-MAC} security deficiencies were resolved with \ac{OMAC}, which is secure for variable-length messages.
 %Despite \ac{CBC}'s inefficiencies, \ac{HMAC} is slower due to the hashing operations.
@@ -96,25 +73,23 @@ Several techniques exist to construct a \ac{MAC}. One is \textbf{\ac{CBC-MAC}}, 
 \subsection{Authenticated Encryption}\label{chap:background:crypto:aead}
 
 \ac{AEAD} schemes assure confidentiality and authenticity using symmetric keys. They may be more efficient than combining separate encryption and authentication techniques, such as the ones discussed in earlier sections, and are less likely to be used incorrectly. \ac{AEAD} schemes also allow associated data to be included in the message, which is authenticated but not encrypted. This feature is useful for network packets. The header is visible but is authenticated, while the payload is encrypted and authenticated. 
-\ac{AES} has several of these schemes. \textbf{\ac{CCM}} is an \ac{AEAD} mode that combines \ac{CBC-MAC} for authentication with \ac{CTR} for confidentiality.
+\ac{AES} has several of these schemes. 
+
+\textbf{\ac{CCM}} is an \ac{AEAD} mode that combines \ac{CBC-MAC} for authentication with \ac{CTR} for confidentiality.
 \ac{CCM} uses a MAC-then-Encrypt approach. First, the \ac{MAC} is computed from the message. Then the message and the tag are encrypted with \ac{CTR} mode.
 Due to performing two encryption operations, \ac{CBC-MAC} and then \ac{CTR}, the mode is not as efficient compared to others such as \ac{GCM}, which only performs one encryption operation.
-It is not an online mode, meaning it needs to know the message and \ac{AD} length beforehand. Therefore, \ac{AD} cannot be preprocessed. %It is only considered secure for fixed-length messages.
+It is not an online mode, meaning it needs to know the message and \ac{AD} length beforehand. Therefore, \ac{AD} cannot be preprocessed. 
 Despite being a slower mode, it is secure and widely supported. It is included in \ac{IPsec}, \ac{TLS} and Bluetooth low energy.
+
 \textbf{\ac{GCM}} utilizes an encrypt-then-MAC approach. It first encrypts with \ac{CTR} mode, then uses Galois mode of authentication to generate the tag. The Galois field multiplication supports parallel computation, making this mode faster than \ac{CCM}.
 Beyond being parallelizable, it is online and the \ac{AD} can be preprocessed.
-For security reasons, authentication tags should be at least 96 bits, even though the mode allows smaller tags. One limitation of \ac{GCM} is, it can encrypt a maximum of 64GiB of plaintext. Security analysis of several modes, decisively states that \ac{GCM} in hardware is unsurpassed by any authenticated-encryption scheme~\cite{aesmodes}.
-% Beyond being parallelizable, it has the advantages \ac{EAX} has over \ac{CCM}. It is online and the \ac{AD} can be preprocessed.
-
-% \ac{EAX} mode aims to improve on \ac{CCM} by replacing \ac{CBC-MAC} with \ac{OMAC}. Similarly to \ac{CCM}, it first generates the authentication tag with \ac{OMAC}, then encrypts with \ac{CTR}.
-% By using \ac{OMAC} instead of \ac{CBC-MAC}, it supports variable-length messages and is online.
-
+For security reasons, authentication tags should be at least 96 bits, even though the mode allows smaller tags. One limitation of \ac{GCM} is, it can encrypt a maximum of 64 gigabytes of plaintext. Security analysis of several modes decisively states that \ac{GCM} in hardware is unsurpassed by any authenticated-encryption scheme~\cite{aesmodes}.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \subsection{Asymmetric Encryption}\label{chap:background:crypto:assymetric}
 
-Asymmetric cryptography utilizes a pair of keys, a public and private key. It is commonly used to provide confidentiality, data integrity, authentication and non-repudiation.
-The private key must always remain secure with the owner. Public keys may be distributed. Encrypting a message with the public key provides confidentiality, since only the owner who possesses the private key can decipher the message. On the other hand, private key encryption provides authentication, since only the owner is in possession of the private key. These two different concepts can be combined to provide confidentiality, authentication and non-repudiation, through digital signatures, to a message.
+Asymmetric cryptography uses public and private keys. It is commonly used to provide confidentiality, data integrity, authentication and non-repudiation.
+The private key must always remain secure with the owner. Public keys may be distributed. Encrypting a message with the public key provides confidentiality, since only the owner who possesses the private key can decipher the message. On the other hand, private key encryption provides authentication, since only the owner is in possession of the private key. These two different concepts can be combined to provide confidentiality, authentication and non-repudiation to a message, through digital signatures.
 
 Compared to symmetric keys, asymmetric keys are less risky to distribute, as the public key can be viewed by anyone. However, there is the problem of validating public keys, which consists of guaranteeing a public key is owned by the correct identity.
 Once two parties have traded public keys, asymmetric and symmetric keys can be combined in a hybrid encryption scheme. It takes advantage of the faster symmetric encryption to cipher the data, and the asymmetric encryption to encrypt the symmetric key, and provide authentication. Alternatively, it can be used to share symmetric keys for usage with an authenticated-encryption scheme.
@@ -128,96 +103,91 @@ With the threat of quantum computers, both \ac{ECC} and \ac{RSA} could become ob
 %They also state that smaller key sizes may result in faster execution timings for the schemes, which is beneficial to systems where real time performance is a critical factor.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\subsection{Elliptic-curve Diffie-Hellman}\label{chap:background:crypto:ecdh}
+\subsection{Diffie-Hellman}\label{chap:background:crypto:ecdh}
 
 The \ac{DH} key exchange algorithm allows two parties to agree on a shared secret, which can be used to derive a symmetric key. Both parties compute the secret from publicly exchanged integers, and private integers. Attackers listening on the exchanged public integers cannot compute the same secret, since both sides' private integers are never shared.
+
 \ac{ECDH} key exchange is similar, it computes the shared secret from \ac{ECC} private and public keys, instead of integers. Incorporating \ac{ECC} keys provides the same level of security compared with integers, but with a smaller bit size ~\cite{fiskiran2002workload}.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \subsection{Digital Signatures}\label{chap:background:crypto:signatures}
 
 Signatures are a standard scheme for authenticating digital messages and ensuring the signer cannot repudiate the signature. A digital signature is generated by combining asymmetric cryptography and a hash function.
-A digital signature is generated by first computing a hash of the message, then signing the hash with the author's private key. The message is not directly signed, since public-key encryption is slow and messages are most likely bigger than the hash of a message, which is a fixed size. Third parties can validate the signature using the author's public key. Only the author, in possession of their private key, could have generated the signature.
+A digital signature is generated by first computing a hash of the message, then signing the hash with the author's private key. The message is not directly signed, since public-key encryption is slow and messages are most likely bigger than the hash of a message, which has a fixed size. Third parties can validate the signature using the author's public key. Only the author, in possession of their private key, could have generated the signature.
 Digital signatures are a digital version of handwritten signatures~\cite{digitalsignatures}, commonly used anywhere forgery detection is essential, for instance in financial transactions or software distribution.
 A popular digital signatures algorithm with ECC keys is \ac{ECDSA}.
 
 Qualified signatures are a special type of signatures where the private keys are generated and stored inside a device, such as a Smart Card, and are never exposed to the outside. For the owner to sign a document, the Smart Card is needed (something owned) and a \ac{PIN} (something known). This strong signature legally represents a person or a group. This type of signatures are used in the Portuguese Citizen Card.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\subsection{Transport Layer Security}\label{chap:background:crypto:tls}
+\subsection{Transport Layer Security}\label{chap:background:TLS}
 
 \ac{TLS} is a cryptographic protocol that aims to provide confidentiality and data integrity, during transmission, over the \ac{TCP}. It uses symmetric cryptography to encrypt data. A new set of symmetric keys is generated for each connection.
 TLS supports asymmetric cryptography which authenticates the identity of the communicating parties.
 TLS is widely used in web browsing, e-mail and instant messaging.
-The protocol can provide perfect forward secrecy, unlike PGP, assuring any past connections are secure, if in the future encryption keys are disclosed.
+The protocol can provide perfect forward secrecy, assuring any past connections are secure, if in the future encryption keys are compromised.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \subsection{Public Key Infrastructure}\label{chap:background:PKI}
 
-Asymmetric cryptographic needs a secure mechanism to validate public keys, achieved by guaranteeing a public key is owned by a certain identity.
-A \ac{PKI} is a central database of public-key certificates. It is responsible for managing, distributing, storing and revoking digital certificates. Digital certificates map public keys to identities, and are used to verify that a specific public key belongs to a certain identity.
-A \ac{PKI} has several components e.g.\ a registration authority, a certification authority and a central database of stored keys.
-A user can submit other entities' public keys. Entities that trust the user responsible for the submission, can use the public keys.
+Asymmetric cryptography needs a secure mechanism to validate public keys, achieved by guaranteeing a public key is owned by a certain identity.
+A \ac{PKI} is a central database of public-key certificates. It is responsible for managing, distributing, storing and revoking digital certificates. Digital certificates map public keys to identities, and are used to verify that a specific public key belongs to a given identity.
+A \ac{PKI} has several components, e.g., a registration authority, a certification authority and a central database of stored keys.
+A user can submit other entities' public keys. Entities that trust the user responsible for the submission can use the public keys.
 There are alternative approaches to \ac{PKI}, such as a web of trust. This mechanism uses self-signed certificates and third parties attest these certificates. This approach is implemented in \ac{PGP}~\cite{modelingPKI}.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\subsection{Transport Layer Security}\label{chap:background:TLS}
-
-\textbf{\ac{TLS}} is a cryptographic protocol that aims to provide confidentiality and data integrity, during transmission, over TCP/IP \cite{rescorla2018transport}. It uses symmetric cryptography to encrypt data. A new symmetric key is generated for each connection.
-\ac{TLS} supports asymmetric cryptography which authenticates the identity of the communicating parties.
-\ac{TLS} is widely used in web browsing, e-mail and instant messaging.
-The protocol can provide perfect forward secrecy, unlike \ac{PGP}, assuring any past connections are secure, if in the future encryption keys are disclosed.
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% \subsection{Secure Cryptoprocessors}  \label{processors}
-% \section{Other Important Concepts}\label{chap:background:other}
-
-% There are some important concepts to consider involving cryptography and secure cryptoprocessors.
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \subsection{Random Number Generators}
+
 A \ac{TRNG} can generate a sequence of numbers that cannot be predicted. Generating random numbers is a common and critical requirement for most cryptographic algorithms. Pseudo-random number generators are frequent in software approaches and are not truly random. They depend on an algorithm and initial conditions (seed) to generate random numbers. If the seed is known, the numbers are predictable.
 \ac{TRNG} are hardware devices that generate numbers from unpredictable physical conditions. For this reason, \ac{TRNG}s are perfect for use in cryptography and secure cryptoprocessors.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \subsection{Public-Key Cryptography Standards \#11}
 \ac{PKCS} \#11 are a group of cryptographic standards, published by RSA Laboratories, which describe guidelines to manipulate common cryptographic objects.
-The standards defines an \ac{API} designed to interface between applications and cryptographic devices, such as smart cards and hardware security modules~\cite{pkcs11analysis}. 
+The standards define an \ac{API} designed to interface between applications and cryptographic devices, such as smart cards or \ac{HSM}~\cite{pkcs11analysis}. 
 Applications can use, create and modify objects, without exposing them to the application's memory.
 The standard has been widely used, promoting interoperability between devices. By using the same standard, devices can take advantage of another's \ac{API}.
-Applications can access cryptographic devices through slots. The slots represent a socket or device reader. A session can be established through a slot, which represents a socket or device reader. The application can authenticate itself to a token with a default \ac{PIN}. The token holds private and public objects which can be keys, certificates among others objects, and can be accessed by the application.
-% Only public objects are available to an unauthenticated session. The normal user has access to both private and public objects but cannot change the authentication \ac{PIN}s. The privileged user can change both his and the normal user's \ac{PIN}.
-% An attack scenario is possible if the host machine is compromised, an attacker can intercept the \ac{PIN}, which he can use to access the cryptographic device.
+Applications can access cryptographic devices through slots. The slots represent a socket or device reader. A session can be established through a slot, which represents a socket or device reader. The application can authenticate itself to a token with a default \ac{PIN}. The token holds private and public objects, which can be keys or certificates, among others objects, and can be accessed by the application.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Secure Cryptoprocessors}\label{chap:background:cryptoprocessors}
 
-In this section we discuss some computing systems that may be pertinent to this work. 
-Secure cryptoprocessors are dedicated physical computational devices for performing cryptographic operations. Among them, Smart Cards and Hardware Security Modules will be discussed next. Then, the SmartFusion2 \ac{SoC} board is presented.
+In this section we discuss some computing systems that are relevant to this work. 
+Secure cryptoprocessors are dedicated physical computational devices for performing operations, such as cryptography. Among them, Smart Cards and \ac{HSM}, which are frequently used to offer cryptography services, will be discussed next. Then, the SmartFusion2 \ac{SoC} board is presented.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \subsection{Hardware Security Modules}\label{chap:background:computing:hsm}
 
-A \ac{HSM} is a high grade computational device, responsible for storage, management and generation of cryptographic keys, as well as cryptographic operations. Keys never leave the device and all operations are performed inside the \ac{HSM}. These devices have physical security mechanisms to achieve tamper-resistance, random number generators, support several cryptographic algorithms and have fail-safe mechanisms in place, in case of an attack, e.g., deletion of keys. Some devices have accelerated \ac{CPU} optimizations to improve the performance of operations.
-These modules are usually costlier than other computational systems but are more advanced in processing power and available services.
+A \ac{HSM} is a high grade computational device, responsible for storage, management, generation of cryptographic keys, and cryptographic operations. Keys never leave the device and all operations are performed inside the \ac{HSM}. These devices have physical security mechanisms to achieve tamper-resistance, random number generators, support several cryptographic algorithms and have fail-safe mechanisms in place, in case of an attack, e.g., deletion of keys. Some devices have \ac{CPU} optimizations to improve the performance of operations.
+These modules are much costlier than other computational systems but are more powerful in processing power and available services.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \subsection{Smart Cards}\label{chap:background:computing:smartcards}
-Smart Cards are a type of \ac{HSM}, credit card-sized with an embedded microchip and provide secure, tamper-resistant storage. These devices have a low price for manufacturing, which allows for bulk production and easy replacement if needed. They have a low processing power, and small memory which allows storage of a small amount of data. To be authenticated, the cards need either contact or contactless readers. These characteristics make them extremely popular, used in many industries, such as retail, healthcare, communication and government.
+
+Smart Cards are a type of \ac{HSM}, credit card-sized with an embedded microchip and provide secure, tamper-resistant storage. These devices have a low price for manufacturing, which allows for bulk production and easy replacement if needed. They have a low computing power, and small memory which allows storage of a small amount of data. To be used, the cards need either contact or contactless readers. These characteristics make them extremely popular, used in many industries, such as retail, healthcare, communication and government.
 
 % descrever smartfusion, caracteristicas, o que suporta, etc.
-\subsection{Field-Programmable Gate Array System-on-Chip}\label{chap:background:computing:smartfusion}
+\subsection{Field-Programmable Gate Array System-on-Chip}\label{chap:background:computing:fpga}
+
 A \ac{FPGA} is an integrated circuit designed to be programmed and configured after manufacturing. \ac{FPGA}s are often used to prototype and for highly specialized systems produced at low scale. One of the major advantages is their agility and flexibility to be customized for special use cases~\cite{cyberphysicalsystems}. However, the reconfigurability may introduce certain weaknesses to the system. Its bitstream is vulnerable to cloning, if no additional protection is applied. The configuration data of these devices is stored in non-volatile memory and may be directly copied if no authentication mechanism is implemented~\cite{drimer2007authentication}.
 
-FPGA is composed of an array of electrically programmable logic blocks. FPGAs can provide a cheaper and faster solution compared to other circuits \cite{farooq2012fpga}. These devices can be partially reconfigured while the rest is still running, which is great for production systems. On the other hand, they can be larger and slower than other circuits. 
-Despite this, FPGAs are a good option due to less time-to-market and lower cost. They have been used in systems targeting different areas: multimedia, networking, control and bioinformatics \cite{dorta2009overview}.
+FPGA is composed of an array of electrically programmable logic blocks. FPGAs can provide a cheaper and faster solution compared to other circuits \cite{farooq2012fpga}. These devices can be partially reconfigured while the rest is still running, which is great for production systems. FPGAs are a good option due to less time-to-market and lower cost. They have been used in systems targeting different areas: multimedia, networking, control and bioinformatics \cite{dorta2009overview}.
+This type of devices have also been used for implementing of cryptography algorithms, e.g., AES and ECC \cite{wolf2011design}.
 %Despite this, FPGAs are a good options due to their less time to market and low volume cost.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \subsection*{Smartfusion2 SoC}\label{chap:background:computing:smartfusion}
 
-The SmartFusion2 \ac{SoC} integrates a non-volatile \ac{FPGA} with a \ac{SoC} and an internal \ac{NVM} of 512 KB, for storing boot code.
+The SmartFusion2 \ac{SoC}, illustrated in Figure \ref{fig:smartfusion2}, integrates a non-volatile \ac{FPGA} with a \ac{SoC} and an internal \ac{NVM} of 512 KB, for storing boot code.
 It has a \ac{SRAM} with 64 KB protected against \ac{SEU} or 80 KB unprotected. The board has an embedded ARM Cortex-M3 processor and a \ac{TRNG}, which provides a quality source of entropy, a critical part of most cryptographic algorithms. It supports multiple cryptographic functions: \ac{AES}, \ac{SHA}-256, \ac{HMAC} and \ac{ECC}, among others.
+
+\begin{figure}[h!]
+    \centering
+    \includegraphics[width=1\textwidth]{./Images/Microsemi_Smartfusion2_BD.png}
+    \caption{SmartFusion2 SoC FPGA Components}
+    \label{fig:smartfusion2}
+\end{figure}
 
 The \ac{AES} system service supports encryption with 128 bit and 256 bit keys, with the following modes: ECB, CBC, OFB and CTR.
 It provides a \ac{SHA}-256 hashing service, and a \ac{HMAC} service using the same hashing function.
@@ -259,22 +229,22 @@ Texas Instruments Sitara processors allow the customer to specify a public key a
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{State of the Art}\label{chap:background:art}
 
-In general, \ac{HSM} have applied in several contexts, to exploit their cryptographic services, secure storage and physical tamper protections.
+In general, \ac{HSM} have been applied in several contexts, to exploit their cryptographic services, secure storage and physical tamper protections.
 
 Lesjak et al. \cite{iothardware} developed a system to secure remote snapshot acquisition, between the vendor and customers, by attaching a HSM to the products distributed among customers. 
 The messages are protected with the authenticated-encryption scheme \ac{AES}-\ac{GCM} and a TLS connection.
-The Infineon security controller stores the TLS keys, and protects the data with the authenticated-encryption scheme, using its TRNG and a \ac{DH} based algorithm, for key establishment with ECC keys. The controller has protections against side-channel attacks such as \ac{DPA} and physical manipulation.
+The Infineon security controller stores the TLS keys, and protects the data with the authenticated-encryption scheme, using its TRNG and a \ac{DH} based algorithm for key establishment with ECC keys. The controller has protections against side-channel attacks such as \ac{DPA} and physical manipulation.
 
 Seol et al. \cite{trustediaashsm} proposed a system to isolate critical operations and sensitive data from cloud administrators, by implementing a \ac{HSM} next to a virtual machine.
 
-Wolf et al. \cite{wolf2011design} implemented a HSM on a 663€ Xilinx Virtex-5 FPGA, to secure network communications in vehicles. The authors implemented several cryptographic algorithms on the FPGA, e.g., AES-128 bit and ECC point-multiplication with a 256 bit curve. The board was connected to a microcontroller running linux, with additional algorithms available from a cryptographic library.
+Wolf et al. \cite{wolf2011design} implemented a HSM on a 663€ Xilinx Virtex-5 FPGA to secure network communications in vehicles. The authors implemented several cryptographic algorithms on the FPGA, e.g., AES-128 bit and ECC point-multiplication with a 256 bit curve. The board was connected to a microcontroller running linux, with additional algorithms available from a cryptographic library.
 
 An IBM 4764 PCI-X cryptographic coprocessor has been used to store and manage symmetric keys, which encrypt biomedical data \cite{canim2011biomedical}. The symmetric keys, which encrypt the database, are transferred to the device using public-key cryptography. All database queries are performed by the coprocessor, since only it has the keys. The system uses AES with 128 bit encryption. Notably, the device has physical measures which ensure the keys are not leaked and the data is erased upon any attack.
 
 Wherry \cite{wherry2003secure} recognizes the need for a HSM PKIs to protect the cryptographic keys.
-Lorch et al. \cite{lorch2004hardware} uses an IBM 4758 cryptographic coprocessor to protect keys in a secure online repository for PKIs. The author's were able to store more than 800 2048-bit RSA key pairs on the device's secure storage. The PKI system interfaces with the HSM using a PKCS\#11 interface. Keys are generated in the coprocessor and the private key is never extracted. The RSA implementation is used to sign certificates, while the public key can be extracted to the application. A PIN is necessary to access the coprocessor.
+Lorch et al. \cite{lorch2004hardware} uses an IBM 4758 cryptographic coprocessor to protect keys in a secure online repository for PKIs. The authors were able to store more than 800 2048-bit RSA key pairs on the device's secure storage. The PKI system interfaces with the HSM using a PKCS\#11 interface. Keys are generated in the coprocessor and the private key is never extracted. The RSA implementation is used to sign certificates, while the public key can be extracted to the application. A PIN is necessary to access the coprocessor.
 
-Beyond actual systems, several protocols and HSM applications have been proposed.
+Several protocols and HSM applications have also been proposed.
 Rössler et al. \cite{rossler2005voting} applied a HSM to an e-voting electronic ballot box. The HSM is used for decrypting and verifying the signature of cast votes.
 The votes decryption is done solely inside the electronic ballot box during the counting process.
 Voters sign their ballot using a smart card, e.g., their citizen card.
@@ -290,10 +260,10 @@ private keys inside the HSM. The hardware was projected to be tamper proof using
 The OpenSSL library and SQLite database were used to provide smart card support, data storage, secret sharing and X509v3 certificates.
 
 % -------------------------
-Apart from developed systems, several market HSMs have been studied.
+Several HSMs on the market have been studied.
 Kehret et al. \cite{tlsintegration} studied two devices. VaultIC460, a secure microcontroller manufactured by Inside Secure with a RISC CPU. It includes a varied offering of cryptographic algorithms, such as, AES encryption, public-key cryptography with RSA and ECC, MAC, SHA, SSL support, as well as a random number generator. Additionally it includes several authentication mechanisms for users, to secure the connection between the application and device.
 It includes 112 KB of tamper resistant memory for key storage.
-ATECC508A from microsemi is a small security controller with the asymmetric key algorithms: ECDSA and ECDH, along with SHA, a TRNG and storage of up to sixteen 256 bit keys.
+ATECC508A from Microsemi is a small security controller with the asymmetric key algorithms: ECDSA and ECDH, along with SHA, a TRNG and storage of up to sixteen 256 bit keys.
 This type of controllers, in general, are not suitable for this work. They are very limited, with no symmetric key algorithms, preventing encryption of large amounts of data. They are designed to be added to Internet of Things devices.
 
 The survey \cite{ivarsson2010review} studies the features of four \ac{HSM} on the market, Keyper v2 by AEP, nShield Connect 6000 by Thales, Safenet Luna and Utimaco CryptoServer.
@@ -302,7 +272,7 @@ All devices have tamper resistant storage, a \ac{TRNG}, as well as a varied rang
 ECDSA and ECDH are supported by the devices from Safenet and Utimaco.
 All devices provide a PKCS\#11 interface implementation for all cryptography services. The provided API can be used to build an application adapted to each user's requirements. The PKCS\#11 implementation does not output any unencrypted sensitive information, such as keys.
 
-Market \ac{HSM} go from 650€ up to \$39,000 \cite{HSMpriceArticles}, \cite{HSMPresentationPrices}.
+HSMs on the market go from 650€ up to \$39,000 \cite{HSMpriceArticles}, \cite{HSMPresentationPrices}.
 One of the smallest and cheapest devices, the YubiHSM 2 by Yubico \cite{YubiHSM2}, is a \ac{USB} sized device for 650€. It supports several SHA algorithms, RSA, the asymmetric key ECC algorithms: ECDSA and ECDH, with multiple curves, a \ac{TRNG} and the \ac{AES}-\ac{CCM} authenticated encryption algorithm.
 It provides a PKCS\#11 implementation, 128KB of tamper resistant storage for keys, and an authenticated and encrypted connection, between the PKCS\#11 API calls and the device.
 For comparison, a M2S090TS SmartFusion2 evaluation kit is priced at 384 € \cite{smartfusionPrice}.

@@ -16,7 +16,7 @@ It covers the implementation details, namely the standards and libraries, the de
 
 The device's implementation is running on the SoC of a SmartFusion2 board, version M2S090TS from Microsemi, presented in Section \ref{chap:background:computing:smartfusion}.
 The application was implemented using the C programming language, with the SoftConsole version 3.4 \ac{IDE} provided by Microsemi. The board was configured using Libero version 12.2.
-The device functions as a HSM, connected through a serial connection to a computer. It was programmed using the external FlashPro4 programmer, required to develop and debug embedded applications with the SoftConsole IDE \cite{smartfusionSecurityPractices}.
+The device functions as a HSM, connected through a serial connection to a computer. This connection is only for prototyping, the board also has a much faster USB connection. It was programmed using the external FlashPro4 programmer, required to develop and debug embedded applications with the SoftConsole IDE \cite{smartfusionSecurityPractices}.
 
 A common developer interface, to access the device's services, was implemented using the PKCS\#11 standard, in order to standardize the accessibility of its services to other systems. The developed user application has a simple \ac{CLI} interface, which invokes the PKCS\#11 functions.
 Both the software and the API were implemented in C/C++, for the open source MinGW compiler for Windows 10.
@@ -36,13 +36,12 @@ By default, the device's \ac{RAM} has 64 KB for running code. For each byte of t
 
 Entities must be authenticated before they can access the device's services. The login operation authenticates the user, using an eight digit PIN.
 There is only a single PIN to authenticate the entity. The individual users are not authenticated.
-The PIN is stored in the secure storage of the internal device. The available secure storage and management solutions which can be used to store the number are discussed in a section ahead.
-Once the user is authenticated, the PIN can be altered by changing the existing value.
+The PIN is stored in the secure storage of the internal device. The available secure storage and management solutions which can be used to store the number are discussed ahead.
 
 \subsection{Secure Communications}\label{chap:implementation:services:secure}
 
 The goal of this service is to provide authentication and confidentiality to the data being exchanged, between entities with these devices, using internal keys.
-In order to provide these services, a protocol was previously defined in Section \ref{chap:arch:services:data-exchange}, which combines a symmetric encryption and authentication scheme. The algorithms are combined with an encrypt-then-MAC approach, meaning the plaintext is encrypted first, then authenticated.
+In order to provide these services, a protocol was previously presented in Section \ref{chap:arch:services:data-exchange}, which combines a symmetric encryption and authentication scheme. The algorithms are combined with an encrypt-then-MAC approach, meaning the plaintext is encrypted first, then authenticated.
 
 The SmartFusion2 SoC supports the type of algorithms needed for this protocol.
 For symmetric key authentication, the board supports HMAC with the SHA-256 hash function, which uses a 256 bit symmetric key, to generate a 256 bit code. As discussed in Section \ref{chap:background:crypto:mac}, it is a well-designed construction, even though it is not the most efficient.
@@ -59,7 +58,7 @@ Initially, two buffers of 18 KB each were used, one for the input data and one f
 Therefore, with this protocol implementation, the system is limited to securing 36 KB of plaintext.
 In order to improve this, a continuous cipher and authentication implementation is needed. The data would not be received in full, but instead, the data would be divided in chunks, which are received by the device, computed and returned to the user, one after the other. However, the board is not capable of continuous operations using the provided AES and HMAC implementations.
 
-To overcome this limitation, the characteristics of the AES CBC mode can be taken advantage of, as pictured in Figure \ref{fig:protocol:cbc-chunks}. 
+To overcome this limitation, the characteristics of the AES CBC mode can be used, as illustrated in Figure \ref{fig:protocol:cbc-chunks}. 
 \begin{figure}[h!]
 	\centering
 	\includegraphics[width=0.75\textwidth]{./Images/cbc-chunks.png}
@@ -90,7 +89,7 @@ The downside of this approach is the device does not know the amount of data it 
 
 The reverse operation for authentication and decryption of data is exactly the same. The only difference is in the operation code value, so the device knows what operation to perform.
 
-As previously introduced, the board's AES implementation is not resistant to side-channel attacks, such as DPA. This means attackers with physical access to the device can potentially read and compromise the keys stored internally. In order to mitigate this and build a more robust system, a 128 bit AES core implemented in the board's FPGA, resistant to side-channel attacks, was also tested with this service.
+As previously introduced, the board's AES implementation is not resistant to side-channel attacks, such as DPA. This means attackers with physical access to the device can potentially read and compromise the keys stored internally. In order to mitigate this and build a more robust system, a 128 bit AES core implemented in the board's FPGA, resistant to side-channel attacks, was also tested with this service. The performance of the FPGA and SoC AES cores are analysed in the next chapter.
 
 % -----------------
 \subsection{Key Management}\label{chap:implementation:services:key-import}
@@ -114,7 +113,7 @@ The ciphertext of the keys is stored in memory, along with the IV used for encry
 Both pieces of information are authenticated by generating a MAC, which is stored in another dedicated PUF slot.
 With this solution, a key can be accessed by generating the MAC of the stored data and comparing it to the one stored in the PUF slot. If they match, the keys are authenticated, and can be decrypted with the IV and dedicated PUF key.
 
-While this solution still uses the PUF service, its usage is more measured. By using the PUF service, when one key is stored one slot is written to.
+While this solution still uses the PUF service, its usage is less frequent. By using the PUF service, when one key is stored one slot is written to.
 In the case of the implemented solution, for each change of the key list stored in memory, only the MAC slot is written to.
 If keys are added one at a time, the amount of PUF slots written per key is identical for both options. However, multiple keys can be updated at once, if for example a list of keys is imported. In this case, multiple keys can be added or updated, with only one write to a PUF slot.
 
@@ -157,14 +156,14 @@ The SmartFusion2 SoC provides ECC key support which can be used to generate sign
 
 In general, the ECDSA algorithm is composed of two types of operations. ECC operations, e.g., scalar multiplication and point addition, which are supported by the board. The other is large numbers operations, such as modular multiplications and divisions. These operations are not supported by the board, a big numbers library is necessary. In case of the supported P-384 curve, the library should support operations between 48 byte numbers. 
 
-Thus, a big numbers library was included in the system \cite{libecc}. The library was stripped of all unnecessary code and headers, keeping the necessary big integer operations. The ECC primitives and true random number generator were included in the library code. Digital signature generation was implemented, without verification. The library takes up around 54 KB of RAM space. Thus, this functionality only works with a limited buffer size of around 1.5 KB, if all other implemented services are disabled.
+Thus, a big numbers library was included in the system \cite{libecc}. The library was stripped of all unnecessary code and headers, keeping the necessary big integer operations. The ECC primitives and true random number generator were included in the library code. Digital signature generation was implemented, without verification. The library takes up around 54 KB of RAM space, with all other services disabled.
 This is an extremely limited use case, and less than ideal. Future work should revise this functionality, by evaluating existing lightweight libraries, which provide the necessary features, or even a custom implementation.
 
 % -----------------
 \subsection{Tamper Detection}\label{chap:implementation:services:tamper-detection}
 
 An important part of a HSM based system is its physical protection measures against tampering and attacks.
-In order to defend the system against physical threats, the tamper detection, zeroization and secure boot functionalities of the SmartFusion2 SoC were taken advantage of.
+In order to defend the system against physical threats, the tamper detection, zeroization and secure boot functionalities of the SmartFusion2 SoC were utilized.
 
 Tamper attacks and possible attempts can be detected by the board. When these events occur, flags are asynchronously set, which warn the user from potential anomalies, errors and attacks. With this information, measures, such as zeroization, can be taken to protect the system.
 Zeroization is a process which erases all sensitive information from the device. This process can place the device in three possible states. It can be rendered permanently unusable, reset to its initial state or recoverable only with a key file supplied by Microsemi.
@@ -172,21 +171,21 @@ Zeroization is a process which erases all sensitive information from the device.
 Another security measure of the SmartFusion2 board, is the computation of digests from the eNVM blocks and fabric configuration, which also holds the code. Every time the board is programmed or the configuration is changed, new digests are computed and stored in secure storage. On boot, the board computes the digests and compares them to the stored values. This allows the board to safeguard the integrity of its storage and configuration.
 
 When the tamper attacks are flagged in the implemented system, the device does not accept any more PKCS\#11 calls and zeroization is performed on the device, erasing all keys, configuration and data. Additionally, the secure boot checks are turned on.
-Zeroization was configured to reset the device to its initial state from fabric.
 The user also has the option to manually trigger zeroization, by pressing a button on the board.
 These measures can have a denial-of-service effect on the system, but are a trade-off deemed necessary, in order to avoid successful attacks and potential leaks of sensitive information.
+% Zeroization was configured to reset the device to its initial state from fabric.
 
 % -----------------------------------------------------
 \section{PKCS\#11 API}\label{chap:implementation:app:pkcs}
 
-In order to demonstrate the flexibility of the system, a PKCS\#11 API was developed to access the HSM services. Developers who wish to use this system for future work on a SmartFusion2 SoC, can call this API from the developed software.
-The PKCS\#11 implementation supports one token with one session.
+In order to demonstrate the flexibility of the system, a PKCS\#11 API was developed to access the HSM services. Developers who wish to use this system for future work on a SmartFusion2 SoC can call this API from the developed software.
 PKCS\#11 defines two types of users, the regular user and the security officer. The implementation does not make that distinction. Both types of user can login, and gain access to all other services.
 The full list of the implemented PKCS\#11 functions, their arguments and description are listed in Table \ref{tab:pkcs11-api}.
+% The PKCS\#11 implementation supports one token with one session.
 
 % -----------------------------------------------------
 % -----------------------------------------------------
 \section*{Summary}\label{chap:implementation:summary}
 
-This chapter presented a proof of concept implementation of a HSM application supported on a SmartFusion2 device, using its security services and accelerators. It specified the used libraries and tools, all implemented services motivation, details, advantages and drawbacks, as well as the developed PKCS\#11 API to access these services. The prototype focused on secure communications with authentication and confidentiality. It provided improvements on the architecture baseline set in Chapter \ref{chap:arch}, using the device's capabilities and benefiting from some software implementations. It also provided flexibility with a key management solution, using the board's secure storage efficiently, new key generation and qualified digital signatures using public-key cryptography features.
+This chapter presented a proof of concept HSM application supported on a SmartFusion2 device, using its security services and accelerators. It specified the used libraries and tools, all implemented services motivation, details, advantages and drawbacks, as well as the developed PKCS\#11 API to access these services. The prototype focused on secure communications with authentication and confidentiality. It provided improvements on the architecture baseline set in Chapter \ref{chap:arch}, using the device's capabilities and benefiting from software implementations. It also provided flexibility with a key management solution, using the board's secure storage efficiently, new key generation and qualified digital signatures using public-key cryptography features.
 The work also explored the device's drawbacks and provided possible ways to mitigate them. Lastly, it presented the available tamper detection options and zeroization features, with implementation examples.
