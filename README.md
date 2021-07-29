@@ -3,22 +3,28 @@
 Latex document of my thesis paper.
 Based on the template of Prof. Rui Cruz.
 
-## Details
+## Details - [Dissertation Link](https://fenix.tecnico.ulisboa.pt/cursos/meic-t/dissertacao/1409728525633150)
 
 Thesis to obtain the Master of Science Degree in __Information Systems and Computer Engineering__
 
-__Title__: Hardware-Secured System for Secure Communications and Message Exchange
+__Title__: Secure Message Exchange System based on a SmartFusion2 SoC and its Evaluation as a HSM
 
 __Author__: Alexandre Valente Rodrigues
 
-__Supervisor__: Prof. Ricardo Chaves
+__Supervisor__: Prof. Ricardo Jorge Fernandes Chaves
 
 __Date__: May 2021
 
-## PDF CI Compilation
+## [Demonstration](https://tecnico.ulisboa.pt/pt/noticias/tecnico-participa-em-projeto-de-desenvolvimento-de-redes-de-comunicacao-quanticas-para-a-defesa-europeia/)
 
-A github CI is available to compile the latex files in a docker container and return the pdf as an artefact.
-Alternatively it can locally compiled with docker. Clone the repository, and run `make` which by default compiles the pdf in a docker container with a ubuntu image with a full latex installation.
+The developed [implementation](https://github.com/LexVar/HSM_demo) uses a PKCS#11 interface to access the services of the HSM. It was demonstrated at the Estado-Maior-General das Forças Armadas (EMGFA) in Lisbon. [link](https://tecnico.ulisboa.pt/pt/noticias/tecnico-participa-em-projeto-de-desenvolvimento-de-redes-de-comunicacao-quanticas-para-a-defesa-europeia/)
+
+## Compilation
+
+A github CI is available to compile the latex files in a docker container and return the pdf as an artifact.
+Alternatively it can be locally compiled.
+1. If you the necessary latex packages just run `make pdf` to compile the pdf.
+2. Alternately it can be compiled with docker by running `make`.
 
 ## Template Documentation
 
